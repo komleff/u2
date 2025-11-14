@@ -1,0 +1,11 @@
+.DS_Store
+node_modules
+dist
+coverage
+*.tsbuildinfo
+vite.config.ts.timestamp-*
+package-lock.json.timestamp-*
+tmp/
+*.log
+.env.local
+.env.*

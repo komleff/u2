@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.node.json",
+  "compilerOptions": {
+    "types": ["vitest/globals", "vitest/importMeta"]
+  },
+  "include": ["tests", "src/**/*.spec.ts"]
+}
