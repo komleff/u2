@@ -12,6 +12,7 @@
 | **[u2-audit-report.md](u2-audit-report.md)** | 📊 Полный детальный аудит | 45-60 мин |
 | **[u2-action-plan.md](u2-action-plan.md)** | ✅ Практический план действий | 20-30 мин |
 | **[u2-risk-matrix.md](u2-risk-matrix.md)** | 🎯 Матрица рисков и KPI | 15-20 мин |
+| **[documentation-revision-report.md](documentation-revision-report.md)** | 📝 Отчет о ревизии документации v0.8.6 | 5-10 мин |
 
 ---
 
