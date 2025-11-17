@@ -1,11 +1,12 @@
 using Entitas;
+using Entitas.CodeGeneration.Attributes;
 
 namespace U2.Shared.ECS.Components;
 
 /// <summary>
 /// Control input state (-1 to 1)
 /// </summary>
-[Game]
+
 public sealed class ControlStateComponent : IComponent
 {
     public float Thrust;      // -1..1 (forward/reverse)

@@ -34,23 +34,8 @@ public class EcsBenchmarks
                 LinearAcceleration_mps2 = new LinearAcceleration 
                 { 
                     Forward = 80f, 
-                    Reverse = 60f,
-                    Left = 40f,
-                    Right = 40f,
-                    Up = 40f,
-                    Down = 40f
-                },
-                AngularAcceleration_radps2 = new AngularAcceleration { Yaw = 2.0f }
-            },
-            FlightAssistLimits = new FlightAssistLimits
-            {
-                LinearVelocity_mps = new LinearVelocityLimits 
-                { 
-                    Forward = 200f, 
-                    Reverse = 100f,
-                    Strafe = 100f
-                },
-                AngularVelocity_radps = new AngularVelocityLimits { Yaw = 1.5f }
+                    Reverse = 60f
+                }
             }
         };
 

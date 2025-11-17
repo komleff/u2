@@ -1,6 +1,8 @@
 using Entitas;
 using U2.Shared.ECS.Components;
-using U2.Shared.ECS.Systems;
+using SysPhysics = U2.Shared.ECS.Systems.PhysicsSystem;
+using SysFlightAssist = U2.Shared.ECS.Systems.FlightAssistSystem;
+using SysHeat = U2.Shared.ECS.Systems.HeatSystem;
 
 namespace U2.Shared.ECS;
 
@@ -10,7 +12,7 @@ namespace U2.Shared.ECS;
 public class GameWorld
 {
     private readonly GameContext _context;
-    private readonly Systems _systems;
+    private readonly Entitas.Systems _systems;
 
     public GameContext Context => _context;
 
@@ -20,13 +22,13 @@ public class GameWorld
         _systems = CreateSystems(_context);
     }
 
-    private Systems CreateSystems(GameContext context)
+    private Entitas.Systems CreateSystems(GameContext context)
     {
-        return new Systems()
+        return new Entitas.Systems()
             // Update order matters!
-            .Add(new FlightAssistSystem(context))  // Process inputs first
-            .Add(new PhysicsSystem(context))       // Then physics
-            .Add(new HeatSystem(context));         // Then heat management
+            .Add(new SysFlightAssist(context))  // Process inputs first
+            .Add(new SysPhysics(context))       // Then physics
+            .Add(new SysHeat(context));         // Then heat management
     }
 
     public void Initialize()

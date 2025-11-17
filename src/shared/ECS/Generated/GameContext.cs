@@ -14,19 +14,8 @@ public sealed class GameContext : Context<GameEntity>
             GameComponentsLookup.componentNames,
             GameComponentsLookup.componentTypes
         ),
-        SafeAERC.Create())
+        (entity) => SafeAERC.Create(),
+        () => new GameEntity())
     {
-    }
-
-    public GameEntity CreateEntity()
-    {
-        return CreateEntity(SafeAERC.Create());
-    }
-
-    private GameEntity CreateEntity(IAERC aerc)
-    {
-        var entity = new GameEntity();
-        entity.Initialize(GetComponentPools(), GetNextCreationIndex(), aerc);
-        return entity;
     }
 }
