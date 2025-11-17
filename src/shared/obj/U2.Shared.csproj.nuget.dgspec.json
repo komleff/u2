@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "D:\\GitHub\\u2\\src\\shared\\U2.Shared.csproj": {}
+    "/home/runner/work/u2/u2/src/shared/U2.Shared.csproj": {}
   },
   "projects": {
-    "D:\\GitHub\\u2\\src\\shared\\U2.Shared.csproj": {
+    "/home/runner/work/u2/u2/src/shared/U2.Shared.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\GitHub\\u2\\src\\shared\\U2.Shared.csproj",
+        "projectUniqueName": "/home/runner/work/u2/u2/src/shared/U2.Shared.csproj",
         "projectName": "U2.Shared",
-        "projectPath": "D:\\GitHub\\u2\\src\\shared\\U2.Shared.csproj",
-        "packagesPath": "C:\\Users\\komle\\.nuget\\packages\\",
-        "outputPath": "D:\\GitHub\\u2\\src\\shared\\obj\\",
+        "projectPath": "/home/runner/work/u2/u2/src/shared/U2.Shared.csproj",
+        "packagesPath": "/home/runner/.nuget/packages/",
+        "outputPath": "/home/runner/work/u2/u2/src/shared/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\komle\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "/home/runner/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -37,7 +37,8 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "10.0.100"
       },
       "frameworks": {
         "net8.0": {
@@ -88,7 +89,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.416/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/10.0.100/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
