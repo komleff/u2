@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package u2.shared.proto;
+
+// Vector2 message
+message Vector2Proto {
+  float x = 1;
+  float y = 2;
+}
+
+// Transform2D component
+message Transform2DProto {
+  Vector2Proto position = 1;
+  float rotation = 2;
+}
+
+// Velocity component
+message VelocityProto {
+  Vector2Proto linear = 1;
+  float angular = 2;
+}
+
+// Mass component
+message MassProto {
+  float mass_kg = 1;
+  float inertia_kgm2 = 2;
+}
+
+// Control state component
+message ControlStateProto {
+  float thrust = 1;
+  float strafe_x = 2;
+  float strafe_y = 3;
+  float yaw_input = 4;
+}
+
+// Flight assist component
+message FlightAssistProto {
+  bool enabled = 1;
+}
+
+// Health component
+message HealthProto {
+  float current_hp = 1;
+  float max_hp = 2;
+}
+
+// Entity snapshot (for network sync)
+message EntitySnapshotProto {
+  uint32 entity_id = 1;
+  Transform2DProto transform = 2;
+  VelocityProto velocity = 3;
+  ControlStateProto control_state = 4;
+  FlightAssistProto flight_assist = 5;
+  HealthProto health = 6;
+}
+
+// World snapshot (for network sync)
+message WorldSnapshotProto {
+  uint32 tick = 1;
+  uint64 timestamp_ms = 2;
+  repeated EntitySnapshotProto entities = 3;
+}
