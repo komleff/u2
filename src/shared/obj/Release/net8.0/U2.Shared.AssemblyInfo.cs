@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("U2.Shared")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cf96e8ab2d0be69c895abe0353a36becba539b92")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6c48016e38359710ed7177b7d5bd4136d04909a7")]
 [assembly: System.Reflection.AssemblyProductAttribute("U2.Shared")]
 [assembly: System.Reflection.AssemblyTitleAttribute("U2.Shared")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
