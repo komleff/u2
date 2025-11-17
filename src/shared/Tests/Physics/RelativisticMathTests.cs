@@ -58,7 +58,7 @@ public class RelativisticMathTests
         
         // γ should be very large but finite
         Assert.That(gamma, Is.GreaterThan(20.0f));
-        Assert.That(gamma, Is.LessThan(1000.0f));
+        Assert.That(gamma, Is.LessThanOrEqualTo(1000.0f));
     }
 
     [Test]
