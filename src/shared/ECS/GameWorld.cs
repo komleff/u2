@@ -1,6 +1,7 @@
 using Entitas;
 using U2.Shared.ECS.Components;
 using SysPhysics = U2.Shared.ECS.Systems.PhysicsSystem;
+using SysCollision = U2.Shared.ECS.Systems.CollisionSystem;
 using SysFlightAssist = U2.Shared.ECS.Systems.FlightAssistSystem;
 using SysHeat = U2.Shared.ECS.Systems.HeatSystem;
 
@@ -28,6 +29,7 @@ public class GameWorld
             // Update order matters!
             .Add(new SysFlightAssist(context))  // Process inputs first
             .Add(new SysPhysics(context, speedOfLight_mps, deltaTime))       // Then physics
+            .Add(new SysCollision(context))     // Then collision detection
             .Add(new SysHeat(context));         // Then heat management
     }
 
