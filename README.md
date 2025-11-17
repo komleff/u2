@@ -1,249 +1,138 @@
-# U2 FlightTest - Universe Unlimited
+# U2 Flight Test Sandbox (Universe Unlimited)
 
-![Version](https://img.shields.io/badge/version-0.5.0-blue.svg)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
+This repository contains a canvas‑based flight systems sandbox for the **Universe Unlimited (U2)** project.  
+It is used to prototype and validate flight modes, physics constraints, HUD concepts and related gameplay for versions around **U2 v0.8.x**.
 
-**Реалистичный 2D космический симулятор с релятивистской физикой и точными коллизиями**
-
-> 🚀 *Прототип v0.5: Стабильная летная модель и UX-петля для тестирования базовых механик*
-
-## 📋 О проекте
-
-U2 FlightTest - это инновационный 2D симулятор космического корабля с продвинутой физической моделью, включающей:
-- **Релятивистские эффекты** ("slow-light lite") с ослаблением ускорений
-- **Точные коллизии** пиксель-перфект с alpha-масками
-- **Режимы управления**: Coupled/Decoupled с интеллектуальным ассистентом
-- **Динамическую генерацию** астероидных полей и ориентиров
-
-Проект готовит базу для будущей PvE-версии с боёвкой, ИИ и экономической системой.
-
-## ✨ Особенности v0.5
-
-### 🎮 Управление и физика
-- **Режимы полета**: Coupled (выравнивание по вектору скорости) / Decoupled (полная свобода)
-- **Релятивистская физика**: ограничение скорости 0.999c' и ослабление ускорений (a/γ³, a/γ)
-- **Честная кинематика**: semi-implicit Euler интеграция с учетом массы и инерции
-- **Ассистенты**: Auto-brake, Random режим, интеллектуальное выравнивание
-
-### 🎯 Точные коллизии
-- **Многоуровневая система**: Coarse (AABB/круг) → Narrow (alpha-маска)
-- **Пиксель-перфект detection** с автоматическим фоллбеком
-- **Дебаг оверлей** с визуализацией коллизионных объемов
-- **Динамическое изменение** астероидов при столкновениях
-
-### 📊 Мониторинг и настройка
-- **Конфиг-драйв система**: все параметры через JSON без перекомпиляции
-- **Детальное логирование** с экспортом в CSV
-- **Адаптивный HUD** с телеметрией в реальном времени
-- **Мини-панель настроек** для тонкой настройки параметров
-
-## 🚀 Быстрый старт
-
-### Предварительные требования
-- Node.js 18+
-- Современный браузер с поддержкой Canvas2D
-- Для разработки: TypeScript 5.0+
-
-### Установка и запуск
-```bash
-# Клонирование репозитория
-git clone https://github.com/your-username/u2-flighttest.git
-cd u2-flighttest
-
-# Установка зависимостей
-npm install
-
-# Запуск development сервера
-npm run dev
-
-# Сборка для production
-npm run build
-
-# Запуск тестов
-npm test
-```
-
-### Базовое управление (ПК)
-| Действие | Клавиша |
-|----------|---------|
-| Тяга вперед/назад | W/S |
-| Стрэйф влево/вправо | A/D |
-| Поворот | Q/E |
-| Coupled/Decoupled | C |
-| Автотормоз | Space |
-| Random режим | R |
-| Переключение коллизий | F2 |
-| Показать/скрыть оверлей | F3 |
-| Экспорт логов | F12 |
-
-## 🎮 Мобильное управление
-
-**Схема Dual-stick (Coupled-friendly):**
-- **Левый стик**: вектор желаемой скорости
-- **Правый "квик-нос"**: временная подстройка ориентации
-- **Жесты**: удержание (700ms) → временный Decoupled, двойной тап → фиксатор Decoupled
-
-## 🏗️ Архитектура
-
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Input System  │ →  │  Physics Engine │ →  │  Render Engine  │
-│  - Keyboard     │    │  - SR Physics   │    │  - Canvas2D     │
-│  - Touch        │    │  - Collisions   │    │  - WebGL        │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-         ↑                       ↑                       ↑
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│  Config System  │    │  Entity System  │    │     HUD & UI    │
-│  - JSON Schema  │    │  - Ship         │    │  - Telemetry    │
-│  - Validation   │    │  - Asteroids    │    │  - Debug Overlay│
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-```
-
-## ⚙️ Конфигурация
-
-Основные параметры настраиваются через `config.json`:
-
-```json
-{
-  "world": {
-    "c_prime": 1000,
-    "tick_rate_hz": 60,
-    "bounds_rect": [10000, 10000]
-  },
-  "ship": {
-    "mass_kg": 10000,
-    "main_engine_thrust_max_N": 1100000,
-    "caps": {
-      "accel_cap_g": 10,
-      "turn_omega_max_radps": 2.0
-    }
-  },
-  "asteroids": {
-    "coverage_fraction": 0.01,
-    "density_kg_m3": 2700
-  }
-}
-```
-
-Полная спецификация конфигурации доступна в [документации](./docs/configuration.md).
-
-## 🧪 Тестирование
-
-### Тест-кейсы свободного полета
-- **FF1**: Переключение Coupled/Decoupled (0-900 м/с)
-- **FF2**: Тестирование коллизий (AABB/Alpha режимы)
-- **FF3**: Столкновения и разрушение астероидов
-- **FF4**: Restart и безопасный спавн
-- **FF5**: Верификация геометрии спрайтов
-
-### Запуск тестов
-```bash
-# Все тесты
-npm test
-
-# Только физические тесты
-npm run test:physics
-
-# Производительность
-npm run test:performance
-
-# Мобильное управление
-npm run test:mobile
-```
-
-## 📈 Производительность
-
-**Целевые показатели:**
-- ≥60 FPS при 1000×1000 км мире
-- 1-2k астероидов с coverage 1-2%
-- Загрузка спрайтов ≤50 мс
-- GC паузы <5% кадров
-
-## 🐛 Отладка и разработка
-
-### Дебаг функции
-- **F2**: Переключение режимов коллизий
-- **F3**: Визуализация коллизионных масок
-- **F12**: Экспорт CSV логов + скриншот
-- **Консоль**: Детальная телеметрия
-
-### Структура логов
-```
-t; x; y; vx; vy; |v|/c′; γ; ax; ay; |a|/g; θ; ω; mode
-```
-
-## 📁 Структура проекта
-
-```
-src/
-├── core/           # Ядро приложения
-├── physics/        # Физический движок
-├── rendering/      # Система рендеринга
-├── collision/      # Коллизии и маски
-├── input/          # Обработка ввода
-├── entities/       Игровые сущности
-├── config/         # Конфигурация
-├── utils/          # Вспомогательные утилиты
-└── types/          # TypeScript типы
-```
-
-## 🛠️ Разработка
-
-### Требования к окружению
-- Node.js 18+
-- TypeScript 5.0+
-- Modern browser with ES2022 support
-
-### Установка для разработки
-```bash
-git clone <repository-url>
-cd u2-flighttest
-npm install
-npm run dev
-```
-
-### Скрипты
-```bash
-npm run dev          # Development сервер
-npm run build        # Production сборка
-npm run test         # Запуск тестов
-npm run lint         # Проверка кода
-npm run type-check   # Проверка типов
-```
-
-## 🤝 Участие в разработке
-
-Мы приветствуем вклад в развитие проекта! Пожалуйста:
-
-1. Форкните репозиторий
-2. Создайте feature ветку (`git checkout -b feature/amazing-feature`)
-3. Закоммитьте изменения (`git commit -m 'Add amazing feature'`)
-4. Запушьте ветку (`git push origin feature/amazing-feature`)
-5. Откройте Pull Request
-
-### Руководство по код-стайлу
-- TypeScript с strict режимом
-- ESLint + Prettier конфигурация
-- Модульное тестирование для новых функций
-- Документация для публичных API
-
-## 📄 Лицензия
-
-Этот проект распространяется под лицензией MIT. Подробнее см. в файле [LICENSE](LICENSE).
-
-## 📞 Контакты и поддержка
-
-- **Issues**: [GitHub Issues](https://github.com/your-username/u2-flighttest/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-username/u2-flighttest/discussions)
-- **Документация**: [Wiki](https://github.com/your-username/u2-flighttest/wiki)
-
-## 🙏 Благодарности
-
-- Физическая модель вдохновлена работами о релятивистской ракетной динамике
-- Алгоритмы коллизий адаптированы из современных игровых движков
-- UI/UX дизайн следует принципам минимализма и функциональности
+- App name: `u2-flighttest`  
+- Runtime: browser (Vite + TypeScript)  
+- Docs root: `docs/` (see below)
 
 ---
 
-**U2 FlightTest v0.5** - База для следующего поколения космических симуляторов! 🚀
+## Project goals
+
+- Experiment with 2D representations of U2’s flight model (Coupled/Decoupled, FA:ON/OFF, g‑limits, etc.).
+- Provide a fast sandbox for tuning ship tech specs and combat formulas.
+- Serve as a living reference implementation for the design specs in `docs/specs`.
+
+Game‑design and technical specifications live in Markdown and are treated as first‑class artifacts.
+
+---
+
+## Getting started
+
+### Prerequisites
+
+- **Node.js ≥ 18**
+- **npm** (comes with Node)
+
+### Installation
+
+```bash
+npm install
+```
+
+### Development server
+
+```bash
+npm run dev
+```
+
+This runs Vite’s dev server. See the terminal output for the local URL (typically `http://localhost:5173/`).
+
+### Production build
+
+```bash
+npm run build
+```
+
+Build artifacts are emitted to `dist/`. You can preview the built app with:
+
+```bash
+npm run preview
+```
+
+---
+
+## Testing and quality
+
+### Linting
+
+```bash
+npm run lint
+```
+
+Runs ESLint on the TypeScript codebase with zero‑warning policy.
+
+### Unit tests
+
+```bash
+npm test         # single run
+npm run test:watch
+npm run coverage # with coverage report
+```
+
+Tests are implemented with **Vitest** and run in a jsdom environment where needed.
+
+---
+
+## Documentation
+
+All project documentation lives in the `docs/` directory.
+
+- High‑level docs overview: `docs/README.md`
+- Documentation index / navigation hub: `docs/INDEX.md`
+- Specs catalog: `docs/specs/README.md`
+
+Key areas:
+
+- **Game design (GDD):** `docs/gdd/`
+- **Specs (flight modes, architecture, tech stack, Definition of Fun, combat formulas):**  
+  - `docs/specs/spec_pilot_assist_coupled.md`  
+  - `docs/specs/spec_flight_decoupled.md`  
+  - `docs/specs/gameplay/` — dev‑plans, combat formulas, Definition of Fun for v0.8.x  
+  - `docs/specs/tech/` — architecture, tech stack, ship tech specs, visual style  
+  - `docs/specs/audit/` — documentation audit reports and action plans
+- **PvE design and analysis:** `docs/pve/`
+- **Guides and practices:** `docs/guides/`
+- **Archive and converted legacy docs:** `docs/archive/`, `docs/_converted/`
+
+For naming and structure conventions, see `docs/STYLE.md`.
+
+---
+
+## Documentation tooling
+
+This repo includes simple scripts to help normalize and convert documentation:
+
+- Normalize Markdown (line endings, spaces, etc.):
+
+  ```bash
+  npm run docs:normalize
+  ```
+
+- Convert external documents (PDF/DOCX → Markdown) into `docs/_converted/`:
+
+  ```bash
+  npm run docs:convert
+  ```
+
+These scripts are primarily for maintainers of the documentation set.
+
+---
+
+## Contributing
+
+1. Keep changes aligned with the existing specs in `docs/specs/`.  
+2. When altering behavior that is documented, update the corresponding spec and, if applicable, its `Changelog`.  
+3. Run `npm run lint` and `npm test` before submitting changes.
+
+Bug reports and feature requests are welcome via GitHub issues.
+
+---
+
+## License
+
+This project is licensed under the **MIT License**.  
+See the `LICENSE` file if present, or the license section on the GitHub repository page.
+
