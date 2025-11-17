@@ -9,3 +9,10 @@ tmp/
 *.log
 .env.local
 .env.*
+
+# .NET build artifacts
+bin/
+obj/
+*.user
+*.suo
+.vs/

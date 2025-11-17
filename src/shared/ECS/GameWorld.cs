@@ -16,18 +16,18 @@ public class GameWorld
 
     public GameContext Context => _context;
 
-    public GameWorld()
+    public GameWorld(float speedOfLight_mps = 5000.0f, float deltaTime = 1.0f / 60.0f)
     {
         _context = new GameContext();
-        _systems = CreateSystems(_context);
+        _systems = CreateSystems(_context, speedOfLight_mps, deltaTime);
     }
 
-    private Entitas.Systems CreateSystems(GameContext context)
+    private Entitas.Systems CreateSystems(GameContext context, float speedOfLight_mps, float deltaTime)
     {
         return new Entitas.Systems()
             // Update order matters!
             .Add(new SysFlightAssist(context))  // Process inputs first
-            .Add(new SysPhysics(context))       // Then physics
+            .Add(new SysPhysics(context, speedOfLight_mps, deltaTime))       // Then physics
             .Add(new SysHeat(context));         // Then heat management
     }
 

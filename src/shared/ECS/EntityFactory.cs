@@ -13,12 +13,12 @@ public static class EntityFactory
     /// <summary>
     /// Create a ship entity from configuration
     /// </summary>
-    public static GameEntity CreateShip(GameContext context, ShipConfig config, Vector2 position, int? playerId = null)
+    public static GameEntity CreateShip(GameContext context, ShipConfig config, Vector2 position, float rotation = 0.0f, int? playerId = null)
     {
         var entity = context.CreateEntity();
 
         // Transform
-        entity.AddTransform2D(position, 0f);
+        entity.AddTransform2D(position, rotation);
 
         // Velocity
         entity.AddVelocity(Vector2.Zero, 0f);
