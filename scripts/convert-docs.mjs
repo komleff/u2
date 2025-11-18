@@ -42,8 +42,9 @@ async function convertPdf(file) {
     const data = await pdfParse(fs.readFileSync(input));
     const text = (data && data.text ? data.text : "").trim();
     if (text) return `${title}\n\nИсточник: ${file}\n\n${text}\n`;
-  } catch {}
-  // Fallback stub when parser unavailable
+  } catch {
+    // Fallback stub when parser unavailable
+  }
   return `${title}\n\nИсточник: ${file}\n\n[Требуется конвертация PDF → Markdown сторонним инструментом]`;
 }
 

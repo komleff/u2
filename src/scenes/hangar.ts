@@ -2,14 +2,14 @@ import { KinematicsIntegrator } from "@core/physics/kinematics";
 import { AutopilotController } from "@core/navigation/autopilot";
 import { HudSystem } from "@systems/hud";
 import { makeLogger } from "@utils/logger";
-import { SIMULATION_TICK, MAX_DELTA_TIME } from "@config/simulation";
+import { MAX_DELTA_TIME } from "@config/simulation";
 import type {
   FlightComputerSnapshot,
   FlightMode,
   GuidanceMode
 } from "@types/simulation";
 
-type InputResolver = (snapshot: FlightComputerSnapshot) => {
+type InputResolver = (_snapshot: FlightComputerSnapshot) => {
   thrustVector: { x: number; y: number };
   torque: number;
 };
