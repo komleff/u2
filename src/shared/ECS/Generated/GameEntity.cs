@@ -60,6 +60,14 @@ public sealed class GameEntity : Entity
         component.Angular = angular;
         AddComponent(GameComponentsLookup.Momentum, component);
     }
+    
+    public void ReplaceMomentum(Vector2 linear, float angular)
+    {
+        var component = (MomentumComponent)GetComponent(GameComponentsLookup.Momentum);
+        component.Linear = linear;
+        component.Angular = angular;
+        ReplaceComponent(GameComponentsLookup.Momentum, component);
+    }
 
     // Mass
     public bool hasMass => HasComponent(GameComponentsLookup.Mass);
