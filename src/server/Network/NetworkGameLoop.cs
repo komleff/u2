@@ -152,21 +152,8 @@ public class NetworkGameLoop
 
     private WorldSnapshotProto CreateWorldSnapshot()
     {
-        var snapshot = new WorldSnapshotProto
-        {
-            Tick = _currentTick,
-            TimestampMs = (ulong)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-        };
-
-        // Get all entities and serialize them
-        var entities = _gameWorld.GetAllEntities();
-        foreach (var entity in entities)
-        {
-            var entitySnapshot = EntitySerializer.ToSnapshot(entity);
-            snapshot.Entities.Add(entitySnapshot);
-        }
-
-        return snapshot;
+        var timestampMs = (ulong)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        return EntitySerializer.CreateWorldSnapshot(_gameWorld.Context, _currentTick, timestampMs);
     }
 
     public uint GetCurrentTick() => _currentTick;
