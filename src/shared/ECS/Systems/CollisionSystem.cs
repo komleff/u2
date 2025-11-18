@@ -11,7 +11,7 @@ public class CollisionSystem : IExecuteSystem
 {
     private readonly GameContext _context;
     private readonly float _coefficientOfRestitution = 0.5f; // Damped bounces
-    private readonly float _damageFactor = 0.01f; // HP damage per (kg·m/s) of momentum transfer
+    private readonly float _damageFactorBase = 0.0001f; // Base damage per (kg·m/s) of momentum transfer
 
     public CollisionSystem(GameContext context, float coefficientOfRestitution = 0.5f)
     {
@@ -29,7 +29,7 @@ public class CollisionSystem : IExecuteSystem
             GameMatcher.Health
         ));
 
-        // O(n²) collision detection - simple but works for small numbers
+        // O(n²) collision detection - add broad-phase optimization for large entity counts
         for (int i = 0; i < entities.Length; i++)
         {
             var entityA = entities[i];
@@ -37,6 +37,9 @@ public class CollisionSystem : IExecuteSystem
             // Skip destroyed ships
             if (entityA.health.Current_HP <= 0)
                 continue;
+
+            var posA = entityA.transform2D.Position;
+            var radiusA = entityA.shipConfig.Config.Geometry.CollisionRadius_m;
 
             for (int j = i + 1; j < entities.Length; j++)
             {
@@ -46,27 +49,25 @@ public class CollisionSystem : IExecuteSystem
                 if (entityB.health.Current_HP <= 0)
                     continue;
 
-                CheckAndResolveCollision(entityA, entityB);
+                // Broad-phase: Quick distance check before detailed collision
+                var posB = entityB.transform2D.Position;
+                var radiusB = entityB.shipConfig.Config.Geometry.CollisionRadius_m;
+                var minDistance = radiusA + radiusB;
+                
+                // Quick squared distance check (avoids sqrt)
+                var deltaX = posB.X - posA.X;
+                var deltaY = posB.Y - posA.Y;
+                var distanceSq = deltaX * deltaX + deltaY * deltaY;
+                var minDistanceSq = minDistance * minDistance;
+                
+                if (distanceSq < minDistanceSq)
+                {
+                    // Only do expensive collision resolution if actually colliding
+                    var distance = MathF.Sqrt(distanceSq);
+                    var delta = new Vector2(deltaX, deltaY);
+                    ResolveCollision(entityA, entityB, delta, distance, minDistance);
+                }
             }
-        }
-    }
-
-    private void CheckAndResolveCollision(GameEntity entityA, GameEntity entityB)
-    {
-        var posA = entityA.transform2D.Position;
-        var posB = entityB.transform2D.Position;
-
-        var radiusA = entityA.shipConfig.Config.Geometry.CollisionRadius_m;
-        var radiusB = entityB.shipConfig.Config.Geometry.CollisionRadius_m;
-
-        var delta = posB - posA;
-        var distance = delta.Magnitude;
-        var minDistance = radiusA + radiusB;
-
-        // Check if collision occurred
-        if (distance < minDistance && distance > 0.001f)
-        {
-            ResolveCollision(entityA, entityB, delta, distance, minDistance);
         }
     }
 
@@ -109,10 +110,13 @@ public class CollisionSystem : IExecuteSystem
         entityA.ReplaceMomentum(newVelA * massA, entityA.momentum.Angular);
         entityB.ReplaceMomentum(newVelB * massB, entityB.momentum.Angular);
 
-        // Calculate damage based on impulse magnitude
+        // Calculate damage based on impulse magnitude and relative velocity
+        // Higher relative velocity = more damage (quadratic scaling with speed)
         var impulseMagnitude = impulse.Magnitude;
-        var damageA = impulseMagnitude * _damageFactor;
-        var damageB = impulseMagnitude * _damageFactor;
+        var relativeSpeed = MathF.Abs(velAlongNormal);
+        var velocitySquared = relativeSpeed * relativeSpeed;
+        var damageA = impulseMagnitude * _damageFactorBase * (1.0f + velocitySquared / 100.0f);
+        var damageB = impulseMagnitude * _damageFactorBase * (1.0f + velocitySquared / 100.0f);
 
         // Apply damage to both ships
         var newHpA = MathF.Max(0, entityA.health.Current_HP - damageA);

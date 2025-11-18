@@ -33,15 +33,32 @@ public class PhysicsSystem : IExecuteSystem
             GameMatcher.ShipConfig
         ));
 
-        foreach (var entity in entities)
+        // Process entities in parallel for better performance with many entities
+        if (entities.Length > 50)
         {
-            // Skip destroyed ships
-            if (entity.hasHealth && entity.health.Current_HP <= 0)
+            System.Threading.Tasks.Parallel.For(0, entities.Length, i =>
             {
-                continue;
-            }
+                var entity = entities[i];
+                // Skip destroyed ships
+                if (entity.hasHealth && entity.health.Current_HP <= 0)
+                    return;
 
-            IntegratePhysics(entity);
+                IntegratePhysics(entity);
+            });
+        }
+        else
+        {
+            // For small numbers, sequential is faster (no threading overhead)
+            foreach (var entity in entities)
+            {
+                // Skip destroyed ships
+                if (entity.hasHealth && entity.health.Current_HP <= 0)
+                {
+                    continue;
+                }
+
+                IntegratePhysics(entity);
+            }
         }
     }
 
@@ -53,6 +70,21 @@ public class PhysicsSystem : IExecuteSystem
         var momentum = entity.momentum;
         var velocity = entity.velocity;
         var transform = entity.transform2D;
+
+        // Step 0: Sync momentum from velocity if momentum is zero but velocity is not
+        // This handles cases where velocity is set directly (e.g., in tests)
+        if (momentum.Linear.SqrMagnitude < 1e-6f && velocity.Linear.SqrMagnitude > 1e-6f)
+        {
+            var initialSpeed = velocity.Linear.Magnitude;
+            var beta = RelativisticMath.CalculateBeta(initialSpeed, _speedOfLight_mps);
+            var gamma = RelativisticMath.Gamma(beta);
+            momentum.Linear = velocity.Linear * (gamma * mass.Mass_kg);
+        }
+        
+        if (MathF.Abs(momentum.Angular) < 1e-6f && MathF.Abs(velocity.Angular) > 1e-6f)
+        {
+            momentum.Angular = velocity.Angular * mass.Inertia_kgm2;
+        }
 
         // Step 1: Calculate forces from control inputs
         var force = CalculateForce(control, shipConfig, transform.Rotation);
@@ -92,15 +124,15 @@ public class PhysicsSystem : IExecuteSystem
         transform.Position += velocity.Linear * _deltaTime;
 
         // Step 8: Integrate rotation: θ += ω⋅dt
-        transform.Rotation += velocity.Angular * _deltaTime;
+        var newRotation = transform.Rotation + (velocity.Angular * _deltaTime);
 
         // Normalize rotation to [-π, π]
-        transform.Rotation = NormalizeAngle(transform.Rotation);
+        newRotation = NormalizeAngle(newRotation);
 
         // Update components
         entity.ReplaceMomentum(momentum.Linear, momentum.Angular);
         entity.ReplaceVelocity(velocity.Linear, velocity.Angular);
-        entity.ReplaceTransform2D(transform.Position, transform.Rotation);
+        entity.ReplaceTransform2D(transform.Position, newRotation);
     }
 
     /// <summary>
