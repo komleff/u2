@@ -1681,6 +1681,7 @@ export const u2 = $root.u2 = (() => {
                  * @property {u2.shared.proto.IControlStateProto|null} [controlState] EntitySnapshotProto controlState
                  * @property {u2.shared.proto.IFlightAssistProto|null} [flightAssist] EntitySnapshotProto flightAssist
                  * @property {u2.shared.proto.IHealthProto|null} [health] EntitySnapshotProto health
+                 * @property {number|null} [lastProcessedSequence] EntitySnapshotProto lastProcessedSequence
                  */
 
                 /**
@@ -1747,6 +1748,14 @@ export const u2 = $root.u2 = (() => {
                 EntitySnapshotProto.prototype.health = null;
 
                 /**
+                 * EntitySnapshotProto lastProcessedSequence.
+                 * @member {number} lastProcessedSequence
+                 * @memberof u2.shared.proto.EntitySnapshotProto
+                 * @instance
+                 */
+                EntitySnapshotProto.prototype.lastProcessedSequence = 0;
+
+                /**
                  * Creates a new EntitySnapshotProto instance using the specified properties.
                  * @function create
                  * @memberof u2.shared.proto.EntitySnapshotProto
@@ -1782,6 +1791,8 @@ export const u2 = $root.u2 = (() => {
                         $root.u2.shared.proto.FlightAssistProto.encode(message.flightAssist, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
                     if (message.health != null && Object.hasOwnProperty.call(message, "health"))
                         $root.u2.shared.proto.HealthProto.encode(message.health, writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
+                    if (message.lastProcessedSequence != null && Object.hasOwnProperty.call(message, "lastProcessedSequence"))
+                        writer.uint32(/* id 7, wireType 0 =*/56).uint32(message.lastProcessedSequence);
                     return writer;
                 };
 
@@ -1840,6 +1851,10 @@ export const u2 = $root.u2 = (() => {
                             }
                         case 6: {
                                 message.health = $root.u2.shared.proto.HealthProto.decode(reader, reader.uint32());
+                                break;
+                            }
+                        case 7: {
+                                message.lastProcessedSequence = reader.uint32();
                                 break;
                             }
                         default:
@@ -1905,6 +1920,9 @@ export const u2 = $root.u2 = (() => {
                         if (error)
                             return "health." + error;
                     }
+                    if (message.lastProcessedSequence != null && message.hasOwnProperty("lastProcessedSequence"))
+                        if (!$util.isInteger(message.lastProcessedSequence))
+                            return "lastProcessedSequence: integer expected";
                     return null;
                 };
 
@@ -1947,6 +1965,8 @@ export const u2 = $root.u2 = (() => {
                             throw TypeError(".u2.shared.proto.EntitySnapshotProto.health: object expected");
                         message.health = $root.u2.shared.proto.HealthProto.fromObject(object.health);
                     }
+                    if (object.lastProcessedSequence != null)
+                        message.lastProcessedSequence = object.lastProcessedSequence >>> 0;
                     return message;
                 };
 
@@ -1970,6 +1990,7 @@ export const u2 = $root.u2 = (() => {
                         object.controlState = null;
                         object.flightAssist = null;
                         object.health = null;
+                        object.lastProcessedSequence = 0;
                     }
                     if (message.entityId != null && message.hasOwnProperty("entityId"))
                         object.entityId = message.entityId;
@@ -1983,6 +2004,8 @@ export const u2 = $root.u2 = (() => {
                         object.flightAssist = $root.u2.shared.proto.FlightAssistProto.toObject(message.flightAssist, options);
                     if (message.health != null && message.hasOwnProperty("health"))
                         object.health = $root.u2.shared.proto.HealthProto.toObject(message.health, options);
+                    if (message.lastProcessedSequence != null && message.hasOwnProperty("lastProcessedSequence"))
+                        object.lastProcessedSequence = message.lastProcessedSequence;
                     return object;
                 };
 

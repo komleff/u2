@@ -153,7 +153,17 @@ public class NetworkGameLoop
     private WorldSnapshotProto CreateWorldSnapshot()
     {
         var timestampMs = (ulong)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        return EntitySerializer.CreateWorldSnapshot(_gameWorld.Context, _currentTick, timestampMs);
+        
+        // M2.3: Provide last processed sequence numbers for reconciliation
+        return EntitySerializer.CreateWorldSnapshot(
+            _gameWorld.Context, 
+            _currentTick, 
+            timestampMs,
+            entityId => {
+                var connection = _connectionManager.GetAllConnections()
+                    .FirstOrDefault(c => c.EntityId == (uint)entityId);
+                return connection?.LastProcessedSequence ?? 0;
+            });
     }
 
     public uint GetCurrentTick() => _currentTick;

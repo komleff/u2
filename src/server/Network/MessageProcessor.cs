@@ -126,7 +126,10 @@ public class MessageProcessor
         // Apply both control and flight assist using shared serializer helpers
         EntitySerializer.ApplyPlayerInput(entity, input);
 
-        _logger.LogTrace("Applied input for entity {EntityId}: thrust={Thrust}, FA={FA}",
-            connection.EntityId, input.ControlState.Thrust, input.FlightAssist);
+        // Track last processed sequence number for reconciliation (M2.3)
+        connection.LastProcessedSequence = input.SequenceNumber;
+
+        _logger.LogTrace("Applied input for entity {EntityId}: seq={Sequence}, thrust={Thrust}, FA={FA}",
+            connection.EntityId, input.SequenceNumber, input.ControlState.Thrust, input.FlightAssist);
     }
 }

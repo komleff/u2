@@ -14,7 +14,8 @@
         "test:watch": "vitest",
         "coverage": "vitest run --coverage",
         "docs:normalize": "node scripts/normalize-md.mjs",
-        "docs:convert": "node scripts/convert-docs.mjs"
+        "docs:convert": "node scripts/convert-docs.mjs",
+        "proto:generate": "pbjs -t static-module -w es6 -o src/network/proto/ecs.js src/shared/Proto/ecs.proto && pbts -o src/network/proto/ecs.d.ts src/network/proto/ecs.js"
     },
     "repository": {
         "type": "git",
@@ -32,6 +33,7 @@
     "homepage": "https://github.com/dkomlev/u2#readme",
     "devDependencies": {
         "@eslint/js": "^9.39.1",
+        "@protobuf-ts/plugin": "^2.11.1",
         "@types/node": "^24.10.1",
         "@typescript-eslint/eslint-plugin": "^8.46.4",
         "@typescript-eslint/parser": "^8.46.4",
@@ -41,6 +43,7 @@
         "jsdom": "^27.2.0",
         "mammoth": "^1.11.0",
         "pdf-parse": "^2.4.5",
+        "protobufjs-cli": "^1.1.3",
         "typescript": "^5.9.3",
         "vite": "^5.4.21",
         "vitest": "^1.6.1"

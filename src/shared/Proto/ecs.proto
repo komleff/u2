@@ -53,6 +53,7 @@ message EntitySnapshotProto {
   ControlStateProto control_state = 4;
   FlightAssistProto flight_assist = 5;
   HealthProto health = 6;
+  uint32 last_processed_sequence = 7; // Last input sequence processed by server (M2.3 reconciliation)
 }
 
 // World snapshot (for network sync)

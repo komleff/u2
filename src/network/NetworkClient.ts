@@ -119,17 +119,18 @@ export class NetworkClient {
   /**
    * Send player input to the server
    * Respects the configured input rate (default 30 Hz)
+   * @returns {number} sequence number if sent, 0 if rate limited or not connected
    */
-  sendInput(input: Omit<PlayerInput, 'sequenceNumber' | 'timestamp'>): boolean {
+  sendInput(input: Omit<PlayerInput, 'sequenceNumber' | 'timestamp'>): number {
     if (!this.connectionState.connected || !this.connectionState.clientId) {
-      return false;
+      return 0;
     }
 
     const now = performance.now();
     const minInterval = 1000 / this.config.inputRateHz;
     
     if (now - this.lastInputTime < minInterval) {
-      return false; // Rate limiting
+      return 0; // Rate limiting
     }
 
     this.inputSequence++;
@@ -153,7 +154,7 @@ export class NetworkClient {
     });
 
     this.sendMessage(clientMessage);
-    return true;
+    return this.inputSequence; // Return sequence number for prediction
   }
 
   /**

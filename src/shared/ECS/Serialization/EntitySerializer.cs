@@ -85,11 +85,12 @@ public static class EntitySerializer
     /// Note: Only includes components needed for visualization
     /// Full state stays on server
     /// </summary>
-    public static EntitySnapshotProto ToSnapshot(GameEntity entity)
+    public static EntitySnapshotProto ToSnapshot(GameEntity entity, uint lastProcessedSequence = 0)
     {
         var snapshot = new EntitySnapshotProto
         {
-            EntityId = (uint)entity.creationIndex
+            EntityId = (uint)entity.creationIndex,
+            LastProcessedSequence = lastProcessedSequence // M2.3 reconciliation
         };
 
         // Transform (always present for ships)
@@ -131,7 +132,12 @@ public static class EntitySerializer
     /// <param name="context">Game context containing entities</param>
     /// <param name="tick">Server tick number</param>
     /// <param name="timestampMs">Server timestamp in milliseconds</param>
-    public static WorldSnapshotProto CreateWorldSnapshot(GameContext context, uint tick, ulong timestampMs)
+    /// <param name="getLastProcessedSequence">Optional function to get last processed sequence for entity</param>
+    public static WorldSnapshotProto CreateWorldSnapshot(
+        GameContext context, 
+        uint tick, 
+        ulong timestampMs,
+        Func<int, uint>? getLastProcessedSequence = null)
     {
         var snapshot = new WorldSnapshotProto
         {
@@ -141,7 +147,8 @@ public static class EntitySerializer
         
         foreach (var entity in context.GetEntities())
         {
-            snapshot.Entities.Add(ToSnapshot(entity));
+            var lastSequence = getLastProcessedSequence?.Invoke(entity.creationIndex) ?? 0;
+            snapshot.Entities.Add(ToSnapshot(entity, lastSequence));
         }
         
         return snapshot;

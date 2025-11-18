@@ -1,0 +1,34 @@
+info: U2.Server.Program[0]
+      U2 Server starting...
+info: U2.Server.Program[0]
+      M0.1 - Repository and build structure initialized
+info: U2.Server.Program[0]
+      M1 - Relativistic physics and collision systems
+info: U2.Server.Program[0]
+      M2.1 - Protobuf protocol (190/190 tests passing)
+info: U2.Server.Program[0]
+      M2.2 - UDP Transport initialization
+info: U2.Server.Program[0]
+      Running in M2.2 mode (network server)
+info: U2.Server.Program[0]
+      Location: Combat Zone, c' = 5000 m/s
+info: U2.Server.Program[0]
+      Physics tick rate: 60 FPS (dt = 0.0167s)
+info: U2.Server.Program[0]
+      Snapshot broadcast rate: 15 Hz
+info: U2.Server.Program[0]
+      GameWorld initialized
+info: U2.Server.Network.UdpServer[0]
+      WebSocket relay attached for virtual endpoint routing
+info: U2.Server.Network.UdpServer[0]
+      UDP server started on port 7777
+info: U2.Server.Network.WebSocketRelay[0]
+      WebSocket relay listening on ws://localhost:8080/
+info: U2.Server.Network.NetworkGameLoop[0]
+      Game loop started at 15 Hz (interval: 0.0667s)
+info: U2.Server.Program[0]
+      Network server running on port 7777
+info: U2.Server.Program[0]
+      WebSocket relay running on ws://localhost:8080/
+info: U2.Server.Program[0]
+      Press Ctrl+C to stop server...

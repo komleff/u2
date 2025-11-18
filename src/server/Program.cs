@@ -7,7 +7,7 @@ namespace U2.Server;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         using var loggerFactory = LoggerFactory.Create(builder =>
         {
@@ -35,7 +35,7 @@ public class Program
         {
             // M2.2 mode: Network server
             logger.LogInformation("Running in M2.2 mode (network server)");
-            RunNetworkMode(loggerFactory, logger);
+            await RunNetworkMode(loggerFactory, logger);
         }
     }
 
@@ -76,7 +76,7 @@ public class Program
         Console.ReadKey();
     }
 
-    private static void RunNetworkMode(ILoggerFactory loggerFactory, ILogger<Program> logger)
+    private static async Task RunNetworkMode(ILoggerFactory loggerFactory, ILogger<Program> logger)
     {
         const int port = 7777;
         const float snapshotRate = 15.0f; // Hz (as per spec)
@@ -143,9 +143,13 @@ public class Program
         
         logger.LogInformation("Network server running on port {Port}", port);
         logger.LogInformation("WebSocket relay running on ws://localhost:{WsPort}/", wsPort);
-        logger.LogInformation("Press any key to stop server...");
+        logger.LogInformation("Press Ctrl+C to stop server...");
         
-        Console.ReadKey();
+        // Wait indefinitely until Ctrl+C
+        using var cts = new CancellationTokenSource();
+        Console.CancelKeyPress += (s, e) => { e.Cancel = true; cts.Cancel(); };
+        try { await Task.Delay(Timeout.Infinite, cts.Token); }
+        catch (TaskCanceledException) { }
         
         // Shutdown
         logger.LogInformation("Shutting down server...");

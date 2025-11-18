@@ -83,9 +83,9 @@ export class NetworkManager {
     };
 
     // Send to server (with rate limiting)
-    const sent = this.client.sendInput(input);
+    const sequenceNumber = this.client.sendInput(input);
 
-    if (!sent) {
+    if (sequenceNumber === 0) {
       return; // Rate limited
     }
 
@@ -94,7 +94,7 @@ export class NetworkManager {
       const state = this.prediction.applyInput(
         {
           ...input,
-          sequenceNumber: 0, // Will be filled by client
+          sequenceNumber, // Real sequence number from client
           timestamp: Date.now()
         },
         this.config.fixedDeltaTime
@@ -176,11 +176,12 @@ export class NetworkManager {
 
       // Reconcile local player if prediction is enabled
       if (entityId === this.localEntityId && this.config.enablePrediction && this.prediction) {
-        // Server doesn't send sequence number yet, so we use a simple reconciliation
-        // In a full implementation, server would include lastProcessedInputSequence
+        // M2.3: Use server's last processed sequence for reconciliation
+        const lastProcessed = entityProto.lastProcessedSequence ?? 0;
+        
         const correctedState = this.prediction.reconcile(
           state,
-          0, // lastProcessedSequence - would need server support
+          lastProcessed,
           this.config.fixedDeltaTime
         );
 

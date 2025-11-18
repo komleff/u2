@@ -27,17 +27,16 @@ describe('M2.3 Network Integration', () => {
     await new Promise<void>((resolve, reject) => {
       const timeout = setTimeout(() => reject(new Error('Server startup timeout')), 10000);
       
-      serverProcess!.stdout?.on('data', (data) => {
+      const checkOutput = (data: Buffer) => {
         const output = data.toString();
         if (output.includes('WebSocket relay running')) {
           clearTimeout(timeout);
           resolve();
         }
-      });
+      };
 
-      serverProcess!.stderr?.on('data', (data) => {
-        console.error('[Server Error]', data.toString());
-      });
+      serverProcess!.stdout?.on('data', checkOutput);
+      serverProcess!.stderr?.on('data', checkOutput); // .NET ILogger uses stderr
     });
 
     console.warn('✅ Server started');

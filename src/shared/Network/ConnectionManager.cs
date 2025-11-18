@@ -114,6 +114,7 @@ public class ClientConnection
     public uint? EntityId { get; set; }
     public bool IsAccepted { get; set; }
     public string PlayerName { get; set; } = "";
+    public uint LastProcessedSequence { get; set; } = 0; // M2.3: Last input sequence processed (for reconciliation)
 
     public ClientConnection(uint clientId, IPEndPoint endpoint)
     {

@@ -756,6 +756,9 @@ export namespace u2 {
 
                 /** EntitySnapshotProto health */
                 health?: (u2.shared.proto.IHealthProto|null);
+
+                /** EntitySnapshotProto lastProcessedSequence */
+                lastProcessedSequence?: (number|null);
             }
 
             /** Represents an EntitySnapshotProto. */
@@ -784,6 +787,9 @@ export namespace u2 {
 
                 /** EntitySnapshotProto health. */
                 public health?: (u2.shared.proto.IHealthProto|null);
+
+                /** EntitySnapshotProto lastProcessedSequence. */
+                public lastProcessedSequence: number;
 
                 /**
                  * Creates a new EntitySnapshotProto instance using the specified properties.
