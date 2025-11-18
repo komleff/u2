@@ -8,7 +8,7 @@
 - Все спецификации в этой папке используют префикс `spec_`.
 - Слова в имени файла разделяются символом `_`, без пробелов и без кириллицы.
 - Версия указывается через суффикс вида `vNN`/`vNNN` (например, `v08`, `v082`, `v086`) и, при необходимости, дополнительные маркеры (`_minimal`, `_stabilized` и т.п.).
-- Имя файла отражает область документа (`u2_architecture`, `ship_tech_specs`, `tech_stack_unity` и др.).
+- Имя файла отражает область документа (`u2_architecture`, `ship_tech_specs`, `tech_stack`, `client_typescript` и др.).
 
 Пример: `spec_u2_architecture_v086_minimal.md` — архитектурная спецификация U2 версии 0.8.6 (вариант Minimal).
 
@@ -26,7 +26,8 @@
 ## Технические спецификации (`tech/`)
 - [tech/spec_u2_architecture_v086_minimal.md](tech/spec_u2_architecture_v086_minimal.md) — архитектура U2 v0.8.6 Minimal (клиент/сервер, основные подсистемы).
 - [tech/spec_ship_tech_specs_v086_minimal.md](tech/spec_ship_tech_specs_v086_minimal.md) — технические характеристики кораблей и runtime‑конфиг (Minimal).
-- [tech/spec_u2_tech_stack_unity_v086.md](tech/spec_u2_tech_stack_unity_v086.md) — технологический стек, платформа и инфраструктура (Unity, .NET, ECS и сопутствующие сервисы).
+- [tech/spec_u2_tech_stack_v086.md](tech/spec_u2_tech_stack_v086.md) — технологический стек, платформа и инфраструктура (TypeScript/Unity, .NET, сеть и сопутствующие сервисы).
+- [tech/spec_u2_client_typescript.md](tech/spec_u2_client_typescript.md) — детальная спецификация TypeScript-клиента (Three.js, Protobuf, WebSocket, клиентское предсказание).
 - [tech/spec_u2_visual_style_unity.md](tech/spec_u2_visual_style_unity.md) — визуальный стиль, артовое и UI‑ТЗ для аркадного Space Simulator в Unity.
 
 ## Папка `audit/`
