@@ -135,4 +135,124 @@ public class SerializationTests
 
         Assert.That(snapshot.Entities.Count, Is.EqualTo(3));
     }
+
+    // M2.1 Tests for new helper methods
+
+    [Test]
+    public void CreateWorldSnapshot_WithTickAndTimestamp_IncludesMetadata()
+    {
+        var config = CreateTestShipConfig();
+        EntityFactory.CreateShip(_context, config, new Vector2(0f, 0f));
+        EntityFactory.CreateShip(_context, config, new Vector2(100f, 100f));
+
+        uint tick = 12345;
+        ulong timestampMs = 9876543210;
+        var snapshot = EntitySerializer.CreateWorldSnapshot(_context, tick, timestampMs);
+
+        Assert.That(snapshot.Tick, Is.EqualTo(tick));
+        Assert.That(snapshot.TimestampMs, Is.EqualTo(timestampMs));
+        Assert.That(snapshot.Entities.Count, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void ApplyControlState_UpdatesEntityControls()
+    {
+        var entity = _context.CreateEntity();
+        entity.AddControlState(0f, 0f, 0f, 0f);
+
+        var proto = new U2.Shared.Proto.ControlStateProto
+        {
+            Thrust = 0.9f,
+            StrafeX = -0.5f,
+            StrafeY = 0.3f,
+            YawInput = 0.7f
+        };
+
+        EntitySerializer.ApplyControlState(entity, proto);
+
+        Assert.That(entity.controlState.Thrust, Is.EqualTo(0.9f).Within(0.001f));
+        Assert.That(entity.controlState.Strafe_X, Is.EqualTo(-0.5f).Within(0.001f));
+        Assert.That(entity.controlState.Strafe_Y, Is.EqualTo(0.3f).Within(0.001f));
+        Assert.That(entity.controlState.Yaw_Input, Is.EqualTo(0.7f).Within(0.001f));
+    }
+
+    [Test]
+    public void CreateConnectionAcceptedMessage_CreatesValidMessage()
+    {
+        uint clientId = 42;
+        uint entityId = 123;
+        ulong serverTime = 1234567890;
+
+        var message = EntitySerializer.CreateConnectionAcceptedMessage(clientId, entityId, serverTime);
+
+        Assert.That(message.MessageCase, Is.EqualTo(U2.Shared.Proto.ServerMessageProto.MessageOneofCase.ConnectionAccepted));
+        Assert.That(message.ConnectionAccepted.ClientId, Is.EqualTo(clientId));
+        Assert.That(message.ConnectionAccepted.EntityId, Is.EqualTo(entityId));
+        Assert.That(message.ConnectionAccepted.ServerTimeMs, Is.EqualTo(serverTime));
+    }
+
+    [Test]
+    public void CreateDisconnectMessage_CreatesValidMessage()
+    {
+        uint clientId = 99;
+        string reason = "Test disconnect";
+
+        var message = EntitySerializer.CreateDisconnectMessage(clientId, reason);
+
+        Assert.That(message.MessageCase, Is.EqualTo(U2.Shared.Proto.ServerMessageProto.MessageOneofCase.Disconnect));
+        Assert.That(message.Disconnect.ClientId, Is.EqualTo(clientId));
+        Assert.That(message.Disconnect.Reason, Is.EqualTo(reason));
+    }
+
+    [Test]
+    public void CreateConnectionRequestMessage_CreatesValidMessage()
+    {
+        string playerName = "TestPlayer";
+        string version = "0.8.6";
+
+        var message = EntitySerializer.CreateConnectionRequestMessage(playerName, version);
+
+        Assert.That(message.MessageCase, Is.EqualTo(U2.Shared.Proto.ClientMessageProto.MessageOneofCase.ConnectionRequest));
+        Assert.That(message.ConnectionRequest.PlayerName, Is.EqualTo(playerName));
+        Assert.That(message.ConnectionRequest.Version, Is.EqualTo(version));
+    }
+
+    [Test]
+    public void CreatePlayerInputMessage_CreatesValidMessage()
+    {
+        uint clientId = 10;
+        uint sequenceNumber = 500;
+        ulong timestampMs = 5000;
+        var controlState = new U2.Shared.Proto.ControlStateProto
+        {
+            Thrust = 1.0f,
+            StrafeX = 0.0f,
+            StrafeY = 0.0f,
+            YawInput = 0.5f
+        };
+
+        var message = EntitySerializer.CreatePlayerInputMessage(clientId, sequenceNumber, timestampMs, controlState);
+
+        Assert.That(message.MessageCase, Is.EqualTo(U2.Shared.Proto.ClientMessageProto.MessageOneofCase.PlayerInput));
+        Assert.That(message.PlayerInput.ClientId, Is.EqualTo(clientId));
+        Assert.That(message.PlayerInput.SequenceNumber, Is.EqualTo(sequenceNumber));
+        Assert.That(message.PlayerInput.TimestampMs, Is.EqualTo(timestampMs));
+        Assert.That(message.PlayerInput.ControlState.Thrust, Is.EqualTo(1.0f).Within(0.001f));
+    }
+
+    [Test]
+    public void CreateWorldSnapshotMessage_CreatesValidMessage()
+    {
+        var config = CreateTestShipConfig();
+        EntityFactory.CreateShip(_context, config, new Vector2(10f, 20f));
+
+        uint tick = 100;
+        ulong timestampMs = 3000;
+        var message = EntitySerializer.CreateWorldSnapshotMessage(_context, tick, timestampMs);
+
+        Assert.That(message.MessageCase, Is.EqualTo(U2.Shared.Proto.ServerMessageProto.MessageOneofCase.WorldSnapshot));
+        Assert.That(message.WorldSnapshot.Tick, Is.EqualTo(tick));
+        Assert.That(message.WorldSnapshot.TimestampMs, Is.EqualTo(timestampMs));
+        Assert.That(message.WorldSnapshot.Entities.Count, Is.EqualTo(1));
+    }
 }

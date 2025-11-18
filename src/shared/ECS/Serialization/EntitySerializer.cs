@@ -126,11 +126,18 @@ public static class EntitySerializer
     }
 
     /// <summary>
-    /// Create world snapshot for all entities
+    /// Create world snapshot for all entities (M2.1)
     /// </summary>
-    public static WorldSnapshotProto CreateWorldSnapshot(GameContext context)
+    /// <param name="context">Game context containing entities</param>
+    /// <param name="tick">Server tick number</param>
+    /// <param name="timestampMs">Server timestamp in milliseconds</param>
+    public static WorldSnapshotProto CreateWorldSnapshot(GameContext context, uint tick, ulong timestampMs)
     {
-        var snapshot = new WorldSnapshotProto();
+        var snapshot = new WorldSnapshotProto
+        {
+            Tick = tick,
+            TimestampMs = timestampMs
+        };
         
         foreach (var entity in context.GetEntities())
         {
@@ -138,5 +145,135 @@ public static class EntitySerializer
         }
         
         return snapshot;
+    }
+
+    /// <summary>
+    /// Create world snapshot for all entities (legacy - no tick/timestamp)
+    /// </summary>
+    public static WorldSnapshotProto CreateWorldSnapshot(GameContext context)
+    {
+        return CreateWorldSnapshot(context, 0, 0);
+    }
+
+    /// <summary>
+    /// Apply control state from protobuf to entity (M2.1)
+    /// </summary>
+    public static void ApplyControlState(GameEntity entity, ControlStateProto proto)
+    {
+        if (!entity.hasControlState)
+        {
+            entity.AddControlState(0, 0, 0, 0);
+        }
+
+        entity.ReplaceControlState(
+            proto.Thrust,
+            proto.StrafeX,
+            proto.StrafeY,
+            proto.YawInput
+        );
+    }
+
+    /// <summary>
+    /// Apply flight assist state from player input (M2.1)
+    /// </summary>
+    public static void ApplyFlightAssist(GameEntity entity, bool enabled)
+    {
+        if (!entity.hasFlightAssist)
+        {
+            entity.AddFlightAssist(enabled);
+        }
+        else
+        {
+            entity.ReplaceFlightAssist(enabled);
+        }
+    }
+
+    /// <summary>
+    /// Apply player input to entity (M2.1 - combined control + FA)
+    /// </summary>
+    public static void ApplyPlayerInput(GameEntity entity, PlayerInputProto input)
+    {
+        ApplyControlState(entity, input.ControlState);
+        ApplyFlightAssist(entity, input.FlightAssist);
+    }
+
+    /// <summary>
+    /// Create server message wrapper for world snapshot (M2.1)
+    /// </summary>
+    public static ServerMessageProto CreateWorldSnapshotMessage(GameContext context, uint tick, ulong timestampMs)
+    {
+        return new ServerMessageProto
+        {
+            WorldSnapshot = CreateWorldSnapshot(context, tick, timestampMs)
+        };
+    }
+
+    /// <summary>
+    /// Create server message wrapper for connection accepted (M2.1)
+    /// </summary>
+    public static ServerMessageProto CreateConnectionAcceptedMessage(uint clientId, uint entityId, ulong serverTimeMs)
+    {
+        return new ServerMessageProto
+        {
+            ConnectionAccepted = new ConnectionAcceptedProto
+            {
+                ClientId = clientId,
+                EntityId = entityId,
+                ServerTimeMs = serverTimeMs
+            }
+        };
+    }
+
+    /// <summary>
+    /// Create server message wrapper for disconnect (M2.1)
+    /// </summary>
+    public static ServerMessageProto CreateDisconnectMessage(uint clientId, string reason)
+    {
+        return new ServerMessageProto
+        {
+            Disconnect = new DisconnectProto
+            {
+                ClientId = clientId,
+                Reason = reason
+            }
+        };
+    }
+
+    /// <summary>
+    /// Create client message wrapper for connection request (M2.1)
+    /// </summary>
+    public static ClientMessageProto CreateConnectionRequestMessage(string playerName, string version)
+    {
+        return new ClientMessageProto
+        {
+            ConnectionRequest = new ConnectionRequestProto
+            {
+                PlayerName = playerName,
+                Version = version
+            }
+        };
+    }
+
+    /// <summary>
+    /// Create client message wrapper for player input (M2.1)
+    /// </summary>
+    public static ClientMessageProto CreatePlayerInputMessage(
+        uint clientId,
+        uint sequenceNumber,
+        ulong timestampMs,
+        ControlStateProto controlState,
+        bool flightAssist = true)
+    {
+        return new ClientMessageProto
+        {
+            PlayerInput = new PlayerInputProto
+            {
+                ClientId = clientId,
+                SequenceNumber = sequenceNumber,
+                TimestampMs = timestampMs,
+                ControlState = controlState,
+                FlightAssist = flightAssist
+            }
+        };
     }
 }
