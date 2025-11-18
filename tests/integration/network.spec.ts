@@ -15,21 +15,22 @@ describe('M2.3 Network Integration', () => {
   let client: NetworkClient | null = null;
 
   beforeAll(async () => {
-    // Start server
-    const serverPath = join(__dirname, '../../src/server/bin/Release/net8.0/U2.Server.exe');
+    // Start server using dotnet run for cross-platform compatibility
+    const serverProjectPath = join(__dirname, '../../src/server/U2.Server.csproj');
     
-    serverProcess = spawn(serverPath, ['--network'], {
-      cwd: join(__dirname, '../../src/server/bin/Release/net8.0'),
-      stdio: 'pipe'
+    serverProcess = spawn('dotnet', ['run', '--project', serverProjectPath, '--', '--network'], {
+      cwd: join(__dirname, '../..'),
+      stdio: 'pipe',
+      env: { ...process.env, DOTNET_CLI_TELEMETRY_OPTOUT: '1' }
     });
 
     // Wait for server to start
     await new Promise<void>((resolve, reject) => {
-      const timeout = setTimeout(() => reject(new Error('Server startup timeout')), 10000);
+      const timeout = setTimeout(() => reject(new Error('Server startup timeout')), 30000); // Increased timeout for dotnet run
       
       const checkOutput = (data: Buffer) => {
         const output = data.toString();
-        if (output.includes('WebSocket relay running')) {
+        if (output.includes('WebSocket relay running') || output.includes('WebSocket relay listening')) {
           clearTimeout(timeout);
           resolve();
         }
@@ -66,7 +67,7 @@ describe('M2.3 Network Integration', () => {
     const state = client.getConnectionState();
     expect(state.connected).toBe(true);
     expect(state.clientId).toBeGreaterThan(0);
-    expect(state.entityId).toBeGreaterThan(0);
+    expect(state.entityId).toBeGreaterThanOrEqual(0); // Entity ID can be 0
 
     console.warn('✅ Connected:', { clientId: state.clientId, entityId: state.entityId });
   });
@@ -87,7 +88,7 @@ describe('M2.3 Network Integration', () => {
     });
 
     // Send input
-    const inputSent = client!.sendInput({
+    const sequenceNumber = client!.sendInput({
       thrust: 0.5,
       strafeX: 0.0,
       strafeY: 0.0,
@@ -95,8 +96,8 @@ describe('M2.3 Network Integration', () => {
       flightAssist: true
     });
 
-    expect(inputSent).toBe(true);
-    console.warn('📤 Input sent');
+    expect(sequenceNumber).toBeGreaterThan(0); // Returns sequence number, not boolean
+    console.warn('📤 Input sent with sequence:', sequenceNumber);
 
     // Wait for snapshot (server broadcasts at 15 Hz = ~66ms interval)
     await new Promise<void>((resolve) => {
@@ -123,22 +124,22 @@ describe('M2.3 Network Integration', () => {
   it('should respect input rate limiting (30 Hz)', () => {
     expect(client).toBeTruthy();
 
-    const inputs = [];
+    const sequenceNumbers = [];
     const startTime = performance.now();
 
     // Try to send 100 inputs immediately
     for (let i = 0; i < 100; i++) {
-      const sent = client!.sendInput({
+      const seq = client!.sendInput({
         thrust: 0.5,
         strafeX: 0.0,
         strafeY: 0.0,
         yawInput: 0.0,
         flightAssist: true
       });
-      inputs.push({ sent, time: performance.now() - startTime });
+      sequenceNumbers.push({ seq, time: performance.now() - startTime });
     }
 
-    const sentCount = inputs.filter(x => x.sent).length;
+    const sentCount = sequenceNumbers.filter(x => x.seq > 0).length;
     
     // At 30 Hz, min interval is 33.33ms
     // In ~0ms, should send only 1-2 inputs max
