@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>U2 WebSocket Test</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+        #log {
+            border: 1px solid #555;
+            padding: 10px;
+            height: 400px;
+            overflow-y: scroll;
+            background: #252526;
+            white-space: pre-wrap;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px 5px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .success { color: #4ec9b0; }
+        .error { color: #f48771; }
+        .info { color: #dcdcaa; }
+    </style>
+</head>
+<body>
+    <h1>U2 WebSocket Relay Test (M2.3)</h1>
+    <div>
+        <button onclick="connect()">Connect</button>
+        <button onclick="disconnect()">Disconnect</button>
+        <button onclick="sendTestMessage()">Send Test Binary</button>
+        <button onclick="clearLog()">Clear Log</button>
+    </div>
+    <div id="log"></div>
+
+    <script>
+        let ws = null;
+        const logEl = document.getElementById('log');
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toISOString().split('T')[1].slice(0, -1);
+            const line = `[${timestamp}] <span class="${type}">${message}</span>\n`;
+            logEl.innerHTML += line;
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        function clearLog() {
+            logEl.innerHTML = '';
+        }
+
+        function connect() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                log('Already connected', 'info');
+                return;
+            }
+
+            log('Connecting to ws://localhost:8080/...', 'info');
+            ws = new WebSocket('ws://localhost:8080/');
+            ws.binaryType = 'arraybuffer';
+
+            ws.onopen = () => {
+                log('✅ WebSocket connected!', 'success');
+            };
+
+            ws.onclose = (event) => {
+                log(`❌ WebSocket closed (code: ${event.code}, reason: ${event.reason || 'none'})`, 'error');
+            };
+
+            ws.onerror = (error) => {
+                log(`❌ WebSocket error: ${error}`, 'error');
+            };
+
+            ws.onmessage = (event) => {
+                if (event.data instanceof ArrayBuffer) {
+                    const bytes = new Uint8Array(event.data);
+                    log(`📥 Received ${bytes.length} bytes: [${Array.from(bytes.slice(0, 20)).join(', ')}${bytes.length > 20 ? '...' : ''}]`, 'success');
+                } else {
+                    log(`📥 Received text: ${event.data}`, 'success');
+                }
+            };
+        }
+
+        function disconnect() {
+            if (!ws || ws.readyState === WebSocket.CLOSED) {
+                log('Not connected', 'info');
+                return;
+            }
+
+            log('Disconnecting...', 'info');
+            ws.close();
+            ws = null;
+        }
+
+        function sendTestMessage() {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                log('❌ Not connected', 'error');
+                return;
+            }
+
+            // Send a simple binary test message (4 bytes: [0x01, 0x02, 0x03, 0x04])
+            const testData = new Uint8Array([0x01, 0x02, 0x03, 0x04]);
+            ws.send(testData.buffer);
+            log(`📤 Sent ${testData.length} bytes: [${Array.from(testData).join(', ')}]`, 'info');
+        }
+
+        // Auto-connect on load
+        window.onload = () => {
+            log('=== U2 WebSocket Relay Test (M2.3) ===', 'info');
+            log('Server: ws://localhost:8080/', 'info');
+            log('Click "Connect" to start', 'info');
+        };
+    </script>
+</body>
+</html>

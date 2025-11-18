@@ -17,6 +17,7 @@ public class UdpServer : IDisposable
     private bool _isRunning;
     private CancellationTokenSource? _cancellationTokenSource;
     private Task? _receiveTask;
+    private WebSocketRelay? _webSocketRelay; // M2.3 WebSocket relay integration
 
     public int Port { get; }
     public bool IsRunning => _isRunning;
@@ -66,12 +67,24 @@ public class UdpServer : IDisposable
 
     /// <summary>
     /// Send data to a specific client endpoint.
+    /// Routes to WebSocket relay for virtual endpoints (port 50000+).
     /// </summary>
     public async Task SendAsync(byte[] data, IPEndPoint endpoint)
     {
         try
         {
-            await _socket.SendAsync(data, data.Length, endpoint);
+            // Check if this is a virtual endpoint from WebSocket relay (M2.3)
+            if (_webSocketRelay != null && 
+                endpoint.Address.Equals(IPAddress.Loopback) && 
+                endpoint.Port >= 50000)
+            {
+                await _webSocketRelay.SendToWebSocketAsync(data, endpoint);
+            }
+            else
+            {
+                // Standard UDP send
+                await _socket.SendAsync(data, data.Length, endpoint);
+            }
         }
         catch (Exception ex)
         {
@@ -97,6 +110,23 @@ public class UdpServer : IDisposable
     /// </summary>
     public event Func<byte[], IPEndPoint, Task>? MessageReceived;
 
+    /// <summary>
+    /// Manually trigger message processing (for WebSocket relay)
+    /// </summary>
+    internal async Task ProcessReceivedDataAsync(byte[] data, IPEndPoint endpoint)
+    {
+        _logger.LogTrace("Processing {Bytes} bytes from {Endpoint}", data.Length, endpoint);
+        
+        // Track this client
+        _connectionManager.UpdateClient(endpoint);
+        
+        // Raise event for message processing
+        if (MessageReceived is not null)
+        {
+            await MessageReceived.Invoke(data, endpoint);
+        }
+    }
+
     private async Task ReceiveLoop(CancellationToken cancellationToken)
     {
         _logger.LogDebug("Starting receive loop");
@@ -109,16 +139,7 @@ public class UdpServer : IDisposable
                 var data = result.Buffer;
                 var endpoint = result.RemoteEndPoint;
 
-                _logger.LogTrace("Received {Bytes} bytes from {Endpoint}", data.Length, endpoint);
-
-                // Track this client
-                _connectionManager.UpdateClient(endpoint);
-
-                // Raise event for message processing
-                if (MessageReceived is not null)
-                {
-                    await MessageReceived.Invoke(data, endpoint);
-                }
+                await ProcessReceivedDataAsync(data, endpoint);
             }
             catch (OperationCanceledException)
             {
@@ -135,6 +156,15 @@ public class UdpServer : IDisposable
     }
 
     public ConnectionManager GetConnectionManager() => _connectionManager;
+
+    /// <summary>
+    /// Attach WebSocket relay for routing virtual endpoints (M2.3)
+    /// </summary>
+    public void AttachWebSocketRelay(WebSocketRelay relay)
+    {
+        _webSocketRelay = relay;
+        _logger.LogInformation("WebSocket relay attached for virtual endpoint routing");
+    }
 
     public void Dispose()
     {

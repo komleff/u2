@@ -118,6 +118,14 @@ public class Program
         // Wire up message handling
         udpServer.MessageReceived += messageProcessor.ProcessMessage;
         
+        // Create WebSocket relay for browser clients (M2.3)
+        const int wsPort = 8080;
+        var wsLogger = loggerFactory.CreateLogger<WebSocketRelay>();
+        var wsRelay = new WebSocketRelay(wsLogger, udpServer, wsPort);
+        
+        // Attach relay to UdpServer for bidirectional routing
+        udpServer.AttachWebSocketRelay(wsRelay);
+        
         // Create and start network game loop
         var loopLogger = loggerFactory.CreateLogger<NetworkGameLoop>();
         var gameLoop = new NetworkGameLoop(
@@ -130,9 +138,11 @@ public class Program
         
         // Start server
         udpServer.Start();
+        wsRelay.Start();
         gameLoop.Start();
         
         logger.LogInformation("Network server running on port {Port}", port);
+        logger.LogInformation("WebSocket relay running on ws://localhost:{WsPort}/", wsPort);
         logger.LogInformation("Press any key to stop server...");
         
         Console.ReadKey();
@@ -140,6 +150,7 @@ public class Program
         // Shutdown
         logger.LogInformation("Shutting down server...");
         gameLoop.Stop();
+        wsRelay.Dispose();
         udpServer.Stop();
         world.Cleanup();
         world.TearDown();
