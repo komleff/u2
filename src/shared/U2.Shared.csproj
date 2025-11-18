@@ -11,10 +11,18 @@
     <PackageReference Include="Google.Protobuf" Version="3.25.1" />
     <PackageReference Include="Entitas" Version="1.13.0" />
     <PackageReference Include="Entitas.CodeGeneration.Plugins" Version="1.13.0" />
+    <PackageReference Include="Grpc.Tools" Version="2.76.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="NUnit" Version="4.0.1" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="BenchmarkDotNet" Version="0.13.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="Proto\ecs.proto" GrpcServices="None" />
   </ItemGroup>
 
 </Project>

@@ -61,3 +61,51 @@ message WorldSnapshotProto {
   uint64 timestamp_ms = 2;
   repeated EntitySnapshotProto entities = 3;
 }
+
+// ============================================================================
+// M2.1: Network Protocol Messages
+// ============================================================================
+
+// Client -> Server: Player input commands
+message PlayerInputProto {
+  uint32 client_id = 1;
+  uint32 sequence_number = 2;  // For input acknowledgment
+  uint64 timestamp_ms = 3;      // Client timestamp
+  ControlStateProto control_state = 4;
+}
+
+// Server -> Client: Connection accepted
+message ConnectionAcceptedProto {
+  uint32 client_id = 1;         // Assigned client ID
+  uint32 entity_id = 2;         // Assigned player entity ID
+  uint64 server_time_ms = 3;    // Server time for synchronization
+}
+
+// Client -> Server: Connection request
+message ConnectionRequestProto {
+  string player_name = 1;
+  string version = 2;           // Client version for compatibility check
+}
+
+// Server -> Client: Disconnect notification
+message DisconnectProto {
+  uint32 client_id = 1;
+  string reason = 2;
+}
+
+// Wrapper for all client-to-server messages
+message ClientMessageProto {
+  oneof message {
+    ConnectionRequestProto connection_request = 1;
+    PlayerInputProto player_input = 2;
+  }
+}
+
+// Wrapper for all server-to-client messages
+message ServerMessageProto {
+  oneof message {
+    ConnectionAcceptedProto connection_accepted = 1;
+    WorldSnapshotProto world_snapshot = 2;
+    DisconnectProto disconnect = 3;
+  }
+}
