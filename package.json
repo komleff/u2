@@ -1,50 +1,50 @@
-﻿{
-    "name":  "u2-flighttest",
-    "version":  "0.5.0",
-    "description":  "Canvas-based flight systems sandbox for the Universe Unlimited project.",
-    "private":  true,
-    "type":  "module",
-    "main":  "dist/index.js",
-    "scripts":  {
-                    "dev":  "vite",
-                    "build":  "vite build",
-                    "preview":  "vite preview",
-                    "lint":  "eslint . --ext .ts --max-warnings=0",
-                    "test":  "vitest run",
-                    "test:watch":  "vitest",
-                    "coverage":  "vitest run --coverage",
-                    "docs:normalize":  "node scripts/normalize-md.mjs",
-                    "docs:convert": "node scripts/convert-docs.mjs"
-                },
-    "repository":  {
-                       "type":  "git",
-                       "url":  "git+https://github.com/dkomlev/u2.git"
-                   },
-    "keywords":  [
-
-                 ],
-    "author":  "",
-    "license":  "MIT",
-    "engines":  {
-                    "node":  "\u003e=18"
-                },
-    "bugs":  {
-                 "url":  "https://github.com/dkomlev/u2/issues"
-             },
-    "homepage":  "https://github.com/dkomlev/u2#readme",
-    "devDependencies":  {
-                            "@eslint/js":  "^9.39.1",
-                            "@types/node":  "^24.10.1",
-                            "@typescript-eslint/eslint-plugin":  "^8.46.4",
-                            "@typescript-eslint/parser":  "^8.46.4",
-                            "@vitest/coverage-v8":  "^1.6.1",
-                            "eslint":  "^9.39.1",
-                            "eslint-config-prettier":  "^10.1.8",
-                            "jsdom":  "^27.2.0",
-                            "mammoth":  "^1.11.0",
-                            "pdf-parse":  "^2.4.5",
-                            "typescript":  "^5.9.3",
-                            "vite":  "^5.4.21",
-                            "vitest":  "^1.6.1"
-                        }
+{
+    "name": "u2-flighttest",
+    "version": "0.5.0",
+    "description": "Canvas-based flight systems sandbox for the Universe Unlimited project.",
+    "private": true,
+    "type": "module",
+    "main": "dist/index.js",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview",
+        "lint": "eslint . --ext .ts --max-warnings=0",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "coverage": "vitest run --coverage",
+        "docs:normalize": "node scripts/normalize-md.mjs",
+        "docs:convert": "node scripts/convert-docs.mjs"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/dkomlev/u2.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "MIT",
+    "engines": {
+        "node": ">=18"
+    },
+    "bugs": {
+        "url": "https://github.com/dkomlev/u2/issues"
+    },
+    "homepage": "https://github.com/dkomlev/u2#readme",
+    "devDependencies": {
+        "@eslint/js": "^9.39.1",
+        "@types/google-protobuf": "^3.15.12",
+        "@types/node": "^24.10.1",
+        "@typescript-eslint/eslint-plugin": "^8.46.4",
+        "@typescript-eslint/parser": "^8.46.4",
+        "@vitest/coverage-v8": "^1.6.1",
+        "eslint": "^9.39.1",
+        "eslint-config-prettier": "^10.1.8",
+        "jsdom": "^27.2.0",
+        "mammoth": "^1.11.0",
+        "pdf-parse": "^2.4.5",
+        "protobufjs": "^7.5.4",
+        "typescript": "^5.9.3",
+        "vite": "^5.4.21",
+        "vitest": "^1.6.1"
+    }
 }
