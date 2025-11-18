@@ -43,7 +43,7 @@ const cloneAssistDefaults = () => JSON.parse(JSON.stringify(DEFAULT_ASSIST));
 export function buildEmptyConfig({
   id = (crypto?.randomUUID?.() || String(Date.now())),
   name = "New Ship",
-  version = "0.6.4",
+  _version = "0.6.4",
   author = ""
 } = {}) {
   const mass_t = 60;
