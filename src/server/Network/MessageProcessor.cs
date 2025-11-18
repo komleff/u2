@@ -3,6 +3,7 @@ using Google.Protobuf;
 using Microsoft.Extensions.Logging;
 using U2.Shared.Proto;
 using U2.Shared.ECS;
+using U2.Shared.Network;
 
 namespace U2.Server.Network;
 
