@@ -72,6 +72,7 @@ message PlayerInputProto {
   uint32 sequence_number = 2;  // For input acknowledgment
   uint64 timestamp_ms = 3;      // Client timestamp
   ControlStateProto control_state = 4;
+  bool flight_assist = 5;       // FA:ON (true) or FA:OFF (false)
 }
 
 // Server -> Client: Connection accepted

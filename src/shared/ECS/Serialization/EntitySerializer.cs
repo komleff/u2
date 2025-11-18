@@ -174,6 +174,30 @@ public static class EntitySerializer
     }
 
     /// <summary>
+    /// Apply flight assist state from player input (M2.1)
+    /// </summary>
+    public static void ApplyFlightAssist(GameEntity entity, bool enabled)
+    {
+        if (!entity.hasFlightAssist)
+        {
+            entity.AddFlightAssist(enabled);
+        }
+        else
+        {
+            entity.ReplaceFlightAssist(enabled);
+        }
+    }
+
+    /// <summary>
+    /// Apply player input to entity (M2.1 - combined control + FA)
+    /// </summary>
+    public static void ApplyPlayerInput(GameEntity entity, PlayerInputProto input)
+    {
+        ApplyControlState(entity, input.ControlState);
+        ApplyFlightAssist(entity, input.FlightAssist);
+    }
+
+    /// <summary>
     /// Create server message wrapper for world snapshot (M2.1)
     /// </summary>
     public static ServerMessageProto CreateWorldSnapshotMessage(GameContext context, uint tick, ulong timestampMs)
@@ -237,7 +261,8 @@ public static class EntitySerializer
         uint clientId,
         uint sequenceNumber,
         ulong timestampMs,
-        ControlStateProto controlState)
+        ControlStateProto controlState,
+        bool flightAssist = true)
     {
         return new ClientMessageProto
         {
@@ -246,7 +271,8 @@ public static class EntitySerializer
                 ClientId = clientId,
                 SequenceNumber = sequenceNumber,
                 TimestampMs = timestampMs,
-                ControlState = controlState
+                ControlState = controlState,
+                FlightAssist = flightAssist
             }
         };
     }
