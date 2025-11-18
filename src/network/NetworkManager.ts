@@ -1,4 +1,4 @@
-import { NetworkClient, type NetworkConfig } from './NetworkClient';
+import { NetworkClient, type NetworkConfig, type PlayerInput } from './NetworkClient';
 import { PredictionEngine, type EntityState } from './PredictionEngine';
 import type { u2 } from './proto/ecs.js';
 
