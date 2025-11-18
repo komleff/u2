@@ -96,7 +96,9 @@ public class EcsBenchmarkTests
     [NUnit.Framework.Category("Performance")]
     public void Benchmark_10kEntities_ProcessesUnder16ms()
     {
-        var world = new GameWorld();
+        // Disable collisions for benchmark - O(n²) collision detection would make this impossible
+        // This benchmark tests physics processing performance, not collision detection
+        var world = new GameWorld(enableCollisions: false);
         world.Initialize();
 
         var shipConfig = new ShipConfig

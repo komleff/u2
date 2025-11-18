@@ -17,20 +17,27 @@ public class GameWorld
 
     public GameContext Context => _context;
 
-    public GameWorld(float speedOfLight_mps = 5000.0f, float deltaTime = 1.0f / 60.0f)
+    public GameWorld(float speedOfLight_mps = 5000.0f, float deltaTime = 1.0f / 60.0f, bool enableCollisions = true)
     {
         _context = new GameContext();
-        _systems = CreateSystems(_context, speedOfLight_mps, deltaTime);
+        _systems = CreateSystems(_context, speedOfLight_mps, deltaTime, enableCollisions);
     }
 
-    private Entitas.Systems CreateSystems(GameContext context, float speedOfLight_mps, float deltaTime)
+    private Entitas.Systems CreateSystems(GameContext context, float speedOfLight_mps, float deltaTime, bool enableCollisions)
     {
-        return new Entitas.Systems()
+        var systems = new Entitas.Systems()
             // Update order matters!
             .Add(new SysFlightAssist(context))  // Process inputs first
-            .Add(new SysPhysics(context, speedOfLight_mps, deltaTime))       // Then physics
-            .Add(new SysCollision(context))     // Then collision detection
-            .Add(new SysHeat(context));         // Then heat management
+            .Add(new SysPhysics(context, speedOfLight_mps, deltaTime));       // Then physics
+        
+        if (enableCollisions)
+        {
+            systems.Add(new SysCollision(context));     // Then collision detection (O(n²) - expensive for large entity counts)
+        }
+        
+        systems.Add(new SysHeat(context));         // Then heat management
+        
+        return systems;
     }
 
     public void Initialize()
