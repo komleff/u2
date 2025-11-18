@@ -1,7 +1,10 @@
 import { defineConfig } from "vite";
 
+import { resolve } from "path";
+
 export default defineConfig({
   appType: "spa",
+  publicDir: resolve(__dirname, "public"),
   server: {
     port: 5173,
     open: false
@@ -9,16 +12,22 @@ export default defineConfig({
   preview: {
     port: 4173
   },
+  build: {
+    rollupOptions: {
+      input: resolve(__dirname, "public/index.html")
+    }
+  },
   resolve: {
     alias: {
-      "@core": "/src/core",
-      "@systems": "/src/systems",
-      "@config": "/src/config",
-      "@types": "/src/types",
-      "@utils": "/src/utils",
-      "@scenes": "/src/scenes",
-      "@assets": "/src/assets",
-      "@ui": "/src/ui"
+      "@core": resolve(__dirname, "src/core"),
+      "@systems": resolve(__dirname, "src/systems"),
+      "@config": resolve(__dirname, "src/config"),
+      "@types": resolve(__dirname, "src/types"),
+      "@utils": resolve(__dirname, "src/utils"),
+      "@scenes": resolve(__dirname, "src/scenes"),
+      "@assets": resolve(__dirname, "src/assets"),
+      "@ui": resolve(__dirname, "src/ui"),
+      "@network": resolve(__dirname, "src/network")
     }
   },
   test: {

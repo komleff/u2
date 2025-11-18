@@ -5,7 +5,7 @@ import eslintConfigPrettier from "eslint-config-prettier";
 
 export default [
   {
-    ignores: ["dist/**", "coverage/**", "node_modules/**"]
+    ignores: ["dist/**", "coverage/**", "node_modules/**", "src/network/proto/**"]
   },
   js.configs.recommended,
   eslintConfigPrettier,
@@ -27,7 +27,12 @@ export default [
         HTMLElement: "readonly",
         HTMLDivElement: "readonly",
         KeyboardEvent: "readonly",
-        structuredClone: "readonly"
+        structuredClone: "readonly",
+        WebSocket: "readonly",
+        setInterval: "readonly",
+        clearInterval: "readonly",
+        setTimeout: "readonly",
+        __dirname: "readonly"
       }
     },
     plugins: {
@@ -41,7 +46,8 @@ export default [
         "caughtErrorsIgnorePattern": "^_"
       }],
       "no-console": ["warn", { "allow": ["warn", "error", "debug", "info"] }],
-      "no-unused-vars": "off"  // Disable base rule in favor of @typescript-eslint version
+      "no-unused-vars": "off",  // Disable base rule in favor of @typescript-eslint version
+      "no-undef": "off"  // TypeScript handles this
     }
   },
   {
