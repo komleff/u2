@@ -59,4 +59,91 @@ public class GameWorld
     {
         _systems.TearDown();
     }
+
+    /// <summary>
+    /// Create a player entity for network play
+    /// </summary>
+    public GameEntity CreatePlayerEntity(uint clientId)
+    {
+        // Create a default ship config (Origin M50-like interceptor)
+        var config = new Ships.ShipConfig
+        {
+            Meta = new Ships.ShipMeta
+            {
+                Id = "default_fighter",
+                Name = "Default Fighter",
+                Manufacturer = "Generic",
+                Version = "0.8.6"
+            },
+            Geometry = new Ships.ShipGeometry
+            {
+                Length_m = 11.5f,
+                Width_m = 11.0f,
+                Height_m = 3.5f
+            },
+            Hull = new Ships.ShipHull
+            {
+                DryMass_t = 10.0f,
+                Hull_HP = 1000.0f
+            },
+            Physics = new Ships.ShipPhysics
+            {
+                LinearAcceleration_mps2 = new Ships.LinearAcceleration
+                {
+                    Forward = 90.0f,
+                    Reverse = 67.5f
+                },
+                StrafeAcceleration_mps2 = new Ships.StrafeAcceleration
+                {
+                    Lateral = 85.0f
+                },
+                AngularAcceleration_dps2 = new Ships.AngularAcceleration
+                {
+                    Pitch = 240.0f,
+                    Yaw = 200.0f,
+                    Roll = 325.0f
+                }
+            },
+            FlightAssistLimits = new Ships.FlightAssistLimits
+            {
+                CrewGLimit = new Ships.CrewGLimit { Linear_g = 11.0f },
+                LinearSpeedMax_mps = new Ships.LinearSpeedMax
+                {
+                    Forward = 260.0f,
+                    Reverse = 180.0f,
+                    Lateral = 220.0f,
+                    Vertical = 220.0f
+                },
+                AngularSpeedMax_dps = new Ships.AngularSpeedMax
+                {
+                    Pitch = 95.0f,
+                    Yaw = 80.0f,
+                    Roll = 130.0f
+                }
+            }
+        };
+        
+        // Create entity at spawn position
+        var position = new Math.Vector2(0, 0);
+        var entity = EntityFactory.CreateShip(_context, config, position, 0.0f, (int)clientId);
+        
+        return entity;
+    }
+
+    /// <summary>
+    /// Get entity by ID
+    /// </summary>
+    public GameEntity? GetEntityById(int id)
+    {
+        var entities = _context.GetEntities();
+        return entities.FirstOrDefault(e => e.creationIndex == id);
+    }
+
+    /// <summary>
+    /// Get all entities in the world
+    /// </summary>
+    public GameEntity[] GetAllEntities()
+    {
+        return _context.GetEntities();
+    }
 }
