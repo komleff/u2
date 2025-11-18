@@ -44,7 +44,8 @@
 
 - **`specs/tech/spec_u2_architecture_v086_minimal.md`** — архитектура U2 v0.8.6 Minimal (клиент/сервер, подсистемы, границы).
 - **`specs/tech/spec_ship_tech_specs_v086_minimal.md`** — технические характеристики кораблей и runtime‑конфигурация.
-- **`specs/tech/spec_u2_tech_stack_unity_v086.md`** — технологический стек U2 (Unity, .NET, ECS, сеть, логирование и др.).
+- **`specs/tech/spec_u2_tech_stack_v086.md`** — технологический стек U2 (TypeScript/Unity, .NET, сеть, логирование и др.).
+- **`specs/tech/spec_u2_client_typescript.md`** — детальная спецификация TypeScript-клиента (Three.js, Protobuf, WebSocket).
 - **`specs/tech/spec_u2_visual_style_unity.md`** — визуальный стиль, UI/HUD, art‑direction для Unity‑версии.
 
 #### Аудит документации
@@ -130,7 +131,8 @@
    - `specs/spec_flight_decoupled.md` — режим Decoupled.
 3. **Архитектура и техстек**
    - `specs/tech/spec_u2_architecture_v086_minimal.md` — архитектура 0.8.6 Minimal.
-   - `specs/tech/spec_u2_tech_stack_unity_v086.md` — технологический стек.
+   - `specs/tech/spec_u2_tech_stack_v086.md` — технологический стек.
+   - `specs/tech/spec_u2_client_typescript.md` — TypeScript-клиент.
 4. **Геймплей и боёвка**
    - `specs/gameplay/spec_u2_dev_plan_v086_minimal.md` — минимальный dev‑plan.
    - `specs/gameplay/spec_u2_combat_formulas_v08.md` — формулы боя.

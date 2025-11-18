@@ -26,7 +26,8 @@
 ## Технические спецификации (`tech/`)
 - [tech/spec_u2_architecture_v086_minimal.md](tech/spec_u2_architecture_v086_minimal.md) — архитектура U2 v0.8.6 Minimal (клиент/сервер, основные подсистемы).
 - [tech/spec_ship_tech_specs_v086_minimal.md](tech/spec_ship_tech_specs_v086_minimal.md) — технические характеристики кораблей и runtime‑конфиг (Minimal).
-- [tech/spec_u2_tech_stack_unity_v086.md](tech/spec_u2_tech_stack_unity_v086.md) — технологический стек, платформа и инфраструктура (Unity, .NET, ECS и сопутствующие сервисы).
+- [tech/spec_u2_tech_stack_v086.md](tech/spec_u2_tech_stack_v086.md) — технологический стек, платформа и инфраструктура (TypeScript/Unity, .NET, сеть и сопутствующие сервисы).
+- [tech/spec_u2_client_typescript.md](tech/spec_u2_client_typescript.md) — детальная спецификация TypeScript-клиента (Three.js, Protobuf, WebSocket, клиентское предсказание).
 - [tech/spec_u2_visual_style_unity.md](tech/spec_u2_visual_style_unity.md) — визуальный стиль, артовое и UI‑ТЗ для аркадного Space Simulator в Unity.
 
 ## Папка `audit/`
