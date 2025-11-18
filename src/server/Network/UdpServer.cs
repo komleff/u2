@@ -93,8 +93,9 @@ public class UdpServer : IDisposable
 
     /// <summary>
     /// Event raised when a message is received from a client.
+    /// Handlers are async to support non-blocking processing.
     /// </summary>
-    public event Action<byte[], IPEndPoint>? MessageReceived;
+    public event Func<byte[], IPEndPoint, Task>? MessageReceived;
 
     private async Task ReceiveLoop(CancellationToken cancellationToken)
     {
@@ -114,7 +115,10 @@ public class UdpServer : IDisposable
                 _connectionManager.UpdateClient(endpoint);
 
                 // Raise event for message processing
-                MessageReceived?.Invoke(data, endpoint);
+                if (MessageReceived is not null)
+                {
+                    await MessageReceived.Invoke(data, endpoint);
+                }
             }
             catch (OperationCanceledException)
             {
