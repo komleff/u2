@@ -152,7 +152,11 @@ export class NetworkManager {
       angularVelocity: 0
     };
 
-    this.prediction = new PredictionEngine(initialState);
+    this.prediction = new PredictionEngine(
+      initialState,
+      undefined,
+      this.config.reconciliationThreshold
+    );
 
     console.warn('[NetworkManager] Connected:', { clientId, entityId });
   }
