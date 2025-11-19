@@ -77,7 +77,9 @@ public class MessageProcessor
 
         // Create entity for the player
         var entity = _gameWorld.CreatePlayerEntity(connection.ClientId);
-        connection.EntityId = (uint)entity.creationIndex;
+        // NOTE: Entitas creationIndex starts at 0, but client expects entityId > 0
+        // Use creationIndex + 1 to ensure valid IDs (1, 2, 3, ...)
+        connection.EntityId = (uint)entity.creationIndex + 1;
         connection.PlayerName = request.PlayerName;
         connection.IsAccepted = true;
 

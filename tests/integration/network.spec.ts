@@ -15,40 +15,79 @@ describe('M2.3 Network Integration', () => {
   let client: NetworkClient | null = null;
 
   beforeAll(async () => {
-    // Start server
-    const serverPath = join(__dirname, '../../src/server/bin/Release/net8.0/U2.Server.exe');
+    // Start server using dotnet run for cross-platform compatibility
+    const serverProjectPath = join(__dirname, '../../src/server/U2.Server.csproj');
     
-    serverProcess = spawn(serverPath, ['--network'], {
-      cwd: join(__dirname, '../../src/server/bin/Release/net8.0'),
-      stdio: 'pipe'
+    serverProcess = spawn('dotnet', ['run', '--project', serverProjectPath, '--', '--network'], {
+      cwd: join(__dirname, '../..'),
+      stdio: 'pipe',
+      env: { ...process.env, DOTNET_CLI_TELEMETRY_OPTOUT: '1' }
     });
 
-    // Wait for server to start
-    await new Promise<void>((resolve, reject) => {
-      const timeout = setTimeout(() => reject(new Error('Server startup timeout')), 10000);
-      
-      const checkOutput = (data: Buffer) => {
-        const output = data.toString();
-        if (output.includes('WebSocket relay running')) {
+    // Wait for server to start with proper cleanup on failure
+    try {
+      await new Promise<void>((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          reject(new Error('Server startup timeout after 30s'));
+        }, 30000);
+        
+        const checkOutput = (data: Buffer) => {
+          const output = data.toString();
+          // Check for various readiness signals (resilient to log format changes)
+          if (output.includes('WebSocket relay running') || 
+              output.includes('WebSocket relay listening') ||
+              output.includes('listening on') ||
+              output.includes(':8080')) {
+            clearTimeout(timeout);
+            resolve();
+          }
+        };
+
+        serverProcess!.stdout?.on('data', checkOutput);
+        serverProcess!.stderr?.on('data', checkOutput); // .NET ILogger uses stderr
+        
+        // Handle spawn errors
+        serverProcess!.on('error', (err) => {
           clearTimeout(timeout);
-          resolve();
-        }
-      };
+          reject(new Error(`Server spawn failed: ${err.message}`));
+        });
+      });
 
-      serverProcess!.stdout?.on('data', checkOutput);
-      serverProcess!.stderr?.on('data', checkOutput); // .NET ILogger uses stderr
-    });
+      console.warn('✅ Server started');
+    } catch (error) {
+      // Critical: Kill orphaned process on startup failure
+      if (serverProcess) {
+        serverProcess.kill('SIGTERM');
+        serverProcess = null;
+      }
+      throw error; // Re-throw to fail the test suite
+    }
+  }, 60000); // 60s timeout for beforeAll hook (dotnet run is slow)
 
-    console.warn('✅ Server started');
-  });
-
-  afterAll(() => {
+  afterAll(async () => {
     if (client) {
       client.disconnect();
     }
 
     if (serverProcess) {
-      serverProcess.kill();
+      const pid = serverProcess.pid;
+      serverProcess.kill('SIGTERM');
+      
+      // Wait for process to exit (prevent orphaned processes)
+      await new Promise<void>((resolve) => {
+        const timeout = setTimeout(() => {
+          console.warn(`⚠️ Server process ${pid} did not exit cleanly, force killing`);
+          serverProcess?.kill('SIGKILL');
+          resolve();
+        }, 5000);
+        
+        serverProcess!.once('exit', (code) => {
+          clearTimeout(timeout);
+          console.warn(`✅ Server process ${pid} exited with code ${code}`);
+          resolve();
+        });
+      });
+      
       serverProcess = null;
     }
   });
@@ -66,7 +105,7 @@ describe('M2.3 Network Integration', () => {
     const state = client.getConnectionState();
     expect(state.connected).toBe(true);
     expect(state.clientId).toBeGreaterThan(0);
-    expect(state.entityId).toBeGreaterThan(0);
+    expect(state.entityId).toBeGreaterThan(0); // Server must assign valid entity ID for client-side prediction
 
     console.warn('✅ Connected:', { clientId: state.clientId, entityId: state.entityId });
   });
@@ -87,7 +126,7 @@ describe('M2.3 Network Integration', () => {
     });
 
     // Send input
-    const inputSent = client!.sendInput({
+    const sequenceNumber = client!.sendInput({
       thrust: 0.5,
       strafeX: 0.0,
       strafeY: 0.0,
@@ -95,8 +134,8 @@ describe('M2.3 Network Integration', () => {
       flightAssist: true
     });
 
-    expect(inputSent).toBe(true);
-    console.warn('📤 Input sent');
+    expect(sequenceNumber).toBeGreaterThan(0); // Returns sequence number, not boolean
+    console.warn('📤 Input sent with sequence:', sequenceNumber);
 
     // Wait for snapshot (server broadcasts at 15 Hz = ~66ms interval)
     await new Promise<void>((resolve) => {
@@ -123,22 +162,22 @@ describe('M2.3 Network Integration', () => {
   it('should respect input rate limiting (30 Hz)', () => {
     expect(client).toBeTruthy();
 
-    const inputs = [];
+    const sequenceNumbers = [];
     const startTime = performance.now();
 
     // Try to send 100 inputs immediately
     for (let i = 0; i < 100; i++) {
-      const sent = client!.sendInput({
+      const seq = client!.sendInput({
         thrust: 0.5,
         strafeX: 0.0,
         strafeY: 0.0,
         yawInput: 0.0,
         flightAssist: true
       });
-      inputs.push({ sent, time: performance.now() - startTime });
+      sequenceNumbers.push({ seq, time: performance.now() - startTime });
     }
 
-    const sentCount = inputs.filter(x => x.sent).length;
+    const sentCount = sequenceNumbers.filter(x => x.seq > 0).length;
     
     // At 30 Hz, min interval is 33.33ms
     // In ~0ms, should send only 1-2 inputs max

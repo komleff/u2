@@ -32,8 +32,10 @@ export default defineConfig({
   },
   test: {
     globals: true,
-    environment: "jsdom",
+    environment: "node",
+    setupFiles: ["./tests/setup.ts"],
     include: ["tests/**/*.spec.ts"],
+    hookTimeout: 60000, // 60s for slow dotnet run startup in integration tests
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],
