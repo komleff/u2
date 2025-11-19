@@ -24,24 +24,41 @@ describe('M2.3 Network Integration', () => {
       env: { ...process.env, DOTNET_CLI_TELEMETRY_OPTOUT: '1' }
     });
 
-    // Wait for server to start
-    await new Promise<void>((resolve, reject) => {
-      const timeout = setTimeout(() => reject(new Error('Server startup timeout')), 30000); // Increased timeout for dotnet run
-      
-      const checkOutput = (data: Buffer) => {
-        const output = data.toString();
-        if (output.includes('WebSocket relay running') || output.includes('WebSocket relay listening')) {
+    // Wait for server to start with proper cleanup on failure
+    try {
+      await new Promise<void>((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          reject(new Error('Server startup timeout after 30s'));
+        }, 30000);
+        
+        const checkOutput = (data: Buffer) => {
+          const output = data.toString();
+          if (output.includes('WebSocket relay running') || output.includes('WebSocket relay listening')) {
+            clearTimeout(timeout);
+            resolve();
+          }
+        };
+
+        serverProcess!.stdout?.on('data', checkOutput);
+        serverProcess!.stderr?.on('data', checkOutput); // .NET ILogger uses stderr
+        
+        // Handle spawn errors
+        serverProcess!.on('error', (err) => {
           clearTimeout(timeout);
-          resolve();
-        }
-      };
+          reject(new Error(`Server spawn failed: ${err.message}`));
+        });
+      });
 
-      serverProcess!.stdout?.on('data', checkOutput);
-      serverProcess!.stderr?.on('data', checkOutput); // .NET ILogger uses stderr
-    });
-
-    console.warn('✅ Server started');
-  });
+      console.warn('✅ Server started');
+    } catch (error) {
+      // Critical: Kill orphaned process on startup failure
+      if (serverProcess) {
+        serverProcess.kill('SIGTERM');
+        serverProcess = null;
+      }
+      throw error; // Re-throw to fail the test suite
+    }
+  }, 60000); // 60s timeout for beforeAll hook (dotnet run is slow)
 
   afterAll(() => {
     if (client) {
