@@ -40,6 +40,23 @@ npm run dev
 
 This runs Vite’s dev server. See the terminal output for the local URL (typically `http://localhost:5173/`).
 
+**Controls:**
+- `W/A/S/D` - Ship thrust and strafe
+- `Q/E` - Yaw rotation
+- `M` - Toggle flight mode (Coupled/Decoupled)
+- `P` - Toggle autopilot
+- `H` - Toggle HUD
+- `O` - Toggle online mode (connect to server)
+
+**Visual Style:**  
+The client uses a **comic-style sci-fi aesthetic** with:
+- Deep space starfield background
+- Hand-drawn ship outlines with thick borders
+- Cyan (#1ff2ff) for local ship, orange (#ff6b35) for remote ships
+- Glowing effects and engine trails
+
+See [docs/SPACE-RENDERER.md](docs/SPACE-RENDERER.md) for details on the rendering system.
+
 ### Production build
 
 ```bash
