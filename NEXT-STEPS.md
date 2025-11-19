@@ -1087,7 +1087,8 @@ public class RandomBotSystem : IExecuteSystem {
 
 ---
 
-**Документ подготовлен:** 2025-11-18  
-**Автор:** AI Assistant (Claude Sonnet 4.5)  
-**Версия:** 1.0  
-**Статус:** ✅ Ready for implementation
+**Документ обновлен:** 2025-11-19 (M2.3 Stage 1 completion)  
+**AI Agent:** Claude Sonnet 4.5  
+**Ветка:** `copilot/setup-basic-client-build`  
+**Версия:** 1.1  
+**Статус:** ✅ Stage 1 Complete, Stage 2 Ready

@@ -109,3 +109,9 @@ npm test
 - Тест 4: ~5 минут (с установкой .NET SDK)
 
 **Общее время smoke-теста: 5-10 минут**
+
+---
+
+**Документ подготовлен:** AI Agent (Claude Sonnet 4.5)  
+**Ветка:** `copilot/setup-basic-client-build`  
+**Версия:** 1.0

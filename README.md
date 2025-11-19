@@ -192,3 +192,10 @@ Bug reports and feature requests are welcome via GitHub issues.
 This project is licensed under the **MIT License**.  
 See the `LICENSE` file if present, or the license section on the GitHub repository page.
 
+---
+
+## Contributors
+
+Recent documentation updates (M2.3 Stage 1) prepared by: **AI Agent - Claude Sonnet 4.5**  
+Branch: `copilot/setup-basic-client-build`
+
