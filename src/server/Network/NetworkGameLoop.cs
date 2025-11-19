@@ -155,13 +155,15 @@ public class NetworkGameLoop
         var timestampMs = (ulong)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         
         // M2.3: Provide last processed sequence numbers for reconciliation
+        // NOTE: entityId parameter is entity.creationIndex, but connection.EntityId = creationIndex + 1
         return EntitySerializer.CreateWorldSnapshot(
             _gameWorld.Context, 
             _currentTick, 
             timestampMs,
-            entityId => {
+            entityCreationIndex => {
+                var entityId = (uint)entityCreationIndex + 1; // Convert creationIndex to EntityId
                 var connection = _connectionManager.GetAllConnections()
-                    .FirstOrDefault(c => c.EntityId == (uint)entityId);
+                    .FirstOrDefault(c => c.EntityId == entityId);
                 return connection?.LastProcessedSequence ?? 0;
             });
     }
