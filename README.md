@@ -23,22 +23,76 @@ Game‑design and technical specifications live in Markdown and are treated as f
 
 ### Prerequisites
 
+#### Frontend (Client)
 - **Node.js ≥ 18**
 - **npm** (comes with Node)
 
+#### Backend (Server) - Optional for online mode
+- **.NET SDK 8.0** or later
+- Required only if you want to run the online multiplayer mode or integration tests
+
 ### Installation
+
+#### Client Setup
 
 ```bash
 npm install
 ```
 
-### Development server
+#### Server Setup (Optional - for online mode)
+
+If you want to test the online multiplayer functionality:
+
+1. Install [.NET SDK 8.0](https://dotnet.microsoft.com/download) or later
+2. Build the server:
+   ```bash
+   dotnet build src/server/U2.Server.csproj
+   ```
+3. Run the server:
+   ```bash
+   dotnet run --project src/server/U2.Server.csproj -- --network
+   ```
+
+The server will start on `ws://localhost:8080/` by default.
+
+### Running the Application
+
+#### Offline Mode (Local Physics Only)
 
 ```bash
 npm run dev
 ```
 
-This runs Vite’s dev server. See the terminal output for the local URL (typically `http://localhost:5173/`).
+This runs Vite's dev server. See the terminal output for the local URL (typically `http://localhost:5173/`).
+
+The client starts in offline mode by default. You can fly the ship using WASD keys and test the local physics simulation.
+
+#### Online Mode (Multiplayer with Server)
+
+1. First, start the backend server in a separate terminal:
+   ```bash
+   dotnet run --project src/server/U2.Server.csproj -- --network
+   ```
+
+2. Then start the client:
+   ```bash
+   npm run dev
+   ```
+
+3. Open the client in your browser and press **`O`** to toggle online mode
+
+When online mode is enabled, you'll see a green indicator in the top-left corner. The client will connect to the server at `ws://localhost:8080/` and synchronize physics with server snapshots.
+
+### Controls
+
+- **WASD** - Thrust and strafe
+- **Q/E** - Yaw left/right
+- **M** - Toggle flight mode (Coupled/Decoupled)
+- **A** (Autopilot key) - Toggle autopilot
+- **H** - Toggle HUD
+- **O** - Toggle online/offline mode
+
+---
 
 ### Production build
 
@@ -73,6 +127,8 @@ npm run coverage # with coverage report
 ```
 
 Tests are implemented with **Vitest** and run in a jsdom environment where needed.
+
+**Note:** Integration tests require the .NET server to be running. Some tests will fail if the .NET SDK is not installed or the server is not running. This is expected - the smoke tests and unit tests will still pass in offline mode.
 
 ---
 
