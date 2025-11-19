@@ -22,9 +22,14 @@ export class NetworkManager {
   
   private localEntityId: number | null = null;
   private lastSnapshotTick: number = 0;
+  private latestSnapshot: WorldSnapshotProto | null = null;
   
   // Callbacks
-  private onStateUpdateCallback?: (state: EntityState) => void;
+  private onStateUpdateCallback?: (state: { 
+    localState: EntityState; 
+    snapshot: WorldSnapshotProto | null;
+    localEntityId: number | null;
+  }) => void;
   private onWorldUpdateCallback?: (entities: Map<number, EntityState>) => void;
 
   constructor(config: NetworkManagerConfig) {
@@ -101,7 +106,11 @@ export class NetworkManager {
       );
 
       if (this.onStateUpdateCallback) {
-        this.onStateUpdateCallback(state);
+        this.onStateUpdateCallback({
+          localState: state,
+          snapshot: this.latestSnapshot,
+          localEntityId: this.localEntityId
+        });
       }
     }
   }
@@ -109,7 +118,11 @@ export class NetworkManager {
   /**
    * Register callback for local player state updates
    */
-  onStateUpdate(callback: (state: EntityState) => void): void {
+  onStateUpdate(callback: (state: { 
+    localState: EntityState; 
+    snapshot: WorldSnapshotProto | null;
+    localEntityId: number | null;
+  }) => void): void {
     this.onStateUpdateCallback = callback;
   }
 
@@ -125,6 +138,13 @@ export class NetworkManager {
    */
   isConnected(): boolean {
     return this.client.getConnectionState().connected;
+  }
+
+  /**
+   * Get client ID
+   */
+  getClientId(): number | null {
+    return this.client.getConnectionState().clientId;
   }
 
   /**
@@ -164,6 +184,9 @@ export class NetworkManager {
   private handleSnapshot(snapshot: WorldSnapshotProto): void {
     const tick = snapshot.tick ?? 0;
     
+    // Store latest snapshot for rendering
+    this.latestSnapshot = snapshot;
+    
     // Ignore old snapshots
     if (tick <= this.lastSnapshotTick) {
       return;
@@ -190,7 +213,11 @@ export class NetworkManager {
         );
 
         if (this.onStateUpdateCallback) {
-          this.onStateUpdateCallback(correctedState);
+          this.onStateUpdateCallback({
+            localState: correctedState,
+            snapshot: this.latestSnapshot,
+            localEntityId: this.localEntityId
+          });
         }
       }
     }
@@ -205,6 +232,7 @@ export class NetworkManager {
     this.prediction = null;
     this.localEntityId = null;
     this.lastSnapshotTick = 0;
+    this.latestSnapshot = null;
     console.warn('[NetworkManager] Disconnected');
   }
 
