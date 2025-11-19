@@ -33,7 +33,11 @@ describe('M2.3 Network Integration', () => {
         
         const checkOutput = (data: Buffer) => {
           const output = data.toString();
-          if (output.includes('WebSocket relay running') || output.includes('WebSocket relay listening')) {
+          // Check for various readiness signals (resilient to log format changes)
+          if (output.includes('WebSocket relay running') || 
+              output.includes('WebSocket relay listening') ||
+              output.includes('listening on') ||
+              output.includes(':8080')) {
             clearTimeout(timeout);
             resolve();
           }
@@ -60,13 +64,30 @@ describe('M2.3 Network Integration', () => {
     }
   }, 60000); // 60s timeout for beforeAll hook (dotnet run is slow)
 
-  afterAll(() => {
+  afterAll(async () => {
     if (client) {
       client.disconnect();
     }
 
     if (serverProcess) {
-      serverProcess.kill();
+      const pid = serverProcess.pid;
+      serverProcess.kill('SIGTERM');
+      
+      // Wait for process to exit (prevent orphaned processes)
+      await new Promise<void>((resolve) => {
+        const timeout = setTimeout(() => {
+          console.warn(`⚠️ Server process ${pid} did not exit cleanly, force killing`);
+          serverProcess?.kill('SIGKILL');
+          resolve();
+        }, 5000);
+        
+        serverProcess!.once('exit', (code) => {
+          clearTimeout(timeout);
+          console.warn(`✅ Server process ${pid} exited with code ${code}`);
+          resolve();
+        });
+      });
+      
       serverProcess = null;
     }
   });
