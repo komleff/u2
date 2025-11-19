@@ -67,7 +67,7 @@ describe('M2.3 Network Integration', () => {
     const state = client.getConnectionState();
     expect(state.connected).toBe(true);
     expect(state.clientId).toBeGreaterThan(0);
-    expect(state.entityId).toBeGreaterThanOrEqual(0); // Entity ID can be 0
+    expect(state.entityId).toBeGreaterThan(0); // Server must assign valid entity ID for client-side prediction
 
     console.warn('✅ Connected:', { clientId: state.clientId, entityId: state.entityId });
   });
