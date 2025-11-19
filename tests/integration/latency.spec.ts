@@ -1,11 +1,203 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { NetworkClient } from '../../src/network/NetworkClient';
+import { NetworkClient, type PlayerInput } from '../../src/network/NetworkClient';
+import { PredictionEngine, type EntityState } from '../../src/network/PredictionEngine';
+import type { u2 } from '../../src/network/proto/ecs.js';
 import { spawn, type ChildProcess } from 'child_process';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+type EntitySnapshotProto = u2.shared.proto.IEntitySnapshotProto;
+type WorldSnapshotProto = u2.shared.proto.IWorldSnapshotProto;
+
+// Tests send inputs at 30 Hz, so prediction delta must match to keep parity with client behavior
+const FIXED_DELTA_TIME = 1 / 30;
+const WAIT_FOR_SNAPSHOT_TIMEOUT_MS = 5000;
+
+function delay(ms: number) {
+  return new Promise<void>((resolve) => setTimeout(resolve, ms));
+}
+
+async function waitForCondition(
+  condition: () => boolean,
+  timeoutMs: number,
+  message: string
+): Promise<void> {
+  const start = Date.now();
+  while (!condition()) {
+    if (Date.now() - start > timeoutMs) {
+      throw new Error(`Timeout waiting for ${message} after ${timeoutMs}ms`);
+    }
+    await delay(50);
+  }
+}
+
+/**
+ * Helper: Simulate network latency by delaying WebSocket send/receive
+ */
+class LatencySimulator {
+  private readonly client: NetworkClient;
+  private readonly rttMs: number;
+  private socket: WebSocket | null = null;
+  private originalSend?: WebSocket['send'];
+  private originalOnMessage: ((event: any) => void) | null = null;
+  private enabled = false;
+
+  constructor(client: NetworkClient, rttMs: number) {
+    this.client = client;
+    this.rttMs = rttMs;
+  }
+
+  enable() {
+    if (this.enabled) {
+      return;
+    }
+
+    const socket = (this.client as any).socket as WebSocket | undefined;
+    if (!socket) {
+      throw new Error('NetworkClient socket not initialized yet');
+    }
+
+    this.socket = socket;
+    this.originalSend = socket.send;
+    this.originalOnMessage = socket.onmessage ?? null;
+
+    const oneWayDelay = this.rttMs / 2;
+
+    socket.send = (data: Parameters<WebSocket['send']>[0]) => {
+      setTimeout(() => {
+        this.originalSend?.call(socket, data);
+      }, oneWayDelay);
+    };
+
+    socket.onmessage = (event: any) => {
+      const handler = this.originalOnMessage;
+      setTimeout(() => {
+        handler?.call(socket, event);
+      }, oneWayDelay);
+    };
+
+    this.enabled = true;
+    console.warn(`🔧 Latency simulation enabled: ${this.rttMs}ms RTT (${oneWayDelay}ms one-way)`);
+  }
+
+  disable() {
+    if (!this.enabled) {
+      return;
+    }
+
+    if (this.socket && this.originalSend) {
+      this.socket.send = this.originalSend;
+    }
+
+    if (this.socket) {
+      this.socket.onmessage = this.originalOnMessage;
+    }
+
+    this.socket = null;
+    this.originalSend = undefined;
+    this.originalOnMessage = null;
+    this.enabled = false;
+
+    console.warn('🔧 Latency simulation disabled');
+  }
+}
+
+interface PredictionSample {
+  server: EntityState;
+  predicted: EntityState;
+  error: number;
+}
+
+/**
+ * Helper: Track prediction engine state for latency measurements
+ */
+class PredictionMonitor {
+  private engine: PredictionEngine | null = null;
+  private readonly fixedDeltaTime: number;
+
+  constructor(fixedDeltaTime: number) {
+    this.fixedDeltaTime = fixedDeltaTime;
+  }
+
+  recordInput(
+    input: Omit<PlayerInput, 'sequenceNumber' | 'timestamp'>,
+    sequenceNumber: number
+  ): EntityState | null {
+    if (!this.engine) {
+      return null;
+    }
+
+    return this.engine.applyInput(
+      {
+        ...input,
+        sequenceNumber,
+        timestamp: Date.now()
+      },
+      this.fixedDeltaTime
+    );
+  }
+
+  handleSnapshot(entity: EntitySnapshotProto): PredictionSample | null {
+    if (!entity.transform || !entity.transform.position) {
+      return null;
+    }
+
+    const serverState = this.toEntityState(entity);
+
+    if (!this.engine) {
+      this.engine = new PredictionEngine(serverState);
+      return {
+        server: serverState,
+        predicted: serverState,
+        error: 0
+      };
+    }
+
+    const lastProcessed = entity.lastProcessedSequence ?? 0;
+    const predictedState = this.engine.reconcile(
+      serverState,
+      lastProcessed,
+      this.fixedDeltaTime
+    );
+
+    return {
+      server: serverState,
+      predicted: predictedState,
+      error: this.computeError(predictedState.position, serverState.position)
+    };
+  }
+
+  getPredictedState(): EntityState | null {
+    return this.engine?.getState() ?? null;
+  }
+
+  private toEntityState(entity: EntitySnapshotProto): EntityState {
+    return {
+      position: {
+        x: entity.transform?.position?.x ?? 0,
+        y: entity.transform?.position?.y ?? 0
+      },
+      rotation: entity.transform?.rotation ?? 0,
+      velocity: {
+        x: entity.velocity?.linear?.x ?? 0,
+        y: entity.velocity?.linear?.y ?? 0
+      },
+      angularVelocity: entity.velocity?.angular ?? 0
+    };
+  }
+
+  private computeError(
+    predicted: { x: number; y: number },
+    server: { x: number; y: number }
+  ): number {
+    const dx = predicted.x - server.x;
+    const dy = predicted.y - server.y;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+}
 
 /**
  * M2.3 DoD: RTT Latency Tests
@@ -23,6 +215,7 @@ const __dirname = dirname(__filename);
 describe('M2.3 RTT Latency Tests', () => {
   let serverProcess: ChildProcess | null = null;
   let client: NetworkClient | null = null;
+  let activeLatencySim: LatencySimulator | null = null;
 
   beforeAll(async () => {
     // Start server using dotnet run for cross-platform compatibility
@@ -74,9 +267,22 @@ describe('M2.3 RTT Latency Tests', () => {
     }
   }, 60000); // 60s timeout for beforeAll hook (dotnet run is slow)
 
+  afterEach(() => {
+    if (activeLatencySim) {
+      activeLatencySim.disable();
+      activeLatencySim = null;
+    }
+
+    if (client) {
+      client.disconnect();
+      client = null;
+    }
+  });
+
   afterAll(async () => {
     if (client) {
       client.disconnect();
+      client = null;
     }
 
     if (serverProcess) {
@@ -102,47 +308,8 @@ describe('M2.3 RTT Latency Tests', () => {
     }
   });
 
-  /**
-   * Helper: Simulate network latency by delaying message delivery
-   */
-  class LatencySimulator {
-    private delayMs: number;
-    private originalSend: any;
-    private client: NetworkClient;
-
-    constructor(client: NetworkClient, delayMs: number) {
-      this.client = client;
-      this.delayMs = delayMs;
-    }
-
-    enable() {
-      // Note: This is a simplified simulation
-      // In production, you'd intercept WebSocket messages at transport layer
-      console.warn(`🔧 Latency simulation enabled: ${this.delayMs}ms RTT (${this.delayMs / 2}ms one-way)`);
-    }
-
-    disable() {
-      console.warn('🔧 Latency simulation disabled');
-    }
-  }
-
-  /**
-   * Helper: Calculate position error between predicted and server state
-   */
-  function calculatePositionError(
-    predictedX: number, 
-    predictedY: number, 
-    serverX: number, 
-    serverY: number
-  ): number {
-    const dx = predictedX - serverX;
-    const dy = predictedY - serverY;
-    return Math.sqrt(dx * dx + dy * dy);
-  }
-
   it('RTT 50ms: prediction error should be < 1m average', async () => {
     const RTT_MS = 50;
-    const ONE_WAY_LATENCY = RTT_MS / 2;
     const MAX_AVERAGE_ERROR_M = 1.0;
     const TEST_DURATION_MS = 5000; // 5 seconds of gameplay
     
@@ -159,105 +326,71 @@ describe('M2.3 RTT Latency Tests', () => {
     expect(state.connected).toBe(true);
     expect(state.entityId).toBeGreaterThan(0);
 
-    // Track prediction errors
+    const prediction = new PredictionMonitor(FIXED_DELTA_TIME);
     const errors: number[] = [];
-    let lastServerX = 0;
-    let lastServerY = 0;
-    let lastPredictedX = 0;
-    let lastPredictedY = 0;
-
-    // Subscribe to snapshots to capture server position
     let snapshotCount = 0;
-    client.onSnapshot((snapshot) => {
+
+    client.onSnapshot((snapshot: WorldSnapshotProto) => {
+      const entity = snapshot.entities?.find((e) => e.entityId === state.entityId);
+      if (!entity) {
+        return;
+      }
+
       snapshotCount++;
-      console.warn(`📥 Snapshot #${snapshotCount}: tick=${snapshot.tick}, entities=${snapshot.entities?.length || 0}`);
-      
-      if (snapshot.entities && snapshot.entities.length > 0) {
-        console.warn(`   First entity keys:`, Object.keys(snapshot.entities[0]));
-        console.warn(`   First entity:`, JSON.stringify(snapshot.entities[0]));
-      }
-      
-      const entity = snapshot.entities?.find((e: any) => e.entityId === state.entityId);
-      
-      if (entity && entity.transform && entity.transform.position) {
-        lastServerX = entity.transform.position.x || 0;
-        lastServerY = entity.transform.position.y || 0;
-
-        // Calculate error if we have a predicted position
-        if (lastPredictedX !== 0 || lastPredictedY !== 0) {
-          const error = calculatePositionError(
-            lastPredictedX, 
-            lastPredictedY, 
-            lastServerX, 
-            lastServerY
-          );
-          errors.push(error);
-        }
+      const sample = prediction.handleSnapshot(entity);
+      if (sample) {
+        errors.push(sample.error);
       }
     });
 
-    // Wait for first snapshot before starting test
-    await new Promise<void>((resolve) => {
-      const checkSnapshot = () => {
-        if (snapshotCount > 0) {
-          resolve();
-        } else {
-          setTimeout(checkSnapshot, 100);
-        }
-      };
-      checkSnapshot();
-    });
+    await waitForCondition(
+      () => snapshotCount > 0,
+      WAIT_FOR_SNAPSHOT_TIMEOUT_MS,
+      'first snapshot for RTT 50ms test'
+    );
     
-    console.warn(`✅ Received first snapshot, starting test...`);
+    console.warn(`✅ Received first snapshot, starting RTT 50ms test...`);
 
-    // Simulate latency
     const latencySim = new LatencySimulator(client, RTT_MS);
     latencySim.enable();
+    activeLatencySim = latencySim;
 
-    // Run test for specified duration
     const startTime = Date.now();
-    let frameCount = 0;
+    let inputsSent = 0;
 
     while (Date.now() - startTime < TEST_DURATION_MS) {
-      // Send thrust input (simulate player holding W)
-      const sequence = client.sendInput({
+      const input: Omit<PlayerInput, 'sequenceNumber' | 'timestamp'> = {
         thrust: 1.0,
         strafeX: 0,
         strafeY: 0,
         yawInput: 0,
         flightAssist: true
-      });
+      };
 
-      // TODO: Get predicted position from PredictionEngine
-      // For now, this is a placeholder - need to expose prediction state
-      // lastPredictedX = predictedPosition.x;
-      // lastPredictedY = predictedPosition.y;
+      const sequence = client.sendInput(input);
+      if (sequence > 0) {
+        prediction.recordInput(input, sequence);
+        inputsSent++;
+      }
 
-      frameCount++;
-      await new Promise(resolve => setTimeout(resolve, 33)); // ~30 FPS
+      await delay(33); // ~30 FPS input rate
     }
 
     latencySim.disable();
+    activeLatencySim = null;
 
-    // Calculate average error
-    if (errors.length > 0) {
-      const avgError = errors.reduce((sum, e) => sum + e, 0) / errors.length;
-      const maxError = Math.max(...errors);
+    expect(errors.length).toBeGreaterThan(10);
 
-      console.warn(`📊 RTT 50ms Results:`);
-      console.warn(`   Frames: ${frameCount}`);
-      console.warn(`   Samples: ${errors.length}`);
-      console.warn(`   Avg Error: ${avgError.toFixed(3)}m`);
-      console.warn(`   Max Error: ${maxError.toFixed(3)}m`);
+    const avgError = errors.reduce((sum, value) => sum + value, 0) / errors.length;
+    const maxError = Math.max(...errors);
 
-      expect(avgError).toBeLessThan(MAX_AVERAGE_ERROR_M);
-    } else {
-      console.warn('⚠️ No prediction error samples collected (need to expose prediction state)');
-      // For now, just verify we got snapshots and ship moved
-      const totalMovement = Math.sqrt(lastServerX * lastServerX + lastServerY * lastServerY);
-      console.warn(`   Final position: (${lastServerX.toFixed(2)}, ${lastServerY.toFixed(2)}), distance: ${totalMovement.toFixed(2)}m`);
-      expect(totalMovement).toBeGreaterThan(1.0); // Ship should have moved at least 1m
-    }
+    console.warn(`📊 RTT 50ms Results:`);
+    console.warn(`   Inputs Sent: ${inputsSent}`);
+    console.warn(`   Samples: ${errors.length}`);
+    console.warn(`   Avg Error: ${avgError.toFixed(3)}m`);
+    console.warn(`   Max Error: ${maxError.toFixed(3)}m`);
+
+    expect(avgError).toBeLessThan(MAX_AVERAGE_ERROR_M);
   }, 10000); // 10s test timeout
 
   it('RTT 200ms: convergence should be < 2s', async () => {
@@ -278,73 +411,85 @@ describe('M2.3 RTT Latency Tests', () => {
     expect(state.connected).toBe(true);
     expect(state.entityId).toBeGreaterThan(0);
 
-    let serverX = 0;
-    let serverY = 0;
-    let predictedX = 0;
-    let predictedY = 0;
+    const prediction = new PredictionMonitor(FIXED_DELTA_TIME);
+    let snapshotCount = 0;
     let divergenceDetectedAt = 0;
     let convergedAt = 0;
+    let maxError = 0;
 
-    client.onSnapshot((snapshot) => {
-      const entity = snapshot.entities?.find((e: any) => e.entityId === state.entityId);
-      if (entity && entity.transform && entity.transform.position) {
-        serverX = entity.transform.position.x || 0;
-        serverY = entity.transform.position.y || 0;
+    client.onSnapshot((snapshot: WorldSnapshotProto) => {
+      const entity = snapshot.entities?.find((e) => e.entityId === state.entityId);
+      if (!entity) {
+        return;
+      }
 
-        // Check for divergence
-        const error = calculatePositionError(predictedX, predictedY, serverX, serverY);
-        
-        if (error > POSITION_TOLERANCE_M && divergenceDetectedAt === 0) {
-          divergenceDetectedAt = Date.now();
-          console.warn(`🔴 Divergence detected: ${error.toFixed(3)}m`);
-        }
+      snapshotCount++;
+      const sample = prediction.handleSnapshot(entity);
+      if (!sample) {
+        return;
+      }
 
-        if (error <= POSITION_TOLERANCE_M && divergenceDetectedAt > 0 && convergedAt === 0) {
-          convergedAt = Date.now();
-          const convergenceTime = convergedAt - divergenceDetectedAt;
-          console.warn(`🟢 Converged after ${convergenceTime}ms (error: ${error.toFixed(3)}m)`);
-        }
+      const error = sample.error;
+      maxError = Math.max(maxError, error);
+
+      if (error > POSITION_TOLERANCE_M && divergenceDetectedAt === 0) {
+        divergenceDetectedAt = Date.now();
+        console.warn(`🔴 Divergence detected: ${error.toFixed(3)}m`);
+      } else if (
+        error <= POSITION_TOLERANCE_M &&
+        divergenceDetectedAt > 0 &&
+        convergedAt === 0
+      ) {
+        convergedAt = Date.now();
+        console.warn(`🟢 Converged after ${convergedAt - divergenceDetectedAt}ms (error: ${error.toFixed(3)}m)`);
       }
     });
 
-    // Simulate latency
+    await waitForCondition(
+      () => snapshotCount > 0,
+      WAIT_FOR_SNAPSHOT_TIMEOUT_MS,
+      'first snapshot for RTT 200ms test'
+    );
+
+    console.warn(`✅ Received first snapshot, starting RTT 200ms convergence test...`);
+
     const latencySim = new LatencySimulator(client, RTT_MS);
     latencySim.enable();
+    activeLatencySim = latencySim;
 
-    // Send burst of inputs to create divergence
     for (let i = 0; i < 10; i++) {
-      client.sendInput({
+      const input: Omit<PlayerInput, 'sequenceNumber' | 'timestamp'> = {
         thrust: 1.0,
         strafeX: 0,
         strafeY: 0,
         yawInput: 0,
         flightAssist: true
-      });
-      await new Promise(resolve => setTimeout(resolve, 33));
+      };
+      const sequence = client.sendInput(input);
+      if (sequence > 0) {
+        prediction.recordInput(input, sequence);
+      }
+      await delay(33);
     }
 
-    // Wait for convergence or timeout
     const maxWaitTime = MAX_CONVERGENCE_TIME_MS + 1000; // Extra buffer
     const startWait = Date.now();
     while (convergedAt === 0 && Date.now() - startWait < maxWaitTime) {
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await delay(100);
     }
 
     latencySim.disable();
+    activeLatencySim = null;
 
-    if (convergedAt > 0 && divergenceDetectedAt > 0) {
-      const convergenceTime = convergedAt - divergenceDetectedAt;
-      console.warn(`📊 RTT 200ms Results:`);
-      console.warn(`   Convergence Time: ${convergenceTime}ms`);
-      
-      expect(convergenceTime).toBeLessThan(MAX_CONVERGENCE_TIME_MS);
-    } else {
-      console.warn('⚠️ Could not measure convergence (need to expose prediction state)');
-      // Verify we at least got server updates and ship moved
-      const totalMovement = Math.sqrt(serverX * serverX + serverY * serverY);
-      console.warn(`   Final position: (${serverX.toFixed(2)}, ${serverY.toFixed(2)}), distance: ${totalMovement.toFixed(2)}m`);
-      expect(totalMovement).toBeGreaterThan(1.0);
-    }
+    expect(divergenceDetectedAt).toBeGreaterThan(0);
+    expect(convergedAt).toBeGreaterThan(0);
+
+    const convergenceTime = convergedAt - divergenceDetectedAt;
+    console.warn(`📊 RTT 200ms Results:`);
+    console.warn(`   Convergence Time: ${convergenceTime}ms`);
+    console.warn(`   Max Error Observed: ${maxError.toFixed(3)}m`);
+
+    expect(convergenceTime).toBeLessThan(MAX_CONVERGENCE_TIME_MS);
   }, 15000); // 15s test timeout
 
   it('should maintain stable connection under 200ms latency', async () => {
@@ -369,6 +514,7 @@ describe('M2.3 RTT Latency Tests', () => {
 
     const latencySim = new LatencySimulator(client, RTT_MS);
     latencySim.enable();
+    activeLatencySim = latencySim;
 
     const startTime = Date.now();
     while (Date.now() - startTime < TEST_DURATION_MS) {
@@ -380,10 +526,11 @@ describe('M2.3 RTT Latency Tests', () => {
         flightAssist: true
       });
       inputsSent++;
-      await new Promise(resolve => setTimeout(resolve, 33));
+      await delay(33);
     }
 
     latencySim.disable();
+    activeLatencySim = null;
 
     console.warn(`📊 Stability Test Results:`);
     console.warn(`   Duration: ${TEST_DURATION_MS}ms`);
