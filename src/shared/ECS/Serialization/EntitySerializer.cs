@@ -89,7 +89,8 @@ public static class EntitySerializer
     {
         var snapshot = new EntitySnapshotProto
         {
-            EntityId = (uint)entity.creationIndex,
+            // NOTE: EntityId = creationIndex + 1 (to ensure ID > 0 for client-side prediction)
+            EntityId = (uint)entity.creationIndex + 1,
             LastProcessedSequence = lastProcessedSequence // M2.3 reconciliation
         };
 

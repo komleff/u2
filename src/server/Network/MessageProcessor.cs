@@ -118,10 +118,13 @@ public class MessageProcessor
         }
 
         // Apply input to the entity
-        var entity = _gameWorld.GetEntityById((int)connection.EntityId!.Value);
+        // NOTE: EntityId = creationIndex + 1, so we need to subtract 1
+        var entityCreationIndex = (int)connection.EntityId!.Value - 1;
+        var entity = _gameWorld.GetEntityById(entityCreationIndex);
         if (entity == null)
         {
-            _logger.LogWarning("Entity {EntityId} not found for input", connection.EntityId);
+            _logger.LogWarning("Entity {EntityId} (creationIndex={CreationIndex}) not found for input", 
+                connection.EntityId, entityCreationIndex);
             return;
         }
 
