@@ -78,10 +78,17 @@ export class PredictionEngine {
   private inputHistory: InputRecord[] = [];
   private physics: PhysicsConfig;
   private maxHistorySize = 120; // 2 seconds at 60 Hz
-  
-  constructor(initialState: EntityState, physics: PhysicsConfig = DEFAULT_PHYSICS) {
-    this.predictedState = { ...initialState };
+  private reconciliationThreshold: number;
+  private readonly rotationThreshold = 0.087; // 5° in radians
+
+  constructor(
+    initialState: EntityState,
+    physics: PhysicsConfig = DEFAULT_PHYSICS,
+    reconciliationThreshold = 1.0
+  ) {
+    this.predictedState = this.cloneState(initialState);
     this.physics = physics;
+    this.reconciliationThreshold = reconciliationThreshold;
   }
 
   /**
@@ -91,7 +98,7 @@ export class PredictionEngine {
     // Store input in history
     this.inputHistory.push({
       input: { ...input },
-      state: { ...this.predictedState }
+      state: this.cloneState(this.predictedState)
     });
 
     // Trim history to max size
@@ -102,14 +109,14 @@ export class PredictionEngine {
     // Apply physics simulation
     this.simulatePhysics(input, deltaTime);
 
-    return { ...this.predictedState };
+    return this.cloneState(this.predictedState);
   }
 
   /**
    * Get current predicted state
    */
   getState(): EntityState {
-    return { ...this.predictedState };
+    return this.cloneState(this.predictedState);
   }
 
   /**
@@ -128,9 +135,9 @@ export class PredictionEngine {
 
     if (replayFromIndex === -1) {
       // All our inputs have been processed, just accept server state
-      this.predictedState = { ...serverState };
+      this.predictedState = this.cloneState(serverState);
       this.inputHistory = [];
-      return this.predictedState;
+      return this.cloneState(this.predictedState);
     }
 
     // Calculate prediction error
@@ -141,13 +148,14 @@ export class PredictionEngine {
 
     const rotationError = Math.abs(this.predictedState.rotation - serverState.rotation);
 
-    // Only reconcile if error exceeds threshold (1 meter or 5 degrees)
-    const needsReconciliation = positionError > 1.0 || rotationError > 0.087; // 5° in radians
+    // Only reconcile if error exceeds threshold (configurable meters or 5 degrees)
+    const needsReconciliation =
+      positionError > this.reconciliationThreshold || rotationError > this.rotationThreshold;
 
     if (!needsReconciliation) {
       // Trim processed inputs from history
       this.inputHistory = this.inputHistory.slice(replayFromIndex);
-      return this.predictedState;
+      return this.cloneState(this.predictedState);
     }
 
     console.warn('[Prediction] Reconciling:', {
@@ -157,7 +165,7 @@ export class PredictionEngine {
     });
 
     // Rewind to server state
-    this.predictedState = { ...serverState };
+    this.predictedState = this.cloneState(serverState);
 
     // Replay unprocessed inputs
     const inputsToReplay = this.inputHistory.slice(replayFromIndex);
@@ -168,7 +176,16 @@ export class PredictionEngine {
     // Update history
     this.inputHistory = inputsToReplay;
 
-    return this.predictedState;
+    return this.cloneState(this.predictedState);
+  }
+
+  private cloneState(state: EntityState): EntityState {
+    return {
+      position: { ...state.position },
+      rotation: state.rotation,
+      velocity: { ...state.velocity },
+      angularVelocity: state.angularVelocity
+    };
   }
 
   /**
