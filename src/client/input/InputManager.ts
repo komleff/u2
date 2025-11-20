@@ -1,4 +1,10 @@
 import { CONTROL_MAP, type ControlAction } from "@config/controls";
+import { CLIENT_CONFIG } from "@config/client";
+
+export interface InputManagerOptions {
+  yawSensitivity?: number;
+  flightAssist?: boolean;
+}
 
 export type InputToggles = {
   online?: boolean;
@@ -28,8 +34,8 @@ export class InputManager {
   private yawAccumulator = 0;
 
   // Flight assist defaults to ON to match server-side baseline
-  private flightAssist = true;
-  private readonly yawSensitivity = 0.0025; // rad per pixel, comic-style soft drift
+  private flightAssist: boolean;
+  private readonly yawSensitivity: number;
   private readonly eventSource: Pick<Window, "addEventListener" | "removeEventListener">;
   private readonly pointerTarget: HTMLElement | { addEventListener: (_: string, __: (_: MouseEvent) => void) => void; removeEventListener?: (_: string, __: (_: MouseEvent) => void) => void };
 
@@ -56,10 +62,13 @@ export class InputManager {
 
   constructor(
     target: HTMLElement = document.body,
-    eventSource: Pick<Window, "addEventListener" | "removeEventListener"> = window
+    eventSource: Pick<Window, "addEventListener" | "removeEventListener"> = window,
+    options: InputManagerOptions = {}
   ) {
     this.pointerTarget = target;
     this.eventSource = eventSource;
+    this.yawSensitivity = options.yawSensitivity ?? CLIENT_CONFIG.input.yawSensitivity;
+    this.flightAssist = options.flightAssist ?? true;
 
     this.eventSource.addEventListener("keydown", this.keyDownHandler);
     this.eventSource.addEventListener("keyup", this.keyUpHandler);

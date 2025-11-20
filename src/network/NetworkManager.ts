@@ -1,9 +1,9 @@
 import { NetworkClient, type NetworkConfig, type PlayerInput } from './NetworkClient';
 import { PredictionEngine, type EntityState } from './PredictionEngine';
+import { protoToEntityState } from './stateAdapters';
 import type { u2 } from './proto/ecs.js';
 
 type WorldSnapshotProto = u2.shared.proto.IWorldSnapshotProto;
-type EntitySnapshotProto = u2.shared.proto.IEntitySnapshotProto;
 
 export type ConnectionEvent =
   | { status: "connected"; clientId: number; entityId: number }
@@ -177,7 +177,7 @@ export class NetworkManager {
       this.config.reconciliationThreshold
     );
 
-    console.warn('[NetworkManager] Connected:', { clientId, entityId });
+    this.log("info", "Connected", { clientId, entityId });
 
     if (this.onConnectionChangeCallback) {
       this.onConnectionChangeCallback({ status: "connected", clientId, entityId });
@@ -199,7 +199,7 @@ export class NetworkManager {
     // Process all entities in snapshot
     for (const entityProto of snapshot.entities ?? []) {
       const entityId = entityProto.entityId ?? 0;
-      const state = this.protoToState(entityProto);
+      const state = protoToEntityState(entityProto);
       entities.set(entityId, state);
       lastProcessedSequences.set(entityId, entityProto.lastProcessedSequence ?? 0);
 
@@ -235,25 +235,21 @@ export class NetworkManager {
     this.prediction = null;
     this.localEntityId = null;
     this.lastSnapshotTick = 0;
-    console.warn('[NetworkManager] Disconnected');
+    this.log("warn", "Disconnected");
 
     if (this.onConnectionChangeCallback) {
       this.onConnectionChangeCallback({ status: "disconnected" });
     }
   }
 
-  private protoToState(proto: EntitySnapshotProto): EntityState {
-    return {
-      position: {
-        x: proto.transform?.position?.x ?? 0,
-        y: proto.transform?.position?.y ?? 0
-      },
-      rotation: proto.transform?.rotation ?? 0,
-      velocity: {
-        x: proto.velocity?.linear?.x ?? 0,
-        y: proto.velocity?.linear?.y ?? 0
-      },
-      angularVelocity: proto.velocity?.angular ?? 0
-    };
+  private log(level: "info" | "warn" | "error", message: string, context?: unknown) {
+    if (this.config.logger) {
+      this.config.logger(level, message, context);
+      return;
+    }
+    const payload = context !== undefined ? [message, context] : [message];
+    if (level === "info") console.info("[NetworkManager]", ...payload);
+    else if (level === "warn") console.warn("[NetworkManager]", ...payload);
+    else console.error("[NetworkManager]", ...payload);
   }
 }

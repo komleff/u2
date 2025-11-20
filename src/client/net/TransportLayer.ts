@@ -1,3 +1,4 @@
+import { CLIENT_CONFIG, type BackoffConfig } from "@config/client";
 import { NetworkManager, type NetworkManagerConfig, type ConnectionEvent, type WorldUpdateMeta } from "@network/NetworkManager";
 import type { EntityState } from "@network/PredictionEngine";
 import type { CommandFrame } from "../input/InputManager";
@@ -17,7 +18,15 @@ export interface TransportCallbacks {
   onStatus?: (status: TransportStatus) => void;
 }
 
+export interface TransportLayerConfig extends NetworkManagerConfig {
+  transportBackoff?: Partial<BackoffConfig>;
+}
+
+type NetworkManagerFactory = (config: NetworkManagerConfig) => NetworkManager;
+
 export class TransportLayer {
+  private readonly backoff: BackoffConfig;
+  private readonly managerFactory: NetworkManagerFactory;
   private manager: NetworkManager | null = null;
   private desiredOnline = false;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
@@ -31,9 +40,17 @@ export class TransportLayer {
   };
 
   constructor(
-    private readonly config: NetworkManagerConfig,
-    private readonly callbacks: TransportCallbacks
-  ) {}
+    private readonly config: TransportLayerConfig,
+    private readonly callbacks: TransportCallbacks,
+    managerFactory: NetworkManagerFactory = (cfg) => new NetworkManager(cfg)
+  ) {
+    this.managerFactory = managerFactory;
+    this.backoff = {
+      ...CLIENT_CONFIG.network.reconnect,
+      enabled: CLIENT_CONFIG.network.reconnect.enabled,
+      ...(config.transportBackoff ?? {})
+    };
+  }
 
   start() {
     this.desiredOnline = true;
@@ -91,7 +108,7 @@ export class TransportLayer {
     };
     this.emitStatus();
 
-    this.manager = new NetworkManager(this.config);
+    this.manager = this.managerFactory(this.config);
     this.manager.onStateUpdate((state) => {
       this.callbacks.onLocalState?.(state);
     });
@@ -141,9 +158,25 @@ export class TransportLayer {
   }
 
   private scheduleReconnect() {
-    if (!this.desiredOnline) return;
+    if (!this.desiredOnline || !this.backoff.enabled) {
+      return;
+    }
 
-    const delay = Math.min(5000, 500 * Math.pow(1.6, this.attempts));
+    if (this.attempts >= this.backoff.maxRetries) {
+      this.status = {
+        connected: false,
+        connecting: false,
+        attempts: this.attempts,
+        lastChange: performance.now(),
+        lastError: this.status.lastError ?? "max retries reached"
+      };
+      this.emitStatus();
+      return;
+    }
+
+    const exponentialDelay = this.backoff.baseDelayMs * Math.pow(this.backoff.factor, this.attempts);
+    const jitter = this.backoff.jitterMs > 0 ? Math.random() * this.backoff.jitterMs : 0;
+    const delay = Math.min(this.backoff.maxDelayMs, exponentialDelay) + jitter;
     this.attempts += 1;
 
     this.clearReconnect();

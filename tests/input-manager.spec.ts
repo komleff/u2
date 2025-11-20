@@ -42,4 +42,26 @@ describe("InputManager", () => {
 
     manager.dispose();
   });
+
+  it("converts pointer movement into yaw using configured sensitivity", () => {
+    const source = new StubEventSource();
+    const target = new StubEventSource();
+
+    const manager = new InputManager(
+      target as unknown as HTMLElement,
+      source as unknown as Window,
+      { yawSensitivity: 0.01 }
+    );
+
+    target.emit("mousemove", { movementX: 10 });
+    const frame = manager.poll();
+
+    expect(frame.yaw).toBeCloseTo(0.1);
+
+    // yaw accumulator should reset between polls
+    const secondFrame = manager.poll();
+    expect(secondFrame.yaw).toBe(0);
+
+    manager.dispose();
+  });
 });

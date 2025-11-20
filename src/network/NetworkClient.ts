@@ -1,3 +1,4 @@
+import { CLIENT_CONFIG } from '@config/client';
 import { u2 } from './proto/ecs.js';
 
 type ClientMessageProto = u2.shared.proto.ClientMessageProto;
@@ -14,6 +15,7 @@ export interface NetworkConfig {
   version: string;
   inputRateHz: number;
   reconnect?: Partial<ReconnectConfig>;
+  decodeErrorThreshold?: number;
   transportHint?: TransportKind;
   logger?: (level: "info" | "warn" | "error" | "debug", message: string, context?: unknown) => void;
 }
@@ -24,6 +26,7 @@ interface ReconnectConfig {
   baseDelayMs: number;
   maxDelayMs: number;
   jitterMs: number;
+  factor: number;
   maxBackoffMs?: number;
 }
 
@@ -66,6 +69,7 @@ export class NetworkClient {
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private manualClose = false;
   private decodeErrors = 0;
+  private decodeErrorThreshold: number;
   
   // Callbacks
   private onConnectedCallback?: (clientId: number, entityId: number) => void;
@@ -76,12 +80,12 @@ export class NetworkClient {
     this.config = config;
     this.reconnect = {
       enabled: true,
-      maxRetries: 5,
-      baseDelayMs: 600,
-      maxDelayMs: 4000,
-      jitterMs: 150,
+      ...CLIENT_CONFIG.network.reconnect,
+      factor: CLIENT_CONFIG.network.reconnect.factor ?? 2,
       ...config.reconnect
     };
+    this.decodeErrorThreshold =
+      config.decodeErrorThreshold ?? CLIENT_CONFIG.network.decodeErrorThreshold;
     this.transport = config.transportHint ?? "websocket";
   }
 
@@ -300,8 +304,11 @@ export class NetworkClient {
       this.decodeErrors += 1;
       this.log("error", "Failed to decode message", error);
 
-      if (this.decodeErrors >= 3) {
-        this.log("error", "Too many decode errors, disconnecting for safety");
+      if (this.decodeErrors >= this.decodeErrorThreshold) {
+        this.log("error", "Too many decode errors, disconnecting for safety", {
+          decodeErrors: this.decodeErrors,
+          threshold: this.decodeErrorThreshold
+        });
         this.disconnect();
       }
     }
@@ -367,7 +374,7 @@ export class NetworkClient {
 
     const backoff = Math.min(
       this.reconnect.maxBackoffMs ?? this.reconnect.maxDelayMs,
-      this.reconnect.baseDelayMs * 2 ** this.reconnectAttempts
+      this.reconnect.baseDelayMs * this.reconnect.factor ** this.reconnectAttempts
     );
     const jitter = Math.random() * this.reconnect.jitterMs;
     const delay = backoff + jitter;

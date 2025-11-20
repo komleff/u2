@@ -1,6 +1,7 @@
 import type { EntityState } from "@network/PredictionEngine";
+import { CLIENT_CONFIG } from "@config/client";
 import type { TransportStatus } from "../net/TransportLayer";
-import type { WorldFrame } from "../world/SnapshotStore";
+import type { RenderEntity, WorldFrame } from "../world/SnapshotStore";
 
 interface Star {
   x: number;
@@ -96,7 +97,7 @@ export class SnapshotRenderer {
   }
 
   private computeScale() {
-    const viewRadius = 900; // meters
+    const viewRadius = CLIENT_CONFIG.render.viewRadius;
     const viewport = Math.min(this.canvas.width, this.canvas.height);
     return viewport / (viewRadius * 2);
   }
@@ -134,7 +135,7 @@ export class SnapshotRenderer {
     ctx.restore();
   }
 
-  private drawEntity(entity: { position: { x: number; y: number }; rotation: number; velocity: { x: number; y: number }; id: number }, scale: number, isLocal: boolean) {
+  private drawEntity(entity: RenderEntity, scale: number, isLocal: boolean) {
     const ctx = this.ctx;
     const size = 14;
     const speed = Math.hypot(entity.velocity.x, entity.velocity.y);

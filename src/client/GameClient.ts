@@ -1,4 +1,5 @@
 import { SIMULATION_TICK } from "@config/simulation";
+import { CLIENT_CONFIG } from "@config/client";
 import { InputManager } from "./input/InputManager";
 import { TransportLayer, type TransportStatus } from "./net/TransportLayer";
 import { SnapshotRenderer } from "./render/SnapshotRenderer";
@@ -40,7 +41,9 @@ export class GameClient {
     this.root.appendChild(this.canvas);
 
     this.renderer = new SnapshotRenderer(this.canvas);
-    this.input = new InputManager(this.root);
+    this.input = new InputManager(this.root, window, {
+      yawSensitivity: CLIENT_CONFIG.input.yawSensitivity
+    });
 
     this.status = {
       connected: false,
@@ -54,10 +57,13 @@ export class GameClient {
         serverUrl: options.serverUrl,
         playerName: options.playerName ?? "FlightTest",
         version: options.version ?? "0.5.0",
-        inputRateHz: 30,
+        inputRateHz: CLIENT_CONFIG.network.inputRateHz,
         enablePrediction: true,
-        reconciliationThreshold: 1.5,
-        fixedDeltaTime: Math.max(SIMULATION_TICK, 1 / 60) // clamp to server tick budget
+        reconciliationThreshold: CLIENT_CONFIG.network.reconciliationThreshold,
+        fixedDeltaTime: Math.max(SIMULATION_TICK, CLIENT_CONFIG.network.fixedDeltaTime), // clamp to server tick budget
+        decodeErrorThreshold: CLIENT_CONFIG.network.decodeErrorThreshold,
+        reconnect: CLIENT_CONFIG.network.reconnect,
+        transportBackoff: CLIENT_CONFIG.network.reconnect
       },
       {
         onWorld: (entities, meta) => this.snapshotStore.ingest(entities, meta),
@@ -79,7 +85,7 @@ export class GameClient {
     requestAnimationFrame((t) => this.loop(t));
   }
 
-  private loop(_timestamp: number) {
+  private loop() {
     const frame = this.input.poll();
     this.handleToggles(frame);
 
@@ -90,7 +96,7 @@ export class GameClient {
     const view = this.snapshotStore.frame(this.transport.getLocalEntityId());
     this.renderer.render(view, this.status, this.transport.getLocalEntityId(), this.predictedState, this.hudVisible);
 
-    requestAnimationFrame((t) => this.loop(t));
+    requestAnimationFrame(() => this.loop());
   }
 
   private handleToggles(frame: CommandFrame) {
