@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { NetworkClient } from "../src/network/NetworkClient";
+import { NetworkClient } from "@network/NetworkClient";
 
 afterEach(() => {
   vi.restoreAllMocks();

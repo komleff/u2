@@ -1,0 +1,15 @@
+{
+    "name": "@u2/chatgpt-vite",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "description": "ChatGPT-generated Vite client for U2 multiplayer testbed",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "coverage": "vitest run --coverage"
+    }
+}

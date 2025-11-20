@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { NetworkClient, type PlayerInput } from '../../src/network/NetworkClient';
-import { PredictionEngine, type EntityState } from '../../src/network/PredictionEngine';
-import type { u2 } from '../../src/network/proto/ecs.js';
+import { NetworkClient, type PlayerInput } from '@network/NetworkClient';
+import { PredictionEngine, type EntityState } from '@network/PredictionEngine';
+import type { u2 } from '@network/proto/ecs.js';
 import { spawn, type ChildProcess } from 'child_process';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';

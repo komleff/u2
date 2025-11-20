@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { InputManager } from "../src/client/input/InputManager";
+import { InputManager } from "@client/input/InputManager";
 
 class StubEventSource {
   private listeners: Record<string, Array<(evt: any) => void>> = {};

@@ -1,0 +1,21 @@
+{
+  "extends": "../../../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["vite/client", "node"],
+    "baseUrl": "./",
+    "paths": {
+      "@client/*": ["client/*"],
+      "@config/*": ["config/*"],
+      "@scenes/*": ["scenes/*"],
+      "@ui/*": ["ui/*"],
+      "@network/*": ["network/*"],
+      "@core/*": ["../../../core/*"],
+      "@systems/*": ["../../../systems/*"],
+      "@types/*": ["../../../types/*"],
+      "@utils/*": ["../../../utils/*"],
+      "@assets/*": ["../../../assets/*"]
+    }
+  },
+  "include": ["."]
+}

@@ -5,17 +5,20 @@
     "private": true,
     "type": "module",
     "main": "dist/index.js",
+    "workspaces": [
+        "src/clients/testbed/*"
+    ],
     "scripts": {
-        "dev": "vite",
-        "build": "vite build",
-        "preview": "vite preview",
+        "dev": "npm run dev --workspace=src/clients/testbed/chatgpt-vite",
+        "build": "npm run build --workspace=src/clients/testbed/chatgpt-vite",
+        "preview": "npm run preview --workspace=src/clients/testbed/chatgpt-vite",
         "lint": "eslint . --ext .ts --max-warnings=0",
-        "test": "vitest run",
-        "test:watch": "vitest",
-        "coverage": "vitest run --coverage",
+        "test": "npm run test --workspace=src/clients/testbed/chatgpt-vite",
+        "test:watch": "npm run test:watch --workspace=src/clients/testbed/chatgpt-vite",
+        "coverage": "npm run coverage --workspace=src/clients/testbed/chatgpt-vite",
         "docs:normalize": "node scripts/normalize-md.mjs",
         "docs:convert": "node scripts/convert-docs.mjs",
-        "proto:generate": "pbjs -t static-module -w es6 -o src/network/proto/ecs.js src/shared/Proto/ecs.proto && pbts -o src/network/proto/ecs.d.ts src/network/proto/ecs.js"
+        "proto:generate": "pbjs -t static-module -w es6 -o src/clients/testbed/chatgpt-vite/network/proto/ecs.js src/shared/Proto/ecs.proto && pbts -o src/clients/testbed/chatgpt-vite/network/proto/ecs.d.ts src/clients/testbed/chatgpt-vite/network/proto/ecs.js"
     },
     "repository": {
         "type": "git",
