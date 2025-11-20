@@ -54,6 +54,15 @@ npm run preview
 
 ---
 
+### Client preview (M2.3 Stage 1)
+
+- Run `npm run dev` to start the Vite client.
+- Default server endpoint: `ws://localhost:8080/` (override with `VITE_SERVER_URL`).
+- Controls: `WASD` thrusters, `Q`/`E` yaw, `O` toggles link, `F3` toggles HUD overlay.
+- Theme: hand-drawn space opera; snapshots from the test server are rendered on the new canvas client.
+
+---
+
 ## Testing and quality
 
 ### Linting
@@ -135,4 +144,8 @@ Bug reports and feature requests are welcome via GitHub issues.
 
 This project is licensed under the **MIT License**.  
 See the `LICENSE` file if present, or the license section on the GitHub repository page.
+
+---
+
+Build prepared with Codex (GPT-5).
 

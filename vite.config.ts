@@ -19,6 +19,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      "@client": resolve(__dirname, "src/client"),
       "@core": resolve(__dirname, "src/core"),
       "@systems": resolve(__dirname, "src/systems"),
       "@config": resolve(__dirname, "src/config"),

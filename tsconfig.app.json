@@ -5,6 +5,7 @@
     "types": ["vite/client", "node"],
     "baseUrl": "./",
     "paths": {
+      "@client/*": ["src/client/*"],
       "@core/*": ["src/core/*"],
       "@systems/*": ["src/systems/*"],
       "@config/*": ["src/config/*"],

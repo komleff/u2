@@ -1,5 +1,6 @@
-import type { Vector2 } from '@types/simulation';
-import type { PlayerInput } from './NetworkClient';
+import { DEFAULT_PHYSICS, type PhysicsConfig } from "@config/physics";
+import type { Vector2 } from "@types/simulation";
+import type { PlayerInput } from "./NetworkClient";
 
 /**
  * Entity state for prediction and reconciliation
@@ -20,56 +21,6 @@ interface InputRecord {
 }
 
 /**
- * Physics parameters matching server configuration
- */
-interface PhysicsConfig {
-  // Linear acceleration (m/s²)
-  forwardAccel: number;
-  reverseAccel: number;
-  strafeAccel: number;
-  
-  // Angular acceleration (rad/s²)
-  yawAccel: number;
-  
-  // FA:ON speed limits (m/s)
-  maxForwardSpeed: number;
-  maxReverseSpeed: number;
-  maxStrafeSpeed: number;
-  
-  // FA:ON angular limits (rad/s)
-  maxYawRate: number;
-  
-  // Mass properties
-  mass: number;
-  inertia: number;
-}
-
-/**
- * Default ship configuration (matches server default fighter)
- */
-const DEFAULT_PHYSICS: PhysicsConfig = {
-  // Linear acceleration
-  forwardAccel: 90.0,      // 90 m/s² forward
-  reverseAccel: 67.5,      // 67.5 m/s² reverse
-  strafeAccel: 85.0,       // 85 m/s² lateral
-  
-  // Angular acceleration
-  yawAccel: 4.189,         // 240°/s² = 4.189 rad/s²
-  
-  // FA:ON speed limits
-  maxForwardSpeed: 260.0,  // 260 m/s forward
-  maxReverseSpeed: 180.0,  // 180 m/s reverse
-  maxStrafeSpeed: 220.0,   // 220 m/s lateral
-  
-  // FA:ON angular limits
-  maxYawRate: 1.396,       // 80°/s = 1.396 rad/s
-  
-  // Mass
-  mass: 10000.0,           // 10 tons
-  inertia: 50000.0         // Approximate for small fighter
-};
-
-/**
  * Client-side prediction engine
  * Simulates physics locally and maintains input history for reconciliation
  */
@@ -79,7 +30,7 @@ export class PredictionEngine {
   private physics: PhysicsConfig;
   private maxHistorySize = 120; // 2 seconds at 60 Hz
   private reconciliationThreshold: number;
-  private readonly rotationThreshold = 0.087; // 5° in radians
+  private readonly rotationThreshold = 0.087; // 5 deg in radians
 
   constructor(
     initialState: EntityState,
@@ -130,7 +81,7 @@ export class PredictionEngine {
   ): EntityState {
     // Find the input that matches the server's last processed sequence
     const replayFromIndex = this.inputHistory.findIndex(
-      record => record.input.sequenceNumber > lastProcessedSequence
+      (record) => record.input.sequenceNumber > lastProcessedSequence
     );
 
     if (replayFromIndex === -1) {
@@ -141,9 +92,9 @@ export class PredictionEngine {
     }
 
     // Calculate prediction error
-    const positionError = Math.sqrt(
-      Math.pow(this.predictedState.position.x - serverState.position.x, 2) +
-      Math.pow(this.predictedState.position.y - serverState.position.y, 2)
+    const positionError = Math.hypot(
+      this.predictedState.position.x - serverState.position.x,
+      this.predictedState.position.y - serverState.position.y
     );
 
     const rotationError = Math.abs(this.predictedState.rotation - serverState.rotation);
@@ -158,9 +109,9 @@ export class PredictionEngine {
       return this.cloneState(this.predictedState);
     }
 
-    console.warn('[Prediction] Reconciling:', {
+    console.warn("[Prediction] Reconciling:", {
       positionError: positionError.toFixed(2),
-      rotationError: (rotationError * 180 / Math.PI).toFixed(2) + '°',
+      rotationErrorDeg: ((rotationError * 180) / Math.PI).toFixed(2),
       inputsToReplay: this.inputHistory.length - replayFromIndex
     });
 
@@ -216,14 +167,14 @@ export class PredictionEngine {
     if (input.strafeX !== 0 || input.strafeY !== 0) {
       const angle = state.rotation;
       const perpAngle = angle + Math.PI / 2;
-      
+
       // X strafe (right/left)
       if (input.strafeX !== 0) {
         const accel = this.physics.strafeAccel * input.strafeX;
         thrustForceX += Math.cos(perpAngle) * accel;
         thrustForceY += Math.sin(perpAngle) * accel;
       }
-      
+
       // Y strafe (up/down in ship space - vertical thrusters)
       if (input.strafeY !== 0) {
         const vertAngle = angle;
@@ -246,7 +197,7 @@ export class PredictionEngine {
       // Transform velocity to ship-local space
       const cosRot = Math.cos(state.rotation);
       const sinRot = Math.sin(state.rotation);
-      
+
       const localVelX = state.velocity.x * cosRot + state.velocity.y * sinRot;
       const localVelY = -state.velocity.x * sinRot + state.velocity.y * cosRot;
 
@@ -308,7 +259,7 @@ export class PredictionEngine {
     // Update rotation
     state.rotation += state.angularVelocity * deltaTime;
 
-    // Normalize rotation to [-π, π]
+    // Normalize rotation to [-PI, PI]
     while (state.rotation > Math.PI) state.rotation -= 2 * Math.PI;
     while (state.rotation < -Math.PI) state.rotation += 2 * Math.PI;
   }

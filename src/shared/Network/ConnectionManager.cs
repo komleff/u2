@@ -84,8 +84,9 @@ public class ConnectionManager
     /// <summary>
     /// Remove disconnected clients that haven't been seen for the specified timeout.
     /// </summary>
-    public void RemoveStaleConnections(TimeSpan timeout)
+    public List<ClientConnection> RemoveStaleConnections(TimeSpan timeout)
     {
+        var removed = new List<ClientConnection>();
         var cutoffTime = DateTime.UtcNow - timeout;
         var staleEndpoints = _connections
             .Where(kvp => kvp.Value.LastSeenUtc < cutoffTime)
@@ -98,8 +99,11 @@ public class ConnectionManager
             {
                 _logger.LogInformation("Removed stale client: {ClientId} from {Endpoint}", 
                     connection.ClientId, endpoint);
+                removed.Add(connection);
             }
         }
+
+        return removed;
     }
 }
 

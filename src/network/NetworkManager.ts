@@ -1,9 +1,20 @@
 import { NetworkClient, type NetworkConfig, type PlayerInput } from './NetworkClient';
 import { PredictionEngine, type EntityState } from './PredictionEngine';
+import { protoToEntityState } from './stateAdapters';
 import type { u2 } from './proto/ecs.js';
 
 type WorldSnapshotProto = u2.shared.proto.IWorldSnapshotProto;
-type EntitySnapshotProto = u2.shared.proto.IEntitySnapshotProto;
+
+export type ConnectionEvent =
+  | { status: "connected"; clientId: number; entityId: number }
+  | { status: "disconnected" };
+
+export interface WorldUpdateMeta {
+  tick: number;
+  receivedAt: number;
+  lastProcessedSequences?: Map<number, number>;
+  raw?: WorldSnapshotProto;
+}
 
 export interface NetworkManagerConfig extends NetworkConfig {
   enablePrediction: boolean;
@@ -19,13 +30,15 @@ export class NetworkManager {
   private client: NetworkClient;
   private prediction: PredictionEngine | null = null;
   private config: NetworkManagerConfig;
+  private smoothedState: EntityState | null = null;
   
   private localEntityId: number | null = null;
   private lastSnapshotTick: number = 0;
   
   // Callbacks
   private onStateUpdateCallback?: (state: EntityState) => void;
-  private onWorldUpdateCallback?: (entities: Map<number, EntityState>) => void;
+  private onWorldUpdateCallback?: (entities: Map<number, EntityState>, meta?: WorldUpdateMeta) => void;
+  private onConnectionChangeCallback?: (event: ConnectionEvent) => void;
 
   constructor(config: NetworkManagerConfig) {
     this.config = config;
@@ -100,9 +113,7 @@ export class NetworkManager {
         this.config.fixedDeltaTime
       );
 
-      if (this.onStateUpdateCallback) {
-        this.onStateUpdateCallback(state);
-      }
+      this.pushPredictedState(state);
     }
   }
 
@@ -116,8 +127,15 @@ export class NetworkManager {
   /**
    * Register callback for world updates (all entities)
    */
-  onWorldUpdate(callback: (entities: Map<number, EntityState>) => void): void {
+  onWorldUpdate(callback: (entities: Map<number, EntityState>, meta?: WorldUpdateMeta) => void): void {
     this.onWorldUpdateCallback = callback;
+  }
+
+  /**
+   * Register callback for connection state changes
+   */
+  onConnectionChange(callback: (event: ConnectionEvent) => void): void {
+    this.onConnectionChangeCallback = callback;
   }
 
   /**
@@ -138,7 +156,55 @@ export class NetworkManager {
    * Get current predicted state (if prediction enabled)
    */
   getPredictedState(): EntityState | null {
+    if (this.smoothedState) {
+      return this.cloneState(this.smoothedState);
+    }
     return this.prediction?.getState() ?? null;
+  }
+
+  private pushPredictedState(next: EntityState): void {
+    const smoothed = this.smoothState(next);
+    if (this.onStateUpdateCallback) {
+      this.onStateUpdateCallback(smoothed);
+    }
+  }
+
+  private smoothState(next: EntityState): EntityState {
+    const alpha = 0.25; // easing factor for visual smoothing
+    if (!this.smoothedState) {
+      this.smoothedState = this.cloneState(next);
+      return this.cloneState(this.smoothedState);
+    }
+
+    this.smoothedState.position.x += (next.position.x - this.smoothedState.position.x) * alpha;
+    this.smoothedState.position.y += (next.position.y - this.smoothedState.position.y) * alpha;
+    this.smoothedState.velocity.x += (next.velocity.x - this.smoothedState.velocity.x) * alpha;
+    this.smoothedState.velocity.y += (next.velocity.y - this.smoothedState.velocity.y) * alpha;
+    this.smoothedState.angularVelocity +=
+      (next.angularVelocity - this.smoothedState.angularVelocity) * alpha;
+    this.smoothedState.rotation = this.smoothAngle(
+      this.smoothedState.rotation,
+      next.rotation,
+      alpha
+    );
+
+    return this.cloneState(this.smoothedState);
+  }
+
+  private smoothAngle(current: number, target: number, alpha: number): number {
+    let delta = target - current;
+    while (delta > Math.PI) delta -= 2 * Math.PI;
+    while (delta < -Math.PI) delta += 2 * Math.PI;
+    return current + delta * alpha;
+  }
+
+  private cloneState(state: EntityState): EntityState {
+    return {
+      position: { ...state.position },
+      rotation: state.rotation,
+      velocity: { ...state.velocity },
+      angularVelocity: state.angularVelocity
+    };
   }
 
   private handleConnected(clientId: number, entityId: number): void {
@@ -157,8 +223,13 @@ export class NetworkManager {
       undefined,
       this.config.reconciliationThreshold
     );
+    this.smoothedState = this.cloneState(initialState);
 
-    console.warn('[NetworkManager] Connected:', { clientId, entityId });
+    this.log("info", "Connected", { clientId, entityId });
+
+    if (this.onConnectionChangeCallback) {
+      this.onConnectionChangeCallback({ status: "connected", clientId, entityId });
+    }
   }
 
   private handleSnapshot(snapshot: WorldSnapshotProto): void {
@@ -171,12 +242,14 @@ export class NetworkManager {
     this.lastSnapshotTick = tick;
 
     const entities = new Map<number, EntityState>();
+    const lastProcessedSequences = new Map<number, number>();
 
     // Process all entities in snapshot
     for (const entityProto of snapshot.entities ?? []) {
       const entityId = entityProto.entityId ?? 0;
-      const state = this.protoToState(entityProto);
+      const state = protoToEntityState(entityProto);
       entities.set(entityId, state);
+      lastProcessedSequences.set(entityId, entityProto.lastProcessedSequence ?? 0);
 
       // Reconcile local player if prediction is enabled
       if (entityId === this.localEntityId && this.config.enablePrediction && this.prediction) {
@@ -189,37 +262,41 @@ export class NetworkManager {
           this.config.fixedDeltaTime
         );
 
-        if (this.onStateUpdateCallback) {
-          this.onStateUpdateCallback(correctedState);
-        }
+        this.pushPredictedState(correctedState);
       }
     }
 
     // Notify world update
     if (this.onWorldUpdateCallback) {
-      this.onWorldUpdateCallback(entities);
+      this.onWorldUpdateCallback(entities, {
+        tick,
+        receivedAt: performance.now(),
+        lastProcessedSequences,
+        raw: snapshot
+      });
     }
   }
 
   private handleDisconnected(): void {
     this.prediction = null;
+    this.smoothedState = null;
     this.localEntityId = null;
     this.lastSnapshotTick = 0;
-    console.warn('[NetworkManager] Disconnected');
+    this.log("warn", "Disconnected");
+
+    if (this.onConnectionChangeCallback) {
+      this.onConnectionChangeCallback({ status: "disconnected" });
+    }
   }
 
-  private protoToState(proto: EntitySnapshotProto): EntityState {
-    return {
-      position: {
-        x: proto.transform?.position?.x ?? 0,
-        y: proto.transform?.position?.y ?? 0
-      },
-      rotation: proto.transform?.rotation ?? 0,
-      velocity: {
-        x: proto.velocity?.linear?.x ?? 0,
-        y: proto.velocity?.linear?.y ?? 0
-      },
-      angularVelocity: proto.velocity?.angular ?? 0
-    };
+  private log(level: "info" | "warn" | "error", message: string, context?: unknown) {
+    if (this.config.logger) {
+      this.config.logger(level, message, context);
+      return;
+    }
+    const payload = context !== undefined ? [message, context] : [message];
+    if (level === "info") console.info("[NetworkManager]", ...payload);
+    else if (level === "warn") console.warn("[NetworkManager]", ...payload);
+    else console.error("[NetworkManager]", ...payload);
   }
 }
