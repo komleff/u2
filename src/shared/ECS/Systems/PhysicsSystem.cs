@@ -153,15 +153,15 @@ public class PhysicsSystem : IExecuteSystem
         float strafeForce = control.Strafe_X * physics.StrafeAcceleration_mps2.Lateral * mass_kg;
 
         // Transform from local ship coordinates to world coordinates
-        // Forward is along the rotation direction, strafe is perpendicular
+        // Forward: rotation 0 -> +X, positive yaw rotates CCW
         float cos = MathF.Cos(rotation);
         float sin = MathF.Sin(rotation);
 
-        // Forward force in world coordinates (rotated by ship orientation)
-        Vector2 forwardForceWorld = new Vector2(sin * thrustForce, cos * thrustForce);
+        // Forward force in world coordinates (aligned with nose)
+        Vector2 forwardForceWorld = new Vector2(cos * thrustForce, sin * thrustForce);
         
-        // Strafe force perpendicular to forward (rotated 90 degrees)
-        Vector2 strafeForceWorld = new Vector2(cos * strafeForce, -sin * strafeForce);
+        // Strafe force perpendicular to forward (right-hand side)
+        Vector2 strafeForceWorld = new Vector2(-sin * strafeForce, cos * strafeForce);
 
         return forwardForceWorld + strafeForceWorld;
     }

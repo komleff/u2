@@ -1,20 +1,20 @@
-D:\GitHub\u2\src\shared\U2.Shared.csproj : warning NU1701: Package 'DesperateDevs.Analytics 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project. [D:\GitHub\u2\src\server\U2.Server.csproj]
 D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'DesperateDevs.Analytics 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
-D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'DesperateDevs.CodeGeneration 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
+D:\GitHub\u2\src\shared\U2.Shared.csproj : warning NU1701: Package 'DesperateDevs.Analytics 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project. [D:\GitHub\u2\src\server\U2.Server.csproj]
 D:\GitHub\u2\src\shared\U2.Shared.csproj : warning NU1701: Package 'DesperateDevs.CodeGeneration 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project. [D:\GitHub\u2\src\server\U2.Server.csproj]
-D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'DesperateDevs.CodeGeneration.CodeGenerator 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
-D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'DesperateDevs.Logging 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
+D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'DesperateDevs.CodeGeneration 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
 D:\GitHub\u2\src\shared\U2.Shared.csproj : warning NU1701: Package 'DesperateDevs.CodeGeneration.CodeGenerator 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project. [D:\GitHub\u2\src\server\U2.Server.csproj]
-D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'DesperateDevs.Serialization 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
-D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'DesperateDevs.Utils 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
-D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'Entitas 1.13.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
-D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'Entitas.CodeGeneration.Attributes 1.13.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
+D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'DesperateDevs.CodeGeneration.CodeGenerator 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
 D:\GitHub\u2\src\shared\U2.Shared.csproj : warning NU1701: Package 'DesperateDevs.Logging 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project. [D:\GitHub\u2\src\server\U2.Server.csproj]
-D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'Entitas.CodeGeneration.Plugins 1.13.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
+D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'DesperateDevs.Logging 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
 D:\GitHub\u2\src\shared\U2.Shared.csproj : warning NU1701: Package 'DesperateDevs.Serialization 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project. [D:\GitHub\u2\src\server\U2.Server.csproj]
+D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'DesperateDevs.Serialization 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
 D:\GitHub\u2\src\shared\U2.Shared.csproj : warning NU1701: Package 'DesperateDevs.Utils 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project. [D:\GitHub\u2\src\server\U2.Server.csproj]
+D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'DesperateDevs.Utils 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
 D:\GitHub\u2\src\shared\U2.Shared.csproj : warning NU1701: Package 'Entitas 1.13.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project. [D:\GitHub\u2\src\server\U2.Server.csproj]
+D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'Entitas 1.13.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
 D:\GitHub\u2\src\shared\U2.Shared.csproj : warning NU1701: Package 'Entitas.CodeGeneration.Attributes 1.13.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project. [D:\GitHub\u2\src\server\U2.Server.csproj]
+D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'Entitas.CodeGeneration.Attributes 1.13.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
+D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'Entitas.CodeGeneration.Plugins 1.13.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
 D:\GitHub\u2\src\shared\U2.Shared.csproj : warning NU1701: Package 'Entitas.CodeGeneration.Plugins 1.13.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project. [D:\GitHub\u2\src\server\U2.Server.csproj]
 D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'DesperateDevs.Analytics 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
 D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'DesperateDevs.CodeGeneration 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
@@ -69,318 +69,148 @@ info: U2.Server.Program[0]
 info: U2.Server.Program[0]
       Press Ctrl+C to stop server...
 info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:54127 -> Virtual 127.0.0.1:50003
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:54131 -> Virtual 127.0.0.1:50002
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:54129 -> Virtual 127.0.0.1:50001
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:54128 -> Virtual 127.0.0.1:50004
+      WebSocket connected: [::1]:51662 -> Virtual 127.0.0.1:50001
 info: U2.Server.Network.UdpServer[0]
-      New client connected: 1 from 127.0.0.1:50002
-info: U2.Server.Network.UdpServer[0]
-      New client connected: 2 from 127.0.0.1:50001
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50003
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50004
+      New client connected: 1 from 127.0.0.1:50001
 info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50002: TestPlayer (version 0.5.0)
-info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50001: LatencyTest_50ms (version 0.5.0)
+      Connection request from 127.0.0.1:50001: Starling (version 0.5.0)
 info: U2.Server.Network.MessageProcessor[0]
       Connection accepted: ClientId=1, EntityId=1
-info: U2.Server.Network.MessageProcessor[0]
-      Connection accepted: ClientId=2, EntityId=2
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50002
 info: U2.Server.Network.WebSocketRelay[0]
       WebSocket disconnected: Virtual 127.0.0.1:50001
 info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:60222 -> Virtual 127.0.0.1:50005
+      WebSocket connected: [::1]:53199 -> Virtual 127.0.0.1:50002
 info: U2.Server.Network.UdpServer[0]
-      New client connected: 3 from 127.0.0.1:50005
+      New client connected: 2 from 127.0.0.1:50002
 info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50005: LatencyTest_200ms (version 0.5.0)
+      Connection request from 127.0.0.1:50002: Starling (version 0.5.0)
+info: U2.Server.Network.MessageProcessor[0]
+      Connection accepted: ClientId=2, EntityId=2
+info: U2.Server.Network.UdpServer[0]
+      Removed stale client: 1 from 127.0.0.1:50001
+info: U2.Server.Network.NetworkGameLoop[0]
+      Cleaned up 1 stale connections
+info: U2.Server.Network.WebSocketRelay[0]
+      WebSocket disconnected: Virtual 127.0.0.1:50002
+info: U2.Server.Network.UdpServer[0]
+      Removed stale client: 2 from 127.0.0.1:50002
+info: U2.Server.Network.NetworkGameLoop[0]
+      Cleaned up 1 stale connections
+info: U2.Server.Network.WebSocketRelay[0]
+      WebSocket connected: [::1]:55038 -> Virtual 127.0.0.1:50003
+info: U2.Server.Network.UdpServer[0]
+      New client connected: 3 from 127.0.0.1:50003
+info: U2.Server.Network.MessageProcessor[0]
+      Connection request from 127.0.0.1:50003: Starling (version 0.5.0)
 info: U2.Server.Network.MessageProcessor[0]
       Connection accepted: ClientId=3, EntityId=3
 info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50005
+      WebSocket disconnected: Virtual 127.0.0.1:50003
 info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:60224 -> Virtual 127.0.0.1:50006
+      WebSocket connected: [::1]:56885 -> Virtual 127.0.0.1:50004
 info: U2.Server.Network.UdpServer[0]
-      New client connected: 4 from 127.0.0.1:50006
+      New client connected: 4 from 127.0.0.1:50004
 info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50006: StabilityTest_200ms (version 0.5.0)
+      Connection request from 127.0.0.1:50004: Starling (version 0.5.0)
 info: U2.Server.Network.MessageProcessor[0]
       Connection accepted: ClientId=4, EntityId=4
+info: U2.Server.Network.UdpServer[0]
+      Removed stale client: 3 from 127.0.0.1:50003
+info: U2.Server.Network.NetworkGameLoop[0]
+      Cleaned up 1 stale connections
+info: U2.Server.Network.WebSocketRelay[0]
+      WebSocket connected: [::1]:53939 -> Virtual 127.0.0.1:50005
+info: U2.Server.Network.UdpServer[0]
+      New client connected: 5 from 127.0.0.1:50005
+info: U2.Server.Network.MessageProcessor[0]
+      Connection request from 127.0.0.1:50005: Starling (version 0.5.0)
+info: U2.Server.Network.MessageProcessor[0]
+      Connection accepted: ClientId=5, EntityId=5
+info: U2.Server.Network.UdpServer[0]
+      Removed stale client: 4 from 127.0.0.1:50004
+info: U2.Server.Network.NetworkGameLoop[0]
+      Cleaned up 1 stale connections
+info: U2.Server.Network.WebSocketRelay[0]
+      WebSocket disconnected: Virtual 127.0.0.1:50005
+info: U2.Server.Network.WebSocketRelay[0]
+      WebSocket connected: [::1]:56422 -> Virtual 127.0.0.1:50006
+info: U2.Server.Network.UdpServer[0]
+      New client connected: 6 from 127.0.0.1:50006
+info: U2.Server.Network.MessageProcessor[0]
+      Connection request from 127.0.0.1:50006: Starling (version 0.5.0)
+info: U2.Server.Network.MessageProcessor[0]
+      Connection accepted: ClientId=6, EntityId=6
+info: U2.Server.Network.UdpServer[0]
+      Removed stale client: 5 from 127.0.0.1:50005
+info: U2.Server.Network.NetworkGameLoop[0]
+      Cleaned up 1 stale connections
 info: U2.Server.Network.WebSocketRelay[0]
       WebSocket disconnected: Virtual 127.0.0.1:50006
 info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:56157 -> Virtual 127.0.0.1:50007
+      WebSocket connected: [::1]:54929 -> Virtual 127.0.0.1:50007
 info: U2.Server.Network.UdpServer[0]
-      New client connected: 5 from 127.0.0.1:50007
+      New client connected: 7 from 127.0.0.1:50007
 info: U2.Server.Network.MessageProcessor[0]
       Connection request from 127.0.0.1:50007: Starling (version 0.5.0)
 info: U2.Server.Network.MessageProcessor[0]
-      Connection accepted: ClientId=5, EntityId=5
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:64754 -> Virtual 127.0.0.1:50008
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50008
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:64755 -> Virtual 127.0.0.1:50009
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50009
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:64756 -> Virtual 127.0.0.1:50010
-info: U2.Server.Network.UdpServer[0]
-      New client connected: 6 from 127.0.0.1:50010
-info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50010: TestPlayer (version 0.5.0)
-info: U2.Server.Network.MessageProcessor[0]
-      Connection accepted: ClientId=6, EntityId=6
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:64757 -> Virtual 127.0.0.1:50011
-info: U2.Server.Network.UdpServer[0]
-      New client connected: 7 from 127.0.0.1:50011
-info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50011: LatencyTest_50ms (version 0.5.0)
-info: U2.Server.Network.MessageProcessor[0]
       Connection accepted: ClientId=7, EntityId=7
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50010
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50011
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:64442 -> Virtual 127.0.0.1:50012
 info: U2.Server.Network.UdpServer[0]
-      New client connected: 8 from 127.0.0.1:50012
-info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50012: LatencyTest_200ms (version 0.5.0)
-info: U2.Server.Network.MessageProcessor[0]
-      Connection accepted: ClientId=8, EntityId=8
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50012
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:53245 -> Virtual 127.0.0.1:50013
-info: U2.Server.Network.UdpServer[0]
-      New client connected: 9 from 127.0.0.1:50013
-info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50013: StabilityTest_200ms (version 0.5.0)
-info: U2.Server.Network.MessageProcessor[0]
-      Connection accepted: ClientId=9, EntityId=9
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50013
+      Removed stale client: 6 from 127.0.0.1:50006
+info: U2.Server.Network.NetworkGameLoop[0]
+      Cleaned up 1 stale connections
 info: U2.Server.Network.WebSocketRelay[0]
       WebSocket disconnected: Virtual 127.0.0.1:50007
 info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:60639 -> Virtual 127.0.0.1:50014
+      WebSocket connected: [::1]:59944 -> Virtual 127.0.0.1:50008
 info: U2.Server.Network.UdpServer[0]
-      New client connected: 10 from 127.0.0.1:50014
+      New client connected: 8 from 127.0.0.1:50008
 info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50014: Starling (version 0.5.0)
+      Connection request from 127.0.0.1:50008: Starling (version 0.5.0)
+info: U2.Server.Network.MessageProcessor[0]
+      Connection accepted: ClientId=8, EntityId=8
+info: U2.Server.Network.UdpServer[0]
+      Removed stale client: 7 from 127.0.0.1:50007
+info: U2.Server.Network.NetworkGameLoop[0]
+      Cleaned up 1 stale connections
+info: U2.Server.Network.WebSocketRelay[0]
+      WebSocket disconnected: Virtual 127.0.0.1:50008
+info: U2.Server.Network.WebSocketRelay[0]
+      WebSocket connected: [::1]:61466 -> Virtual 127.0.0.1:50009
+info: U2.Server.Network.UdpServer[0]
+      New client connected: 9 from 127.0.0.1:50009
+info: U2.Server.Network.MessageProcessor[0]
+      Connection request from 127.0.0.1:50009: Starling (version 0.5.0)
+info: U2.Server.Network.MessageProcessor[0]
+      Connection accepted: ClientId=9, EntityId=9
+info: U2.Server.Network.UdpServer[0]
+      Removed stale client: 8 from 127.0.0.1:50008
+info: U2.Server.Network.NetworkGameLoop[0]
+      Cleaned up 1 stale connections
+info: U2.Server.Network.WebSocketRelay[0]
+      WebSocket disconnected: Virtual 127.0.0.1:50009
+info: U2.Server.Network.WebSocketRelay[0]
+      WebSocket connected: [::1]:51541 -> Virtual 127.0.0.1:50010
+info: U2.Server.Network.UdpServer[0]
+      New client connected: 10 from 127.0.0.1:50010
+info: U2.Server.Network.MessageProcessor[0]
+      Connection request from 127.0.0.1:50010: Starling (version 0.5.0)
 info: U2.Server.Network.MessageProcessor[0]
       Connection accepted: ClientId=10, EntityId=10
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:59370 -> Virtual 127.0.0.1:50015
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50015
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:59371 -> Virtual 127.0.0.1:50016
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:59372 -> Virtual 127.0.0.1:50017
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50016
 info: U2.Server.Network.UdpServer[0]
-      New client connected: 11 from 127.0.0.1:50017
+      Removed stale client: 9 from 127.0.0.1:50009
+info: U2.Server.Network.NetworkGameLoop[0]
+      Cleaned up 1 stale connections
+info: U2.Server.Network.WebSocketRelay[0]
+      WebSocket disconnected: Virtual 127.0.0.1:50010
+info: U2.Server.Network.WebSocketRelay[0]
+      WebSocket connected: [::1]:65225 -> Virtual 127.0.0.1:50011
+info: U2.Server.Network.UdpServer[0]
+      New client connected: 11 from 127.0.0.1:50011
 info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50017: TestPlayer (version 0.5.0)
+      Connection request from 127.0.0.1:50011: Starling (version 0.5.0)
 info: U2.Server.Network.MessageProcessor[0]
       Connection accepted: ClientId=11, EntityId=11
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:59373 -> Virtual 127.0.0.1:50018
 info: U2.Server.Network.UdpServer[0]
-      New client connected: 12 from 127.0.0.1:50018
-info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50018: LatencyTest_50ms (version 0.5.0)
-info: U2.Server.Network.MessageProcessor[0]
-      Connection accepted: ClientId=12, EntityId=12
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50017
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50018
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:61057 -> Virtual 127.0.0.1:50019
-info: U2.Server.Network.UdpServer[0]
-      New client connected: 13 from 127.0.0.1:50019
-info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50019: LatencyTest_200ms (version 0.5.0)
-info: U2.Server.Network.MessageProcessor[0]
-      Connection accepted: ClientId=13, EntityId=13
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50019
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:61059 -> Virtual 127.0.0.1:50020
-info: U2.Server.Network.UdpServer[0]
-      New client connected: 14 from 127.0.0.1:50020
-info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50020: StabilityTest_200ms (version 0.5.0)
-info: U2.Server.Network.MessageProcessor[0]
-      Connection accepted: ClientId=14, EntityId=14
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50020
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50014
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:49310 -> Virtual 127.0.0.1:50021
-info: U2.Server.Network.UdpServer[0]
-      New client connected: 15 from 127.0.0.1:50021
-info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50021: Starling (version 0.5.0)
-info: U2.Server.Network.MessageProcessor[0]
-      Connection accepted: ClientId=15, EntityId=15
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:57515 -> Virtual 127.0.0.1:50022
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:57516 -> Virtual 127.0.0.1:50023
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50023
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50022
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:57518 -> Virtual 127.0.0.1:50025
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:57517 -> Virtual 127.0.0.1:50024
-info: U2.Server.Network.UdpServer[0]
-      New client connected: 16 from 127.0.0.1:50024
-info: U2.Server.Network.UdpServer[0]
-      New client connected: 17 from 127.0.0.1:50025
-info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50024: TestPlayer (version 0.5.0)
-info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50025: LatencyTest_50ms (version 0.5.0)
-info: U2.Server.Network.MessageProcessor[0]
-      Connection accepted: ClientId=16, EntityId=16
-info: U2.Server.Network.MessageProcessor[0]
-      Connection accepted: ClientId=17, EntityId=17
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50024
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50025
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:53776 -> Virtual 127.0.0.1:50026
-info: U2.Server.Network.UdpServer[0]
-      New client connected: 18 from 127.0.0.1:50026
-info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50026: LatencyTest_200ms (version 0.5.0)
-info: U2.Server.Network.MessageProcessor[0]
-      Connection accepted: ClientId=18, EntityId=18
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50026
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:53779 -> Virtual 127.0.0.1:50027
-info: U2.Server.Network.UdpServer[0]
-      New client connected: 19 from 127.0.0.1:50027
-info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50027: StabilityTest_200ms (version 0.5.0)
-info: U2.Server.Network.MessageProcessor[0]
-      Connection accepted: ClientId=19, EntityId=19
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50027
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:49327 -> Virtual 127.0.0.1:50028
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50028
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:49328 -> Virtual 127.0.0.1:50029
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:49329 -> Virtual 127.0.0.1:50030
-info: U2.Server.Network.UdpServer[0]
-      New client connected: 20 from 127.0.0.1:50030
-info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50030: TestPlayer (version 0.5.0)
-info: U2.Server.Network.MessageProcessor[0]
-      Connection accepted: ClientId=20, EntityId=20
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50029
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:49330 -> Virtual 127.0.0.1:50031
-info: U2.Server.Network.UdpServer[0]
-      New client connected: 21 from 127.0.0.1:50031
-info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50031: LatencyTest_50ms (version 0.5.0)
-info: U2.Server.Network.MessageProcessor[0]
-      Connection accepted: ClientId=21, EntityId=21
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50030
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50031
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:59495 -> Virtual 127.0.0.1:50032
-info: U2.Server.Network.UdpServer[0]
-      New client connected: 22 from 127.0.0.1:50032
-info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50032: LatencyTest_200ms (version 0.5.0)
-info: U2.Server.Network.MessageProcessor[0]
-      Connection accepted: ClientId=22, EntityId=22
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50032
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:59496 -> Virtual 127.0.0.1:50033
-info: U2.Server.Network.UdpServer[0]
-      New client connected: 23 from 127.0.0.1:50033
-info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50033: StabilityTest_200ms (version 0.5.0)
-info: U2.Server.Network.MessageProcessor[0]
-      Connection accepted: ClientId=23, EntityId=23
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50033
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:51947 -> Virtual 127.0.0.1:50034
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50034
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:51948 -> Virtual 127.0.0.1:50035
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:51949 -> Virtual 127.0.0.1:50036
-info: U2.Server.Network.UdpServer[0]
-      New client connected: 24 from 127.0.0.1:50036
-info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50036: TestPlayer (version 0.5.0)
-info: U2.Server.Network.MessageProcessor[0]
-      Connection accepted: ClientId=24, EntityId=24
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50035
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:51950 -> Virtual 127.0.0.1:50037
-info: U2.Server.Network.UdpServer[0]
-      New client connected: 25 from 127.0.0.1:50037
-info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50037: LatencyTest_50ms (version 0.5.0)
-info: U2.Server.Network.MessageProcessor[0]
-      Connection accepted: ClientId=25, EntityId=25
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50036
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50037
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:64020 -> Virtual 127.0.0.1:50038
-info: U2.Server.Network.UdpServer[0]
-      New client connected: 26 from 127.0.0.1:50038
-info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50038: LatencyTest_200ms (version 0.5.0)
-info: U2.Server.Network.MessageProcessor[0]
-      Connection accepted: ClientId=26, EntityId=26
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50038
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:64021 -> Virtual 127.0.0.1:50039
-info: U2.Server.Network.UdpServer[0]
-      New client connected: 27 from 127.0.0.1:50039
-info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50039: StabilityTest_200ms (version 0.5.0)
-info: U2.Server.Network.MessageProcessor[0]
-      Connection accepted: ClientId=27, EntityId=27
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50039
+      Removed stale client: 10 from 127.0.0.1:50010
+info: U2.Server.Network.NetworkGameLoop[0]
+      Cleaned up 1 stale connections

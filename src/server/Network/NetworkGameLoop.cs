@@ -21,6 +21,9 @@ public class NetworkGameLoop
     private readonly float _snapshotRate; // Hz
     private readonly float _snapshotInterval; // seconds
     private uint _currentTick;
+    private readonly TimeSpan _staleTimeout = TimeSpan.FromSeconds(3);
+    private readonly TimeSpan _staleCheckInterval = TimeSpan.FromSeconds(1);
+    private double _nextCleanupTime;
     
     private bool _isRunning;
     private CancellationTokenSource? _cancellationTokenSource;
@@ -40,6 +43,7 @@ public class NetworkGameLoop
         _snapshotRate = snapshotRate;
         _snapshotInterval = 1.0f / snapshotRate;
         _currentTick = 0;
+        _nextCleanupTime = 0;
     }
 
     /// <summary>
@@ -83,6 +87,7 @@ public class NetworkGameLoop
         var intervalMs = (int)(_snapshotInterval * 1000);
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
         var nextTickTime = stopwatch.Elapsed.TotalSeconds;
+        _nextCleanupTime = stopwatch.Elapsed.TotalSeconds + _staleCheckInterval.TotalSeconds;
 
         _logger.LogDebug("Starting game loop");
 
@@ -98,6 +103,13 @@ public class NetworkGameLoop
 
                 // Broadcast world snapshot to all clients
                 await BroadcastWorldSnapshot();
+
+                // Periodic cleanup of stale connections/entities
+                if (stopwatch.Elapsed.TotalSeconds >= _nextCleanupTime)
+                {
+                    CleanupStaleConnections();
+                    _nextCleanupTime += _staleCheckInterval.TotalSeconds;
+                }
 
                 // Calculate sleep time to maintain fixed rate
                 nextTickTime += _snapshotInterval;
@@ -166,6 +178,30 @@ public class NetworkGameLoop
                     .FirstOrDefault(c => c.EntityId == entityId);
                 return connection?.LastProcessedSequence ?? 0;
             });
+    }
+
+    /// <summary>
+    /// Remove stale connections and destroy their entities to avoid ghost ships.
+    /// </summary>
+    private void CleanupStaleConnections()
+    {
+        var removed = _connectionManager.RemoveStaleConnections(_staleTimeout);
+        if (removed.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var connection in removed)
+        {
+            if (connection.EntityId.HasValue)
+            {
+                var entityIndex = (int)connection.EntityId.Value - 1;
+                var entity = _gameWorld.GetEntityById(entityIndex);
+                entity?.Destroy();
+            }
+        }
+
+        _logger.LogInformation("Cleaned up {Count} stale connections", removed.Count);
     }
 
     public uint GetCurrentTick() => _currentTick;

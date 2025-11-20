@@ -110,6 +110,9 @@ public class MessageProcessor
             return;
         }
 
+        // Mark client as active for stale cleanup
+        connection.UpdateLastSeen();
+
         if (input.ClientId != connection.ClientId)
         {
             _logger.LogWarning("Client ID mismatch: expected {Expected}, got {Actual}",
