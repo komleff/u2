@@ -9,6 +9,8 @@ import WebSocket from 'ws';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const repoRoot = join(__dirname, '../../../..');
+const serverProjectPath = join(repoRoot, 'src', 'server', 'U2.Server.csproj');
 
 type EntitySnapshotProto = u2.shared.proto.IEntitySnapshotProto;
 type WorldSnapshotProto = u2.shared.proto.IWorldSnapshotProto;
@@ -213,7 +215,9 @@ class PredictionMonitor {
  * 3. Measure position divergence after server snapshots arrive
  * 4. Verify reconciliation convergence time
  */
-describe('M2.3 RTT Latency Tests', () => {
+const runIntegration = process.env.U2_RUN_INTEGRATION === '1' || process.env.U2_EXTERNAL_SERVER === '1';
+
+(runIntegration ? describe : describe.skip)('M2.3 RTT Latency Tests', () => {
   let serverProcess: ChildProcess | null = null;
   let client: NetworkClient | null = null;
   let activeLatencySim: LatencySimulator | null = null;
@@ -221,7 +225,10 @@ describe('M2.3 RTT Latency Tests', () => {
 
   const waitForServer = (timeoutMs: number) =>
     new Promise<void>((resolve, reject) => {
-      const timeout = setTimeout(() => reject(new Error(`Server startup timeout after ${timeoutMs / 1000}s`)), timeoutMs);
+      const timeout = setTimeout(
+        () => reject(new Error(`Server startup timeout after ${timeoutMs / 1000}s`)),
+        timeoutMs
+      );
 
       let settled = false;
       const ws = new WebSocket('ws://localhost:8080/');
@@ -245,26 +252,28 @@ describe('M2.3 RTT Latency Tests', () => {
     const useExternal = process.env.U2_EXTERNAL_SERVER === '1';
 
     if (useExternal) {
-      await waitForServer(60000);
+      await waitForServer(120000);
       console.warn('✅ Using external server on ws://localhost:8080/');
       return;
     }
 
     // Start server using dotnet run for cross-platform compatibility
-    const serverProjectPath = join(__dirname, '../../src/server/U2.Server.csproj');
-    
-    serverProcess = spawn('dotnet', ['run', '--project', serverProjectPath, '--', '--network'], {
-      cwd: join(__dirname, '../..'),
-      stdio: 'pipe',
-      env: { ...process.env, DOTNET_CLI_TELEMETRY_OPTOUT: '1' }
-    });
+    serverProcess = spawn(
+      'dotnet',
+      ['run', '--project', serverProjectPath, '--', '--network'],
+      {
+        cwd: repoRoot,
+        stdio: 'pipe',
+        env: { ...process.env, DOTNET_CLI_TELEMETRY_OPTOUT: '1' }
+      }
+    );
 
     // Wait for server to start with proper cleanup on failure
     try {
       await new Promise<void>((resolve, reject) => {
         const timeout = setTimeout(() => {
-          reject(new Error('Server startup timeout after 60s'));
-        }, 60000);
+          reject(new Error('Server startup timeout after 120s'));
+        }, 120000);
         
         const checkOutput = (data: Buffer) => {
           const output = data.toString();

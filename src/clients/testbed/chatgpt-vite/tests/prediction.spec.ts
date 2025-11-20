@@ -57,4 +57,51 @@ describe('PredictionEngine reconciliation thresholds', () => {
 
     expect(warnSpy).not.toHaveBeenCalled();
   });
+
+  it('reconciles on rotation drift and trims processed history', () => {
+    const engine = new PredictionEngine(baseState, undefined, 10);
+
+    // apply two inputs to fill history
+    engine.applyInput(
+      {
+        thrust: 0,
+        strafeX: 0,
+        strafeY: 0,
+        yawInput: 1,
+        flightAssist: true,
+        sequenceNumber: 1,
+        timestamp: Date.now()
+      },
+      0.1
+    );
+
+    engine.applyInput(
+      {
+        thrust: 0,
+        strafeX: 0,
+        strafeY: 0,
+        yawInput: 1,
+        flightAssist: true,
+        sequenceNumber: 2,
+        timestamp: Date.now()
+      },
+      0.1
+    );
+
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    // server says rotation is back to 0 while prediction drifted
+    engine.reconcile(
+      {
+        ...baseState,
+        rotation: 0
+      },
+      1, // server processed first input
+      0.1
+    );
+
+    expect(warnSpy).toHaveBeenCalled();
+    // History should now contain only the unprocessed input (sequenceNumber 2)
+    expect(engine.getHistorySize()).toBe(1);
+  });
 });
