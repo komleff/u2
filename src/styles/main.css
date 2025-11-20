@@ -1,7 +1,13 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap");
+
 :root {
   color-scheme: dark;
-  font-family: "JetBrains Mono", "Fira Code", Menlo, Consolas, monospace;
-  background-color: #04060c;
+  font-family: "Space Grotesk", "IBM Plex Mono", "JetBrains Mono", monospace;
+  background-color: #030511;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body,
@@ -10,21 +16,31 @@ html {
   padding: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at 20% 20%, #0b1221, #03050a 70%);
+  background: radial-gradient(circle at 22% 24%, #0c1323, #050712 70%);
+  background-attachment: fixed;
 }
 
 #app {
+  position: relative;
   width: 100%;
   height: 100%;
-  display: flex;
-  align-items: stretch;
-  justify-content: center;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 24px;
 }
 
-canvas {
-  flex: 1;
-  background: rgba(7, 11, 19, 0.85);
-  box-shadow: 0 0 60px rgba(0, 210, 255, 0.12);
+.u2-scene {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(145deg, rgba(7, 10, 20, 0.9), rgba(6, 12, 24, 0.92));
+  border: 2px solid rgba(99, 243, 255, 0.18);
+  box-shadow:
+    0 25px 70px rgba(0, 10, 30, 0.65),
+    0 0 0 1px rgba(111, 208, 255, 0.18),
+    inset 0 0 40px rgba(108, 217, 255, 0.1);
+  border-radius: 18px;
+  backdrop-filter: blur(4px);
 }
 
 .hud {
@@ -33,6 +49,6 @@ canvas {
   pointer-events: none;
   font-size: 0.8rem;
   letter-spacing: 0.08em;
-  color: #9ff6ff;
-  text-shadow: 0 0 6px rgba(0, 255, 234, 0.8);
+  color: #c7f2ff;
+  text-shadow: 0 0 10px rgba(82, 225, 255, 0.8);
 }

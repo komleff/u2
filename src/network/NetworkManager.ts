@@ -5,6 +5,17 @@ import type { u2 } from './proto/ecs.js';
 type WorldSnapshotProto = u2.shared.proto.IWorldSnapshotProto;
 type EntitySnapshotProto = u2.shared.proto.IEntitySnapshotProto;
 
+export type ConnectionEvent =
+  | { status: "connected"; clientId: number; entityId: number }
+  | { status: "disconnected" };
+
+export interface WorldUpdateMeta {
+  tick: number;
+  receivedAt: number;
+  lastProcessedSequences?: Map<number, number>;
+  raw?: WorldSnapshotProto;
+}
+
 export interface NetworkManagerConfig extends NetworkConfig {
   enablePrediction: boolean;
   reconciliationThreshold: number; // meters
@@ -25,7 +36,8 @@ export class NetworkManager {
   
   // Callbacks
   private onStateUpdateCallback?: (state: EntityState) => void;
-  private onWorldUpdateCallback?: (entities: Map<number, EntityState>) => void;
+  private onWorldUpdateCallback?: (entities: Map<number, EntityState>, meta?: WorldUpdateMeta) => void;
+  private onConnectionChangeCallback?: (event: ConnectionEvent) => void;
 
   constructor(config: NetworkManagerConfig) {
     this.config = config;
@@ -116,8 +128,15 @@ export class NetworkManager {
   /**
    * Register callback for world updates (all entities)
    */
-  onWorldUpdate(callback: (entities: Map<number, EntityState>) => void): void {
+  onWorldUpdate(callback: (entities: Map<number, EntityState>, meta?: WorldUpdateMeta) => void): void {
     this.onWorldUpdateCallback = callback;
+  }
+
+  /**
+   * Register callback for connection state changes
+   */
+  onConnectionChange(callback: (event: ConnectionEvent) => void): void {
+    this.onConnectionChangeCallback = callback;
   }
 
   /**
@@ -159,6 +178,10 @@ export class NetworkManager {
     );
 
     console.warn('[NetworkManager] Connected:', { clientId, entityId });
+
+    if (this.onConnectionChangeCallback) {
+      this.onConnectionChangeCallback({ status: "connected", clientId, entityId });
+    }
   }
 
   private handleSnapshot(snapshot: WorldSnapshotProto): void {
@@ -171,12 +194,14 @@ export class NetworkManager {
     this.lastSnapshotTick = tick;
 
     const entities = new Map<number, EntityState>();
+    const lastProcessedSequences = new Map<number, number>();
 
     // Process all entities in snapshot
     for (const entityProto of snapshot.entities ?? []) {
       const entityId = entityProto.entityId ?? 0;
       const state = this.protoToState(entityProto);
       entities.set(entityId, state);
+      lastProcessedSequences.set(entityId, entityProto.lastProcessedSequence ?? 0);
 
       // Reconcile local player if prediction is enabled
       if (entityId === this.localEntityId && this.config.enablePrediction && this.prediction) {
@@ -197,7 +222,12 @@ export class NetworkManager {
 
     // Notify world update
     if (this.onWorldUpdateCallback) {
-      this.onWorldUpdateCallback(entities);
+      this.onWorldUpdateCallback(entities, {
+        tick,
+        receivedAt: performance.now(),
+        lastProcessedSequences,
+        raw: snapshot
+      });
     }
   }
 
@@ -206,6 +236,10 @@ export class NetworkManager {
     this.localEntityId = null;
     this.lastSnapshotTick = 0;
     console.warn('[NetworkManager] Disconnected');
+
+    if (this.onConnectionChangeCallback) {
+      this.onConnectionChangeCallback({ status: "disconnected" });
+    }
   }
 
   private protoToState(proto: EntitySnapshotProto): EntityState {

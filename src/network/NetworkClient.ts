@@ -6,11 +6,25 @@ type ConnectionAcceptedProto = u2.shared.proto.IConnectionAcceptedProto;
 type PlayerInputProto = u2.shared.proto.IPlayerInputProto;
 type WorldSnapshotProto = u2.shared.proto.IWorldSnapshotProto;
 
+type TransportKind = "websocket" | "webrtc";
+
 export interface NetworkConfig {
   serverUrl: string;
   playerName: string;
   version: string;
   inputRateHz: number;
+  reconnect?: Partial<ReconnectConfig>;
+  transportHint?: TransportKind;
+  logger?: (level: "info" | "warn" | "error" | "debug", message: string, context?: unknown) => void;
+}
+
+interface ReconnectConfig {
+  enabled: boolean;
+  maxRetries: number;
+  baseDelayMs: number;
+  maxDelayMs: number;
+  jitterMs: number;
+  maxBackoffMs?: number;
 }
 
 export interface ConnectionState {
@@ -37,15 +51,21 @@ export interface PlayerInput {
 export class NetworkClient {
   private socket: WebSocket | null = null;
   private config: NetworkConfig;
+  private reconnect: ReconnectConfig;
   private connectionState: ConnectionState = {
     clientId: null,
     entityId: null,
     connected: false,
     serverTimeOffset: 0
   };
+  private transport: TransportKind;
   
   private inputSequence = 0;
   private lastInputTime = 0;
+  private reconnectAttempts = 0;
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  private manualClose = false;
+  private decodeErrors = 0;
   
   // Callbacks
   private onConnectedCallback?: (clientId: number, entityId: number) => void;
@@ -54,19 +74,50 @@ export class NetworkClient {
 
   constructor(config: NetworkConfig) {
     this.config = config;
+    this.reconnect = {
+      enabled: true,
+      maxRetries: 5,
+      baseDelayMs: 600,
+      maxDelayMs: 4000,
+      jitterMs: 150,
+      ...config.reconnect
+    };
+    this.transport = config.transportHint ?? "websocket";
   }
 
   /**
    * Connect to the game server
    */
   async connect(): Promise<void> {
+    this.manualClose = false;
+    this.reconnectAttempts = 0;
+    this.clearReconnectTimer();
+    let checkConnection: ReturnType<typeof setInterval> | null = null;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    let settled = false;
+
+    if (this.transport === "webrtc") {
+      this.log("warn", "WebRTC transport hinted but not implemented, falling back to WebSocket");
+    }
+
+    const cleanup = () => {
+      if (checkConnection) {
+        clearInterval(checkConnection);
+        checkConnection = null;
+      }
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      }
+    };
+
     return new Promise((resolve, reject) => {
       try {
         this.socket = new WebSocket(this.config.serverUrl);
         this.socket.binaryType = 'arraybuffer';
 
         this.socket.onopen = () => {
-          console.warn('[NetworkClient] WebSocket connected');
+          this.log("info", "WebSocket connected");
           this.sendConnectionRequest();
         };
 
@@ -75,31 +126,43 @@ export class NetworkClient {
         };
 
         this.socket.onerror = (error) => {
-          console.error('[NetworkClient] WebSocket error:', error);
+          if (settled) return;
+          settled = true;
+          cleanup();
+          this.log("error", "WebSocket error", error);
           reject(error);
         };
 
         this.socket.onclose = () => {
-          console.warn('[NetworkClient] WebSocket closed');
+          this.log("warn", "WebSocket closed");
           this.handleDisconnect();
+          if (!settled) {
+            settled = true;
+            cleanup();
+            reject(new Error("Connection closed"));
+          }
+          this.scheduleReconnect();
         };
 
         // Resolve on successful connection acceptance
-        const checkConnection = setInterval(() => {
+        checkConnection = setInterval(() => {
           if (this.connectionState.connected) {
-            clearInterval(checkConnection);
+            settled = true;
+            cleanup();
             resolve();
           }
         }, 100);
 
         // Timeout after 5 seconds
-        setTimeout(() => {
-          clearInterval(checkConnection);
+        timeoutId = setTimeout(() => {
+          cleanup();
           if (!this.connectionState.connected) {
+            settled = true;
             reject(new Error('Connection timeout'));
           }
         }, 5000);
       } catch (error) {
+        cleanup();
         reject(error);
       }
     });
@@ -109,6 +172,9 @@ export class NetworkClient {
    * Disconnect from the server
    */
   disconnect(): void {
+    this.manualClose = true;
+    this.clearReconnectTimer();
+
     if (this.socket) {
       this.socket.close();
       this.socket = null;
@@ -203,12 +269,12 @@ export class NetworkClient {
     });
 
     this.sendMessage(clientMessage);
-    console.warn('[NetworkClient] Connection request sent');
+    this.log("debug", "Connection request sent");
   }
 
   private sendMessage(message: ClientMessageProto): void {
     if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
-      console.warn('[NetworkClient] Cannot send message: socket not ready');
+      this.log("warn", "Cannot send message: socket not ready");
       return;
     }
 
@@ -220,17 +286,24 @@ export class NetworkClient {
     try {
       const bytes = new Uint8Array(data);
       const serverMessage = u2.shared.proto.ServerMessageProto.decode(bytes);
+      this.decodeErrors = 0;
 
       if (serverMessage.connectionAccepted) {
         this.handleConnectionAccepted(serverMessage.connectionAccepted);
       } else if (serverMessage.worldSnapshot) {
         this.handleWorldSnapshot(serverMessage.worldSnapshot);
       } else if (serverMessage.disconnect) {
-        console.warn('[NetworkClient] Server disconnected:', serverMessage.disconnect.reason);
+        this.log("warn", "Server disconnected", serverMessage.disconnect.reason);
         this.disconnect();
       }
     } catch (error) {
-      console.error('[NetworkClient] Failed to decode message:', error);
+      this.decodeErrors += 1;
+      this.log("error", "Failed to decode message", error);
+
+      if (this.decodeErrors >= 3) {
+        this.log("error", "Too many decode errors, disconnecting for safety");
+        this.disconnect();
+      }
     }
   }
 
@@ -242,7 +315,7 @@ export class NetworkClient {
       serverTimeOffset: (accepted.serverTimeMs ?? Date.now()) - Date.now()
     };
 
-    console.warn('[NetworkClient] Connection accepted:', {
+    this.log("info", "Connection accepted", {
       clientId: this.connectionState.clientId,
       entityId: this.connectionState.entityId
     });
@@ -271,6 +344,70 @@ export class NetworkClient {
 
     if (this.onDisconnectedCallback) {
       this.onDisconnectedCallback();
+    }
+  }
+
+  /**
+   * Placeholder for WebRTC transport expansion (Stage 2+)
+   * Keeps public API compatible while WebSocket remains the default.
+   */
+  prepareWebRtc(): void {
+    this.log("debug", "prepareWebRtc called - not implemented yet");
+  }
+
+  private scheduleReconnect(): void {
+    if (!this.reconnect.enabled || this.manualClose) {
+      return;
+    }
+
+    if (this.reconnectAttempts >= this.reconnect.maxRetries) {
+      this.log("warn", "Max reconnect attempts reached");
+      return;
+    }
+
+    const backoff = Math.min(
+      this.reconnect.maxBackoffMs ?? this.reconnect.maxDelayMs,
+      this.reconnect.baseDelayMs * 2 ** this.reconnectAttempts
+    );
+    const jitter = Math.random() * this.reconnect.jitterMs;
+    const delay = backoff + jitter;
+
+    this.reconnectAttempts += 1;
+    this.log("info", `Scheduling reconnect #${this.reconnectAttempts} in ${Math.round(delay)}ms`);
+
+    this.reconnectTimer = setTimeout(() => {
+      this.connect().catch((error) => {
+        this.log("error", "Reconnect attempt failed", error);
+      });
+    }, delay);
+  }
+
+  private clearReconnectTimer(): void {
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
+  }
+
+  private log(
+    level: "info" | "warn" | "error" | "debug",
+    message: string,
+    context?: unknown
+  ): void {
+    if (this.config.logger) {
+      this.config.logger(level, message, context);
+      return;
+    }
+
+    const payload = context !== undefined ? [message, context] : [message];
+    if (level === "debug") {
+      console.debug("[NetworkClient]", ...payload);
+    } else if (level === "info") {
+      console.info("[NetworkClient]", ...payload);
+    } else if (level === "warn") {
+      console.warn("[NetworkClient]", ...payload);
+    } else {
+      console.error("[NetworkClient]", ...payload);
     }
   }
 }
