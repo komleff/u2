@@ -1,21 +1,21 @@
-D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'DesperateDevs.Analytics 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
 D:\GitHub\u2\src\shared\U2.Shared.csproj : warning NU1701: Package 'DesperateDevs.Analytics 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project. [D:\GitHub\u2\src\server\U2.Server.csproj]
-D:\GitHub\u2\src\shared\U2.Shared.csproj : warning NU1701: Package 'DesperateDevs.CodeGeneration 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project. [D:\GitHub\u2\src\server\U2.Server.csproj]
+D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'DesperateDevs.Analytics 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
 D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'DesperateDevs.CodeGeneration 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
-D:\GitHub\u2\src\shared\U2.Shared.csproj : warning NU1701: Package 'DesperateDevs.CodeGeneration.CodeGenerator 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project. [D:\GitHub\u2\src\server\U2.Server.csproj]
+D:\GitHub\u2\src\shared\U2.Shared.csproj : warning NU1701: Package 'DesperateDevs.CodeGeneration 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project. [D:\GitHub\u2\src\server\U2.Server.csproj]
 D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'DesperateDevs.CodeGeneration.CodeGenerator 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
-D:\GitHub\u2\src\shared\U2.Shared.csproj : warning NU1701: Package 'DesperateDevs.Logging 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project. [D:\GitHub\u2\src\server\U2.Server.csproj]
 D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'DesperateDevs.Logging 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
-D:\GitHub\u2\src\shared\U2.Shared.csproj : warning NU1701: Package 'DesperateDevs.Serialization 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project. [D:\GitHub\u2\src\server\U2.Server.csproj]
 D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'DesperateDevs.Serialization 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
+D:\GitHub\u2\src\shared\U2.Shared.csproj : warning NU1701: Package 'DesperateDevs.CodeGeneration.CodeGenerator 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project. [D:\GitHub\u2\src\server\U2.Server.csproj]
+D:\GitHub\u2\src\shared\U2.Shared.csproj : warning NU1701: Package 'DesperateDevs.Logging 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project. [D:\GitHub\u2\src\server\U2.Server.csproj]
+D:\GitHub\u2\src\shared\U2.Shared.csproj : warning NU1701: Package 'DesperateDevs.Serialization 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project. [D:\GitHub\u2\src\server\U2.Server.csproj]
 D:\GitHub\u2\src\shared\U2.Shared.csproj : warning NU1701: Package 'DesperateDevs.Utils 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project. [D:\GitHub\u2\src\server\U2.Server.csproj]
-D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'DesperateDevs.Utils 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
 D:\GitHub\u2\src\shared\U2.Shared.csproj : warning NU1701: Package 'Entitas 1.13.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project. [D:\GitHub\u2\src\server\U2.Server.csproj]
-D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'Entitas 1.13.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
 D:\GitHub\u2\src\shared\U2.Shared.csproj : warning NU1701: Package 'Entitas.CodeGeneration.Attributes 1.13.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project. [D:\GitHub\u2\src\server\U2.Server.csproj]
+D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'DesperateDevs.Utils 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
+D:\GitHub\u2\src\shared\U2.Shared.csproj : warning NU1701: Package 'Entitas.CodeGeneration.Plugins 1.13.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project. [D:\GitHub\u2\src\server\U2.Server.csproj]
+D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'Entitas 1.13.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
 D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'Entitas.CodeGeneration.Attributes 1.13.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
 D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'Entitas.CodeGeneration.Plugins 1.13.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
-D:\GitHub\u2\src\shared\U2.Shared.csproj : warning NU1701: Package 'Entitas.CodeGeneration.Plugins 1.13.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project. [D:\GitHub\u2\src\server\U2.Server.csproj]
 D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'DesperateDevs.Analytics 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
 D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'DesperateDevs.CodeGeneration 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
 D:\GitHub\u2\src\server\U2.Server.csproj : warning NU1701: Package 'DesperateDevs.CodeGeneration.CodeGenerator 0.0.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
@@ -69,7 +69,7 @@ info: U2.Server.Program[0]
 info: U2.Server.Program[0]
       Press Ctrl+C to stop server...
 info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:51662 -> Virtual 127.0.0.1:50001
+      WebSocket connected: 127.0.0.1:61536 -> Virtual 127.0.0.1:50001
 info: U2.Server.Network.UdpServer[0]
       New client connected: 1 from 127.0.0.1:50001
 info: U2.Server.Network.MessageProcessor[0]
@@ -77,9 +77,7 @@ info: U2.Server.Network.MessageProcessor[0]
 info: U2.Server.Network.MessageProcessor[0]
       Connection accepted: ClientId=1, EntityId=1
 info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50001
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:53199 -> Virtual 127.0.0.1:50002
+      WebSocket connected: [::1]:64983 -> Virtual 127.0.0.1:50002
 info: U2.Server.Network.UdpServer[0]
       New client connected: 2 from 127.0.0.1:50002
 info: U2.Server.Network.MessageProcessor[0]
@@ -92,125 +90,15 @@ info: U2.Server.Network.NetworkGameLoop[0]
       Cleaned up 1 stale connections
 info: U2.Server.Network.WebSocketRelay[0]
       WebSocket disconnected: Virtual 127.0.0.1:50002
-info: U2.Server.Network.UdpServer[0]
-      Removed stale client: 2 from 127.0.0.1:50002
-info: U2.Server.Network.NetworkGameLoop[0]
-      Cleaned up 1 stale connections
 info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:55038 -> Virtual 127.0.0.1:50003
+      WebSocket connected: [::1]:51069 -> Virtual 127.0.0.1:50003
 info: U2.Server.Network.UdpServer[0]
       New client connected: 3 from 127.0.0.1:50003
 info: U2.Server.Network.MessageProcessor[0]
       Connection request from 127.0.0.1:50003: Starling (version 0.5.0)
 info: U2.Server.Network.MessageProcessor[0]
       Connection accepted: ClientId=3, EntityId=3
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50003
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:56885 -> Virtual 127.0.0.1:50004
 info: U2.Server.Network.UdpServer[0]
-      New client connected: 4 from 127.0.0.1:50004
-info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50004: Starling (version 0.5.0)
-info: U2.Server.Network.MessageProcessor[0]
-      Connection accepted: ClientId=4, EntityId=4
-info: U2.Server.Network.UdpServer[0]
-      Removed stale client: 3 from 127.0.0.1:50003
-info: U2.Server.Network.NetworkGameLoop[0]
-      Cleaned up 1 stale connections
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:53939 -> Virtual 127.0.0.1:50005
-info: U2.Server.Network.UdpServer[0]
-      New client connected: 5 from 127.0.0.1:50005
-info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50005: Starling (version 0.5.0)
-info: U2.Server.Network.MessageProcessor[0]
-      Connection accepted: ClientId=5, EntityId=5
-info: U2.Server.Network.UdpServer[0]
-      Removed stale client: 4 from 127.0.0.1:50004
-info: U2.Server.Network.NetworkGameLoop[0]
-      Cleaned up 1 stale connections
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50005
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:56422 -> Virtual 127.0.0.1:50006
-info: U2.Server.Network.UdpServer[0]
-      New client connected: 6 from 127.0.0.1:50006
-info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50006: Starling (version 0.5.0)
-info: U2.Server.Network.MessageProcessor[0]
-      Connection accepted: ClientId=6, EntityId=6
-info: U2.Server.Network.UdpServer[0]
-      Removed stale client: 5 from 127.0.0.1:50005
-info: U2.Server.Network.NetworkGameLoop[0]
-      Cleaned up 1 stale connections
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50006
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:54929 -> Virtual 127.0.0.1:50007
-info: U2.Server.Network.UdpServer[0]
-      New client connected: 7 from 127.0.0.1:50007
-info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50007: Starling (version 0.5.0)
-info: U2.Server.Network.MessageProcessor[0]
-      Connection accepted: ClientId=7, EntityId=7
-info: U2.Server.Network.UdpServer[0]
-      Removed stale client: 6 from 127.0.0.1:50006
-info: U2.Server.Network.NetworkGameLoop[0]
-      Cleaned up 1 stale connections
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50007
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:59944 -> Virtual 127.0.0.1:50008
-info: U2.Server.Network.UdpServer[0]
-      New client connected: 8 from 127.0.0.1:50008
-info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50008: Starling (version 0.5.0)
-info: U2.Server.Network.MessageProcessor[0]
-      Connection accepted: ClientId=8, EntityId=8
-info: U2.Server.Network.UdpServer[0]
-      Removed stale client: 7 from 127.0.0.1:50007
-info: U2.Server.Network.NetworkGameLoop[0]
-      Cleaned up 1 stale connections
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50008
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:61466 -> Virtual 127.0.0.1:50009
-info: U2.Server.Network.UdpServer[0]
-      New client connected: 9 from 127.0.0.1:50009
-info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50009: Starling (version 0.5.0)
-info: U2.Server.Network.MessageProcessor[0]
-      Connection accepted: ClientId=9, EntityId=9
-info: U2.Server.Network.UdpServer[0]
-      Removed stale client: 8 from 127.0.0.1:50008
-info: U2.Server.Network.NetworkGameLoop[0]
-      Cleaned up 1 stale connections
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50009
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:51541 -> Virtual 127.0.0.1:50010
-info: U2.Server.Network.UdpServer[0]
-      New client connected: 10 from 127.0.0.1:50010
-info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50010: Starling (version 0.5.0)
-info: U2.Server.Network.MessageProcessor[0]
-      Connection accepted: ClientId=10, EntityId=10
-info: U2.Server.Network.UdpServer[0]
-      Removed stale client: 9 from 127.0.0.1:50009
-info: U2.Server.Network.NetworkGameLoop[0]
-      Cleaned up 1 stale connections
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket disconnected: Virtual 127.0.0.1:50010
-info: U2.Server.Network.WebSocketRelay[0]
-      WebSocket connected: [::1]:65225 -> Virtual 127.0.0.1:50011
-info: U2.Server.Network.UdpServer[0]
-      New client connected: 11 from 127.0.0.1:50011
-info: U2.Server.Network.MessageProcessor[0]
-      Connection request from 127.0.0.1:50011: Starling (version 0.5.0)
-info: U2.Server.Network.MessageProcessor[0]
-      Connection accepted: ClientId=11, EntityId=11
-info: U2.Server.Network.UdpServer[0]
-      Removed stale client: 10 from 127.0.0.1:50010
+      Removed stale client: 2 from 127.0.0.1:50002
 info: U2.Server.Network.NetworkGameLoop[0]
       Cleaned up 1 stale connections

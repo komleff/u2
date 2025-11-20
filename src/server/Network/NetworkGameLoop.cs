@@ -21,7 +21,8 @@ public class NetworkGameLoop
     private readonly float _snapshotRate; // Hz
     private readonly float _snapshotInterval; // seconds
     private uint _currentTick;
-    private readonly TimeSpan _staleTimeout = TimeSpan.FromSeconds(3);
+    // Keep connections alive unless явный дисконнект; короткий таймаут приводил к миганию сущностей
+    private readonly TimeSpan _staleTimeout = TimeSpan.FromSeconds(60);
     private readonly TimeSpan _staleCheckInterval = TimeSpan.FromSeconds(1);
     private double _nextCleanupTime;
     
