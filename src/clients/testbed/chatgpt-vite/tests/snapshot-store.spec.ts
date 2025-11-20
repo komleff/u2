@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SnapshotStore } from "../src/client/world/SnapshotStore";
+import { SnapshotStore } from "@client/world/SnapshotStore";
 
 describe("SnapshotStore", () => {
   it("returns immutable frames and preserves last processed sequences", () => {

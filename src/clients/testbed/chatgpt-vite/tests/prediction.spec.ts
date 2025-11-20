@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { PredictionEngine, type EntityState } from '../src/network/PredictionEngine';
+import { PredictionEngine, type EntityState } from '@network/PredictionEngine';
 
 describe('PredictionEngine reconciliation thresholds', () => {
   const baseState: EntityState = {

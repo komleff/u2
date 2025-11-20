@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { KinematicsIntegrator } from "../src/core/physics/kinematics";
+import { KinematicsIntegrator } from "@core/physics/kinematics";
 
 describe("simulation bootstrap", () => {
   it("integrates forward in time", () => {

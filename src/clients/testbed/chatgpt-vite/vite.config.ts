@@ -19,16 +19,17 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@client": resolve(__dirname, "src/client"),
-      "@core": resolve(__dirname, "src/core"),
-      "@systems": resolve(__dirname, "src/systems"),
-      "@config": resolve(__dirname, "src/config"),
-      "@types": resolve(__dirname, "src/types"),
-      "@utils": resolve(__dirname, "src/utils"),
-      "@scenes": resolve(__dirname, "src/scenes"),
-      "@assets": resolve(__dirname, "src/assets"),
-      "@ui": resolve(__dirname, "src/ui"),
-      "@network": resolve(__dirname, "src/network")
+      "@client": resolve(__dirname, "client"),
+      "@config": resolve(__dirname, "config"),
+      "@scenes": resolve(__dirname, "scenes"),
+      "@ui": resolve(__dirname, "ui"),
+      "@network": resolve(__dirname, "network"),
+      // Shared paths (root level)
+      "@core": resolve(__dirname, "../../../core"),
+      "@systems": resolve(__dirname, "../../../systems"),
+      "@types": resolve(__dirname, "../../../types"),
+      "@utils": resolve(__dirname, "../../../utils"),
+      "@assets": resolve(__dirname, "../../../assets")
     }
   },
   test: {

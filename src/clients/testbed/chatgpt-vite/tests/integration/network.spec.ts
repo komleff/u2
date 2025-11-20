@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { NetworkClient } from '../../src/network/NetworkClient';
-import type { u2 } from '../../src/network/proto/ecs';
+import { NetworkClient } from '@network/NetworkClient';
+import type { u2 } from '@network/proto/ecs';
 import { spawn, type ChildProcess } from 'child_process';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';

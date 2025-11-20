@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { TransportLayer } from "../src/client/net/TransportLayer";
+import { TransportLayer } from "@client/net/TransportLayer";
 
 const baseConfig = {
   serverUrl: "ws://localhost",
