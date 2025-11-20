@@ -30,6 +30,7 @@ export class NetworkManager {
   private client: NetworkClient;
   private prediction: PredictionEngine | null = null;
   private config: NetworkManagerConfig;
+  private smoothedState: EntityState | null = null;
   
   private localEntityId: number | null = null;
   private lastSnapshotTick: number = 0;
@@ -112,9 +113,7 @@ export class NetworkManager {
         this.config.fixedDeltaTime
       );
 
-      if (this.onStateUpdateCallback) {
-        this.onStateUpdateCallback(state);
-      }
+      this.pushPredictedState(state);
     }
   }
 
@@ -157,7 +156,55 @@ export class NetworkManager {
    * Get current predicted state (if prediction enabled)
    */
   getPredictedState(): EntityState | null {
+    if (this.smoothedState) {
+      return this.cloneState(this.smoothedState);
+    }
     return this.prediction?.getState() ?? null;
+  }
+
+  private pushPredictedState(next: EntityState): void {
+    const smoothed = this.smoothState(next);
+    if (this.onStateUpdateCallback) {
+      this.onStateUpdateCallback(smoothed);
+    }
+  }
+
+  private smoothState(next: EntityState): EntityState {
+    const alpha = 0.25; // easing factor for visual smoothing
+    if (!this.smoothedState) {
+      this.smoothedState = this.cloneState(next);
+      return this.cloneState(this.smoothedState);
+    }
+
+    this.smoothedState.position.x += (next.position.x - this.smoothedState.position.x) * alpha;
+    this.smoothedState.position.y += (next.position.y - this.smoothedState.position.y) * alpha;
+    this.smoothedState.velocity.x += (next.velocity.x - this.smoothedState.velocity.x) * alpha;
+    this.smoothedState.velocity.y += (next.velocity.y - this.smoothedState.velocity.y) * alpha;
+    this.smoothedState.angularVelocity +=
+      (next.angularVelocity - this.smoothedState.angularVelocity) * alpha;
+    this.smoothedState.rotation = this.smoothAngle(
+      this.smoothedState.rotation,
+      next.rotation,
+      alpha
+    );
+
+    return this.cloneState(this.smoothedState);
+  }
+
+  private smoothAngle(current: number, target: number, alpha: number): number {
+    let delta = target - current;
+    while (delta > Math.PI) delta -= 2 * Math.PI;
+    while (delta < -Math.PI) delta += 2 * Math.PI;
+    return current + delta * alpha;
+  }
+
+  private cloneState(state: EntityState): EntityState {
+    return {
+      position: { ...state.position },
+      rotation: state.rotation,
+      velocity: { ...state.velocity },
+      angularVelocity: state.angularVelocity
+    };
   }
 
   private handleConnected(clientId: number, entityId: number): void {
@@ -176,6 +223,7 @@ export class NetworkManager {
       undefined,
       this.config.reconciliationThreshold
     );
+    this.smoothedState = this.cloneState(initialState);
 
     this.log("info", "Connected", { clientId, entityId });
 
@@ -214,9 +262,7 @@ export class NetworkManager {
           this.config.fixedDeltaTime
         );
 
-        if (this.onStateUpdateCallback) {
-          this.onStateUpdateCallback(correctedState);
-        }
+        this.pushPredictedState(correctedState);
       }
     }
 
@@ -233,6 +279,7 @@ export class NetworkManager {
 
   private handleDisconnected(): void {
     this.prediction = null;
+    this.smoothedState = null;
     this.localEntityId = null;
     this.lastSnapshotTick = 0;
     this.log("warn", "Disconnected");

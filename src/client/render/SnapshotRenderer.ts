@@ -3,17 +3,8 @@ import { CLIENT_CONFIG } from "@config/client";
 import type { TransportStatus } from "../net/TransportLayer";
 import type { RenderEntity, WorldFrame } from "../world/SnapshotStore";
 
-interface Star {
-  x: number;
-  y: number;
-  radius: number;
-  twinkle: number;
-}
-
 export class SnapshotRenderer {
   private ctx: CanvasRenderingContext2D;
-  private stars: Star[] = [];
-  private startTime = performance.now();
   private bgGradient: CanvasGradient | null = null;
   private vignetteGradient: CanvasGradient | null = null;
 
@@ -23,7 +14,6 @@ export class SnapshotRenderer {
       throw new Error("CanvasRenderingContext2D missing");
     }
     this.ctx = ctx;
-    this.seedStars();
     this.resize();
     window.addEventListener("resize", () => this.resize());
   }
@@ -35,11 +25,10 @@ export class SnapshotRenderer {
     predicted: EntityState | null,
     showOverlay = true
   ) {
-    const now = performance.now() - this.startTime;
     const focus = frame.focus ?? { x: 0, y: 0 };
     const scale = this.computeScale();
 
-    this.drawBackground(now, focus);
+    this.drawBackground(focus, scale);
 
     this.ctx.save();
     this.ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
@@ -58,16 +47,6 @@ export class SnapshotRenderer {
     if (showOverlay) {
       this.drawOverlay(frame, status);
     }
-  }
-
-  private seedStars() {
-    const count = 180;
-    this.stars = Array.from({ length: count }, () => ({
-      x: Math.random(),
-      y: Math.random(),
-      radius: 0.6 + Math.random() * 1.5,
-      twinkle: 0.3 + Math.random() * 0.7
-    }));
   }
 
   private resize() {
@@ -102,7 +81,7 @@ export class SnapshotRenderer {
     return viewport / (viewRadius * 2);
   }
 
-  private drawBackground(timeMs: number, focus: { x: number; y: number }) {
+  private drawBackground(focus: { x: number; y: number }, scale: number) {
     const ctx = this.ctx;
     ctx.save();
     ctx.resetTransform();
@@ -114,18 +93,48 @@ export class SnapshotRenderer {
     ctx.fillStyle = this.bgGradient ?? "#05070f";
     ctx.fillRect(0, 0, w, h);
 
-    const driftX = (focus.x % 500) * 0.06;
-    const driftY = (focus.y % 500) * 0.06;
-    ctx.fillStyle = "rgba(255,255,255,0.85)";
+    // World-aligned grid to replace drifting stars
+    const gridSpacingWorld = 150; // meters between grid lines
+    const gridSpacingPx = gridSpacingWorld * scale;
+    if (gridSpacingPx > 6) {
+      const centerX = w / 2;
+      const centerY = h / 2;
+      const offsetX = (-focus.x * scale) % gridSpacingPx;
+      const offsetY = (-focus.y * scale) % gridSpacingPx;
 
-    for (const star of this.stars) {
-      const x = (star.x * w + driftX + timeMs * 0.01) % w;
-      const y = (star.y * h + driftY + timeMs * 0.008) % h;
-      const brightness = 0.3 + 0.7 * Math.abs(Math.sin(timeMs * 0.001 * star.twinkle));
-      ctx.globalAlpha = brightness;
+      ctx.strokeStyle = "rgba(120, 170, 255, 0.2)";
+      ctx.lineWidth = 1;
+
       ctx.beginPath();
-      ctx.arc(x, y, star.radius, 0, Math.PI * 2);
-      ctx.fill();
+      for (let x = centerX + offsetX; x < w; x += gridSpacingPx) {
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+      }
+      for (let x = centerX + offsetX; x > 0; x -= gridSpacingPx) {
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+      }
+      for (let y = centerY + offsetY; y < h; y += gridSpacingPx) {
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+      }
+      for (let y = centerY + offsetY; y > 0; y -= gridSpacingPx) {
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+      }
+      ctx.stroke();
+
+      // Crosshair at world origin for orientation
+      ctx.strokeStyle = "rgba(200, 235, 255, 0.35)";
+      ctx.lineWidth = 1.5;
+      const originX = centerX - focus.x * scale;
+      const originY = centerY - focus.y * scale;
+      ctx.beginPath();
+      ctx.moveTo(originX - 8, originY);
+      ctx.lineTo(originX + 8, originY);
+      ctx.moveTo(originX, originY - 8);
+      ctx.lineTo(originX, originY + 8);
+      ctx.stroke();
     }
 
     // Comic-style vignette
