@@ -23,7 +23,8 @@ export class SnapshotRenderer {
     status: TransportStatus,
     localEntityId: number | null,
     predicted: EntityState | null,
-    showOverlay = true
+    showOverlay = true,
+    flightAssist = true
   ) {
     const focus = frame.focus ?? { x: 0, y: 0 };
     const scale = this.computeScale();
@@ -45,7 +46,7 @@ export class SnapshotRenderer {
 
     this.ctx.restore();
     if (showOverlay) {
-      this.drawOverlay(frame, status);
+      this.drawOverlay(frame, status, flightAssist);
     }
   }
 
@@ -206,16 +207,16 @@ export class SnapshotRenderer {
     ctx.restore();
   }
 
-  private drawOverlay(frame: WorldFrame, status: TransportStatus) {
+  private drawOverlay(frame: WorldFrame, status: TransportStatus, flightAssist: boolean) {
     const ctx = this.ctx;
     ctx.save();
     ctx.resetTransform();
 
     ctx.fillStyle = "rgba(6, 12, 22, 0.8)";
-    ctx.fillRect(16, 16, 260, 88);
+    ctx.fillRect(16, 16, 260, 110);
     ctx.strokeStyle = "rgba(117, 242, 255, 0.5)";
     ctx.lineWidth = 2;
-    ctx.strokeRect(16, 16, 260, 88);
+    ctx.strokeRect(16, 16, 260, 110);
 
     ctx.fillStyle = "#c7f2ff";
     ctx.font = "16px 'Space Grotesk', 'DM Sans', 'Inter', system-ui";
@@ -234,6 +235,13 @@ export class SnapshotRenderer {
     ctx.fillText(`Tick: ${frame.tick}`, 28, 66);
     ctx.fillText(`Entities: ${frame.entities.length}`, 140, 66);
     ctx.fillText(`Last snapshot: ${Math.round(performance.now() - frame.timestamp)} ms ago`, 28, 90);
+    
+    // M3.0: Flight Assist indicator
+    const faLabel = flightAssist ? "FA:ON" : "FA:OFF";
+    const faColor = flightAssist ? "#00ff00" : "#ff6600";
+    ctx.fillStyle = faColor;
+    ctx.font = "bold 16px 'Space Grotesk', 'DM Sans', 'Inter', system-ui";
+    ctx.fillText(faLabel, 28, 114);
 
     ctx.restore();
   }

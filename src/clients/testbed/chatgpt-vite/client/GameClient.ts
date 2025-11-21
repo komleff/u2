@@ -94,7 +94,7 @@ export class GameClient {
     }
 
     const view = this.snapshotStore.frame(this.transport.getLocalEntityId());
-    this.renderer.render(view, this.status, this.transport.getLocalEntityId(), this.predictedState, this.hudVisible);
+    this.renderer.render(view, this.status, this.transport.getLocalEntityId(), this.predictedState, this.hudVisible, frame.flightAssist);
 
     requestAnimationFrame(() => this.loop());
   }
