@@ -37,6 +37,34 @@ if errorlevel 1 (
 echo [OK] All prerequisites satisfied
 echo.
 
+REM Check port availability
+echo Checking port availability...
+
+REM Check if ports are in use
+netstat -ano | findstr ":7777 " >nul
+if not errorlevel 1 (
+    echo Error: Port 7777 is already in use
+    pause
+    exit /b 1
+)
+
+netstat -ano | findstr ":8080 " >nul
+if not errorlevel 1 (
+    echo Error: Port 8080 is already in use
+    pause
+    exit /b 1
+)
+
+netstat -ano | findstr ":5173 " >nul
+if not errorlevel 1 (
+    echo Error: Port 5173 is already in use
+    pause
+    exit /b 1
+)
+
+echo [OK] All ports available
+echo.
+
 REM Build the C# solution
 echo Building C# backend server...
 dotnet build U2.sln -c Release --nologo -v quiet

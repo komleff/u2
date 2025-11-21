@@ -23,10 +23,11 @@ echo -e "${BLUE}║  U2 Online Testing - Server Startup Script                  
 echo -e "${BLUE}╚════════════════════════════════════════════════════════════════╝${NC}"
 echo ""
 
-# Function to check if a port is in use
+# Function to check if a port is in use (TCP or UDP)
 check_port() {
     local port=$1
-    if lsof -Pi :$port -sTCP:LISTEN -t >/dev/null 2>&1 ; then
+    # Check both TCP and UDP
+    if lsof -Pi :$port -t >/dev/null 2>&1 ; then
         return 0
     else
         return 1

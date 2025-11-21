@@ -91,9 +91,10 @@ fi
 echo ""
 
 echo "7. Checking port availability..."
-test_check "Port 7777 is available" "! lsof -Pi :7777 -sTCP:LISTEN -t"
-test_check "Port 8080 is available" "! lsof -Pi :8080 -sTCP:LISTEN -t"
-test_check "Port 5173 is available" "! lsof -Pi :5173 -sTCP:LISTEN -t"
+# Check both TCP and UDP
+test_check "Port 7777 is available" "! lsof -Pi :7777 -t"
+test_check "Port 8080 is available" "! lsof -Pi :8080 -t"
+test_check "Port 5173 is available" "! lsof -Pi :5173 -t"
 echo ""
 
 # Summary
