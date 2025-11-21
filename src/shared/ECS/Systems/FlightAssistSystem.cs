@@ -125,16 +125,19 @@ public class FlightAssistSystem : IExecuteSystem
 
     /// <summary>
     /// Apply damping to linear velocity when controls are idle (auto-stop)
+    /// Uses selective damping: each axis (forward/lateral) is dampened independently
     /// </summary>
     private void ApplyLinearDamping(ref Components.VelocityComponent velocity, Components.ControlStateComponent control, float rotation)
     {
-        // Only apply damping if all linear controls are idle
+        // Check which controls are idle
         bool thrustIdle = MathF.Abs(control.Thrust) < 0.01f;
         bool strafeIdle = MathF.Abs(control.Strafe_X) < 0.01f;
 
+        // Optimization: if BOTH controls are active, skip damping entirely
+        // (Selective damping will still occur if only one control is active)
         if (!thrustIdle && !strafeIdle)
         {
-            return; // Active controls - no damping
+            return; // Both controls active - no damping needed
         }
 
         // Transform to local coordinates to apply selective damping
