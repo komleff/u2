@@ -50,8 +50,8 @@ public static class SharedPhysics
                 {
                     // Maintain degrees/sec^2 for compatibility with existing systems
                     Yaw = data.Physics.Yaw_accel_dps2,
-                    Pitch = data.Limits.Angular_speed_max_dps.Pitch,
-                    Roll = data.Limits.Angular_speed_max_dps.Roll
+                    Pitch = data.Physics.Pitch_accel_dps2,
+                    Roll = data.Physics.Roll_accel_dps2
                 }
             },
             FlightAssistLimits = new FlightAssistLimits
@@ -132,7 +132,9 @@ public static class SharedPhysics
             Forward_accel_mps2 = 90.0f,
             Reverse_accel_mps2 = 67.5f,
             Strafe_accel_mps2 = 85.0f,
-            Yaw_accel_dps2 = 200.0f
+            Yaw_accel_dps2 = 200.0f,
+            Pitch_accel_dps2 = 180.0f,
+            Roll_accel_dps2 = 220.0f
         },
         Limits = new SharedLimits
         {
@@ -190,6 +192,8 @@ public class SharedPhysicsValues
     public float Reverse_accel_mps2 { get; set; }
     public float Strafe_accel_mps2 { get; set; }
     public float Yaw_accel_dps2 { get; set; }
+    public float Pitch_accel_dps2 { get; set; }
+    public float Roll_accel_dps2 { get; set; }
 }
 
 public class SharedLimits
