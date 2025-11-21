@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Sockets;
+using System.Linq;
 using Microsoft.Extensions.Logging;
 using U2.Shared.Network;
 
@@ -97,10 +98,13 @@ public class UdpServer : IDisposable
     /// </summary>
     public async Task BroadcastAsync(byte[] data)
     {
-        var endpoints = _connectionManager.GetAllEndpoints();
-        foreach (var endpoint in endpoints)
+        var acceptedConnections = _connectionManager
+            .GetAllConnections()
+            .Where(c => c.IsAccepted);
+
+        foreach (var connection in acceptedConnections)
         {
-            await SendAsync(data, endpoint);
+            await SendAsync(data, connection.Endpoint);
         }
     }
 

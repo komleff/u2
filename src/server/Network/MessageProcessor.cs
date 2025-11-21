@@ -71,7 +71,13 @@ public class MessageProcessor
         
         if (connection.IsAccepted)
         {
-            _logger.LogWarning("Client {ClientId} already accepted", connection.ClientId);
+            if (connection.EntityId is null)
+            {
+                // Recreate entity if it was lost but connection persisted
+                var recreated = _gameWorld.CreatePlayerEntity(connection.ClientId);
+                connection.EntityId = (uint)recreated.creationIndex + 1;
+            }
+            await SendConnectionAcceptedAsync(connection, endpoint, isRetry: true);
             return;
         }
 
@@ -83,22 +89,7 @@ public class MessageProcessor
         connection.PlayerName = request.PlayerName;
         connection.IsAccepted = true;
 
-        // Send connection accepted response
-        var response = new ServerMessageProto
-        {
-            ConnectionAccepted = new ConnectionAcceptedProto
-            {
-                ClientId = connection.ClientId,
-                EntityId = connection.EntityId.Value,
-                ServerTimeMs = (ulong)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-            }
-        };
-
-        var responseData = response.ToByteArray();
-        await _server.SendAsync(responseData, endpoint);
-
-        _logger.LogInformation("Connection accepted: ClientId={ClientId}, EntityId={EntityId}",
-            connection.ClientId, connection.EntityId);
+        await SendConnectionAcceptedAsync(connection, endpoint);
     }
 
     private void HandlePlayerInput(PlayerInputProto input, IPEndPoint endpoint)
@@ -139,5 +130,38 @@ public class MessageProcessor
 
         _logger.LogTrace("Applied input for entity {EntityId}: seq={Sequence}, thrust={Thrust}, FA={FA}",
             connection.EntityId, input.SequenceNumber, input.ControlState.Thrust, input.FlightAssist);
+    }
+
+    private async Task SendConnectionAcceptedAsync(ClientConnection connection, IPEndPoint endpoint, bool isRetry = false)
+    {
+        if (connection.EntityId is null)
+        {
+            _logger.LogWarning("Cannot send acceptance for ClientId={ClientId}: missing EntityId", connection.ClientId);
+            return;
+        }
+
+        var response = new ServerMessageProto
+        {
+            ConnectionAccepted = new ConnectionAcceptedProto
+            {
+                ClientId = connection.ClientId,
+                EntityId = connection.EntityId.Value,
+                ServerTimeMs = (ulong)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+            }
+        };
+
+        var responseData = response.ToByteArray();
+        await _server.SendAsync(responseData, endpoint);
+
+        if (isRetry)
+        {
+            _logger.LogInformation("Re-sent connection accepted to {Endpoint}: ClientId={ClientId}, EntityId={EntityId}",
+                endpoint, connection.ClientId, connection.EntityId);
+        }
+        else
+        {
+            _logger.LogInformation("Connection accepted: ClientId={ClientId}, EntityId={EntityId}",
+                connection.ClientId, connection.EntityId);
+        }
     }
 }
