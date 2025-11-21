@@ -15,6 +15,8 @@ describe("shared physics sync", () => {
   it("converts angular values to radians", () => {
     const degToRad = (deg: number) => (deg * Math.PI) / 180;
     expect(DEFAULT_PHYSICS.yawAccel).toBeCloseTo(degToRad(sharedPhysics.physics.yaw_accel_dps2), 5);
+    expect(DEFAULT_PHYSICS.pitchAccel).toBeCloseTo(degToRad(sharedPhysics.physics.pitch_accel_dps2), 5);
+    expect(DEFAULT_PHYSICS.rollAccel).toBeCloseTo(degToRad(sharedPhysics.physics.roll_accel_dps2), 5);
     expect(DEFAULT_PHYSICS.maxYawRate).toBeCloseTo(degToRad(sharedPhysics.limits.angular_speed_max_dps.yaw), 5);
   });
 });

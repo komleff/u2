@@ -18,7 +18,9 @@
     "forward_accel_mps2": 90.0,
     "reverse_accel_mps2": 67.5,
     "strafe_accel_mps2": 85.0,
-    "yaw_accel_dps2": 200.0
+    "yaw_accel_dps2": 200.0,
+    "pitch_accel_dps2": 180.0,
+    "roll_accel_dps2": 220.0
   },
   "limits": {
     "crew_g_limit": 11.0,

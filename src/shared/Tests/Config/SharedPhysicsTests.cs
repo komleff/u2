@@ -25,6 +25,8 @@ public class SharedPhysicsTests
         Assert.That(config.Physics.LinearAcceleration_mps2.Forward, Is.EqualTo(90.0f).Within(0.001));
         Assert.That(config.Physics.StrafeAcceleration_mps2.Lateral, Is.EqualTo(85.0f).Within(0.001));
         Assert.That(config.Physics.AngularAcceleration_dps2.Yaw, Is.EqualTo(200.0f).Within(0.01));
+        Assert.That(config.Physics.AngularAcceleration_dps2.Pitch, Is.EqualTo(180.0f).Within(0.01));
+        Assert.That(config.Physics.AngularAcceleration_dps2.Roll, Is.EqualTo(220.0f).Within(0.01));
         Assert.That(config.FlightAssistLimits.LinearSpeedMax_mps.Forward, Is.EqualTo(260.0f).Within(0.01));
         Assert.That(config.FlightAssistLimits.AngularSpeedMax_dps.Yaw, Is.EqualTo(80.0f).Within(0.01));
     }

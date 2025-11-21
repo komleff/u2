@@ -6,6 +6,8 @@ export interface PhysicsConfig {
   strafeAccel: number; // m/s²
 
   yawAccel: number; // rad/s²
+  pitchAccel: number; // rad/s²
+  rollAccel: number; // rad/s²
 
   maxForwardSpeed: number; // m/s
   maxReverseSpeed: number; // m/s
@@ -34,6 +36,8 @@ export const DEFAULT_PHYSICS: PhysicsConfig = {
   strafeAccel: sharedPhysics.physics.strafe_accel_mps2,
 
   yawAccel: degToRad(sharedPhysics.physics.yaw_accel_dps2),
+  pitchAccel: degToRad(sharedPhysics.physics.pitch_accel_dps2 ?? 180.0),
+  rollAccel: degToRad(sharedPhysics.physics.roll_accel_dps2 ?? 220.0),
 
   maxForwardSpeed: sharedPhysics.limits.linear_speed_max_mps.forward,
   maxReverseSpeed: sharedPhysics.limits.linear_speed_max_mps.reverse,
