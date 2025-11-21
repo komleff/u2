@@ -194,45 +194,40 @@ export class PredictionEngine {
 
     // Flight Assist: velocity damping and speed limiting
     if (input.flightAssist) {
-      // Transform velocity to ship-local space
-      const cosRot = Math.cos(state.rotation);
-      const sinRot = Math.sin(state.rotation);
+      // M3.0: Match server-side FlightAssistSystem implementation
+      const DAMPING_FACTOR = 0.85; // Must match server-side constant
 
-      const localVelX = state.velocity.x * cosRot + state.velocity.y * sinRot;
-      const localVelY = -state.velocity.x * sinRot + state.velocity.y * cosRot;
-
-      // Apply speed limits in local space
-      const forwardSpeed = localVelX;
-      const lateralSpeed = localVelY;
-
-      let clampedForward = forwardSpeed;
-      let clampedLateral = lateralSpeed;
-
-      if (forwardSpeed > 0) {
-        clampedForward = Math.min(forwardSpeed, this.physics.maxForwardSpeed);
-      } else {
-        clampedForward = Math.max(forwardSpeed, -this.physics.maxReverseSpeed);
-      }
-
-      clampedLateral = Math.max(
-        -this.physics.maxStrafeSpeed,
-        Math.min(lateralSpeed, this.physics.maxStrafeSpeed)
+      // 1. Linear speed limiting
+      const speed = Math.hypot(state.velocity.x, state.velocity.y);
+      const maxSpeed = Math.max(
+        this.physics.maxForwardSpeed,
+        this.physics.maxReverseSpeed,
+        this.physics.maxStrafeSpeed
       );
 
-      // Apply damping if no thrust input
-      const dampingFactor = 0.9; // Exponential decay per second
-      const dampingThisFrame = Math.pow(dampingFactor, deltaTime);
-
-      if (input.thrust === 0) {
-        clampedForward *= dampingThisFrame;
-      }
-      if (input.strafeX === 0 && input.strafeY === 0) {
-        clampedLateral *= dampingThisFrame;
+      if (speed > maxSpeed) {
+        // Clamp speed to maximum, preserving direction
+        const scale = maxSpeed / speed;
+        state.velocity.x *= scale;
+        state.velocity.y *= scale;
       }
 
-      // Transform back to world space
-      state.velocity.x = clampedForward * cosRot - clampedLateral * sinRot;
-      state.velocity.y = clampedForward * sinRot + clampedLateral * cosRot;
+      // 2. Linear damping when controls are idle
+      const controlsIdle =
+        Math.abs(input.thrust) < 0.01 &&
+        Math.abs(input.strafeX) < 0.01 &&
+        Math.abs(input.strafeY) < 0.01;
+
+      if (controlsIdle) {
+        state.velocity.x *= DAMPING_FACTOR;
+        state.velocity.y *= DAMPING_FACTOR;
+
+        // Zero out very small velocities to prevent drift
+        if (Math.hypot(state.velocity.x, state.velocity.y) < 0.01) {
+          state.velocity.x = 0;
+          state.velocity.y = 0;
+        }
+      }
     }
 
     // Update position
@@ -245,14 +240,15 @@ export class PredictionEngine {
 
     // Flight Assist: angular velocity limiting and damping
     if (input.flightAssist) {
-      state.angularVelocity = Math.max(
-        -this.physics.maxYawRate,
-        Math.min(state.angularVelocity, this.physics.maxYawRate)
-      );
+      // M3.0: Match server-side FlightAssistSystem implementation
+      const DAMPING_FACTOR = 0.85; // Must match server-side constant
 
-      if (input.yawInput === 0) {
-        const angularDamping = 0.9;
-        state.angularVelocity *= Math.pow(angularDamping, deltaTime);
+      // Angular damping
+      state.angularVelocity *= DAMPING_FACTOR;
+
+      // Zero out very small angular velocities to prevent drift
+      if (Math.abs(state.angularVelocity) < 0.001) {
+        state.angularVelocity = 0;
       }
     }
 
