@@ -63,9 +63,18 @@ scripts\start-servers.bat
 
 ### Linux / macOS
 
-Логи сохраняются в:
-- Backend: `/tmp/u2-backend.log`
-- Client: `/tmp/u2-client.log`
+Logs are saved to the `logs/` directory in the project root:
+- Backend: `logs/backend.log`
+- Client: `logs/client.log`
+
+**View logs in real-time:**
+```bash
+# Backend log
+tail -f logs/backend.log
+
+# Client log
+tail -f logs/client.log
+```
 
 ### Windows
 
@@ -111,7 +120,15 @@ taskkill /PID <PID> /F
    dotnet build U2.sln
    ```
 
-3. Проверьте логи в `/tmp/u2-backend.log` (Linux/macOS)
+3. Проверьте логи:
+   ```bash
+   cat logs/backend.log
+   ```
+
+4. Попробуйте запустить сервер вручную:
+   ```bash
+   dotnet run --project src/server/U2.Server.csproj -- --network
+   ```
 
 ### Client сервер не запускается
 
@@ -120,7 +137,12 @@ taskkill /PID <PID> /F
    npm install
    ```
 
-2. Попробуйте запустить вручную:
+2. Проверьте логи:
+   ```bash
+   cat logs/client.log
+   ```
+
+3. Попробуйте запустить вручную:
    ```bash
    npm run dev
    ```
