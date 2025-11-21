@@ -1,22 +1,23 @@
 ﻿# U2 Flight Test Sandbox (Universe Unlimited)
 
-> — **[English](#getting-started)** | **[Русский](#начало-работы-russian)**
+>  **[English](#getting-started)** | **[Русский](#начало-работы-russian)**
 
-This repository contains a canvas-based flight systems sandbox for the **Universe Unlimited (U2)** project.
+This repository contains a canvasbased flight systems sandbox for the **Universe Unlimited (U2)** project.  
 It is used to prototype and validate flight modes, physics constraints, HUD concepts and related gameplay for versions around **U2 v0.8.x**.
 
-- App name: u2-flighttest
-- Runtime: browser (Vite + TypeScript)
-- Docs root: docs/ (see below)
+- App name: `u2-flighttest`  
+- Runtime: browser (Vite + TypeScript)  
+- Docs root: `docs/` (see below)
 
 ---
+
 ## Project goals
 
-- Experiment with 2D representations of U2's flight model (Coupled/Decoupled, FA:ON/OFF, g-limits, etc.).
+- Experiment with 2D representations of U2's flight model (Coupled/Decoupled, FA:ON/OFF, glimits, etc.).
 - Provide a fast sandbox for tuning ship tech specs and combat formulas.
 - Serve as a living reference implementation for the design specs in `docs/specs`.
 
-Game-design and technical specifications live in Markdown and are treated as first-class artifacts.
+Gamedesign and technical specifications live in Markdown and are treated as firstclass artifacts.
 
 ---
 
@@ -24,98 +25,97 @@ Game-design and technical specifications live in Markdown and are treated as fir
 
 ### Prerequisites
 
-- **Node.js >= 18**
+- **Node.js  18**
 - **npm** (comes with Node)
-(comes with Node)
 
 ### Installation
 
-```bash
+``bash
 npm install
-```
+``
 
 ### Online testing (automated server startup)
 
 For online multiplayer testing, use the automated server startup script:
 
-```bash
+``bash
 npm run start:servers
-```
+``
 
 This script automatically starts both:
+
 - **C# backend server** (UDP on port 7777, WebSocket on port 8080)
 - **Vite development client** (HTTP on port 5173)
 
 On Windows, use:
-```batch
+
+``batch
 scripts\start-servers.bat
-```
+``
 
 See `scripts/README.md` for detailed information about the automation scripts.
 
 ### Docker (server + Vite)
 
-Запуск в один шаг:
-```bash
+** For development environment. Production build requires separate Dockerfile.**
+
+Quick start:
+
+``bash
 ./scripts/start-docker.sh       # macOS/Linux
 .\scripts\start-docker.ps1      # Windows PowerShell
-```
+``
 
-Что поднимется:
+Services:
+
 - C# backend: UDP 7777, WebSocket 8080
-- Vite dev server: http://localhost:5173/ (клиент ходит на ws://server:8080/ внутри compose)
+- Vite dev server: <http://localhost:5173/> (connects to ws://server:8080/ inside compose)
 
-Полезные команды вручную:
-```bash
-docker compose up            # запустить
-docker compose logs -f       # смотреть логи
-docker compose down          # остановить и убрать контейнеры
-```
+Manual commands:
 
-Проверка:
-1) Открыть http://localhost:5173/
-2) Проверить WebSocket на ws://localhost:8080/ (вкладка Network).
-3) Если порты заняты, поменять пробросы в docker-compose.yml (например, 5174:5173).
+``bash
+docker compose up            # start
+docker compose logs -f       # view logs
+docker compose down          # stop and remove containers
+``
 
-Очистка:
-- Полностью убрать контейнеры/volume: docker compose down --remove-orphans --volumes
-- Первое build скачае
- SDK/Node, поэтому мо
-же
-т заня
-ть бо
-ль
-ш
-е времени.
+Verification:
+
+1. Open <http://localhost:5173/>
+2. Check WebSocket at <ws://localhost:8080/> (Network tab)
+3. If ports are busy, change mappings in docker-compose.yml (e.g., 5174:5173)
+
+Cleanup:
+
+- Remove all containers/volumes: `docker compose down --remove-orphans --volumes`
+- First build downloads SDK/Node, may take longer
+
 ### Development server (client only)
 
-
-
-
-
-```bash
+``bash
 npm run dev
-```
+``
 
-This runs ViteвЂ™s dev server. See the terminal output for the local URL (typically `http://localhost:5173/`).
+This runs Vite's dev server. See the terminal output for the local URL (typically `http://localhost:5173/`).
 
 ### Production build
 
-```bash
+``bash
 npm run build
-```
+``
 
 Build artifacts are emitted to `dist/`. You can preview the built app with:
 
-```bash
+``bash
 npm run preview
-```
+``
 
 ---
 
 ### Client preview (M2.3 Stage 1)
 
-- Run `npm run dev` to start the Vite client.
+- Run 
+pm run dev` to start the Vite client.
 - Default server endpoint: `ws://localhost:8080/` (override with `VITE_SERVER_URL`).
 - Controls: `WASD` thrusters, `Q`/`E` yaw, `O` toggles link, `F3` toggles HUD overlay.
 - Theme: hand-drawn space opera; snapshots from the test server are rendered on the new canvas client.
@@ -126,19 +126,19 @@ npm run preview
 
 ### Linting
 
-```bash
+``bash
 npm run lint
-```
+``
 
-Runs ESLint on the TypeScript codebase with zeroвЂ‘warning policy.
+Runs ESLint on the TypeScript codebase with zerowarning policy.
 
 ### Unit tests
 
-```bash
+``bash
 npm test         # single run
 npm run test:watch
 npm run coverage # with coverage report
-```
+``
 
 Tests are implemented with **Vitest** and run in a jsdom environment where needed.
 
@@ -148,7 +148,7 @@ Tests are implemented with **Vitest** and run in a jsdom environment where neede
 
 All project documentation lives in the `docs/` directory.
 
-- HighвЂ‘level docs overview: `docs/README.md`
+- Highlevel docs overview: `docs/README.md`
 - Documentation index / navigation hub: `docs/INDEX.md`
 - Specs catalog: `docs/specs/README.md`
 
@@ -158,9 +158,9 @@ Key areas:
 - **Specs (flight modes, architecture, tech stack, Definition of Fun, combat formulas):**  
   - `docs/specs/spec_pilot_assist_coupled.md`  
   - `docs/specs/spec_flight_decoupled.md`  
-  - `docs/specs/gameplay/` вЂ” devвЂ‘plans, combat formulas, Definition of Fun for v0.8.x  
-  - `docs/specs/tech/` вЂ” architecture, tech stack, ship tech specs, visual style  
-  - `docs/specs/audit/` вЂ” documentation audit reports and action plans
+  - `docs/specs/gameplay/`  devplans, combat formulas, Definition of Fun for v0.8.x  
+  - `docs/specs/tech/`  architecture, tech stack, ship tech specs, visual style  
+  - `docs/specs/audit/`  documentation audit reports and action plans
 - **PvE design and analysis:** `docs/pve/`
 - **Guides and practices:** `docs/guides/`
 - **Archive and converted legacy docs:** `docs/archive/`, `docs/_converted/`
@@ -175,15 +175,15 @@ This repo includes simple scripts to help normalize and convert documentation:
 
 - Normalize Markdown (line endings, spaces, etc.):
 
-  ```bash
+  ``bash
   npm run docs:normalize
-  ```
+  ``
 
-- Convert external documents (PDF/DOCX в†’ Markdown) into `docs/_converted/`:
+- Convert external documents (PDF/DOCX  Markdown) into `docs/_converted/`:
 
-  ```bash
+  ``bash
   npm run docs:convert
-  ```
+  ``
 
 These scripts are primarily for maintainers of the documentation set.
 
@@ -193,7 +193,9 @@ These scripts are primarily for maintainers of the documentation set.
 
 1. Keep changes aligned with the existing specs in `docs/specs/`.  
 2. When altering behavior that is documented, update the corresponding spec and, if applicable, its `Changelog`.  
-3. Run `npm run lint` and `npm test` before submitting changes.
+3. Run 
+pm run lint` and 
+pm test` before submitting changes.
 
 Bug reports and feature requests are welcome via GitHub issues.
 
@@ -210,219 +212,217 @@ Build prepared with Codex (GPT-5).
 
 ---
 
-# РќР°С‡Р°Р»Рѕ СЂР°Р±РѕС‚С‹ (Russian)
+# Начало работы (Russian)
 
-## рџЋЇ Рћ РїСЂРѕРµРєС‚Рµ
+##  О проекте
 
-Р­С‚РѕС‚ СЂРµРїРѕР·РёС‚РѕСЂРёР№ СЃРѕРґРµСЂР¶РёС‚ РїРµСЃРѕС‡РЅРёС†Сѓ РґР»СЏ С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ СЃРёСЃС‚РµРј РїРѕР»РµС‚Р° РїСЂРѕРµРєС‚Р° **Universe Unlimited (U2)**.  
-РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РїСЂРѕС‚РѕС‚РёРїРёСЂРѕРІР°РЅРёСЏ Рё РІР°Р»РёРґР°С†РёРё СЂРµР¶РёРјРѕРІ РїРѕР»РµС‚Р°, С„РёР·РёС‡РµСЃРєРёС… РѕРіСЂР°РЅРёС‡РµРЅРёР№, РєРѕРЅС†РµРїС†РёР№ HUD Рё СЃРІСЏР·Р°РЅРЅРѕРіРѕ РіРµР№РјРїР»РµСЏ РґР»СЏ РІРµСЂСЃРёР№ **U2 v0.8.x**.
+Этот репозиторий содержит песочницу для тестирования систем полета проекта **Universe Unlimited (U2)**.  
+Используется для прототипирования и валидации режимов полета, физических ограничений, концепций HUD и связанного геймплея для версий **U2 v0.8.x**.
 
-## рџ“‹ РўСЂРµР±РѕРІР°РЅРёСЏ
+##  Требования
 
-- **Node.js в‰Ґ 18**
-- **npm** (СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ РІРјРµСЃС‚Рµ СЃ Node.js)
-- **.NET 8.0 SDK** (РґР»СЏ backend СЃРµСЂРІРµСЂР°)
+- **Node.js  18**
+- **npm** (устанавливается вместе с Node.js)
+- **.NET 8.0 SDK** (для backend сервера)
 
-## рџљЂ Р‘С‹СЃС‚СЂС‹Р№ СЃС‚Р°СЂС‚
+##  Быстрый старт
 
-### 1. РЈСЃС‚Р°РЅРѕРІРєР° Р·Р°РІРёСЃРёРјРѕСЃС‚РµР№
+### 1. Установка зависимостей
 
-```bash
+``bash
 npm install
-```
+``
 
-### 2. Р—Р°РїСѓСЃРє РґР»СЏ РѕРЅР»Р°Р№РЅ-С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ
+### 2. Запуск для онлайн-тестирования
 
-Р”Р»СЏ Р·Р°РїСѓСЃРєР° РѕР±РѕРёС… СЃРµСЂРІРµСЂРѕРІ (backend + client) РѕРґРЅРѕР№ РєРѕРјР°РЅРґРѕР№:
+Для запуска обоих серверов (backend + client) одной командой:
 
-```bash
+``bash
 npm run start:servers
-```
+``
 
-РР»Рё РЅР°РїСЂСЏРјСѓСЋ С‡РµСЂРµР· СЃРєСЂРёРїС‚:
+Или напрямую через скрипт:
 
-```bash
+``bash
 # Linux / macOS
 ./scripts/start-servers.sh
 
 # Windows
 scripts\start-servers.bat
-```
+``
 
-Р­С‚Рѕ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё:
-- вњ… РџСЂРѕРІРµСЂРёС‚ РІСЃРµ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё
-- вњ… РЎРѕР±РµСЂРµС‚ C# backend СЃРµСЂРІРµСЂ
-- вњ… Р—Р°РїСѓСЃС‚РёС‚ UDP СЃРµСЂРІРµСЂ (РїРѕСЂС‚ 7777)
-- вњ… Р—Р°РїСѓСЃС‚РёС‚ WebSocket relay (РїРѕСЂС‚ 8080)
-- вњ… Р—Р°РїСѓСЃС‚РёС‚ Vite client (РїРѕСЂС‚ 5173)
+Это автоматически:
 
-**РџРѕСЃР»Рµ Р·Р°РїСѓСЃРєР°:**
-1. РћС‚РєСЂРѕР№С‚Рµ Р±СЂР°СѓР·РµСЂ
-2. РџРµСЂРµР№РґРёС‚Рµ РЅР° http://localhost:5173/
-3. РќР°С‡РЅРёС‚Рµ С‚РµСЃС‚РёСЂРѕРІР°РЅРёРµ!
+-  Проверит все зависимости
+-  Соберет C# backend сервер
+-  Запустит UDP сервер (порт 7777)
+-  Запустит WebSocket relay (порт 8080)
+-  Запустит Vite client (порт 5173)
 
-**РћСЃС‚Р°РЅРѕРІРєР°:** РќР°Р¶РјРёС‚Рµ `Ctrl+C` РІ С‚РµСЂРјРёРЅР°Р»Рµ.
+**После запуска:**
 
-рџ“– **[РџРѕР»РЅР°СЏ РґРѕРєСѓРјРµРЅС‚Р°С†РёСЏ РїРѕ СЃРєСЂРёРїС‚Р°Рј](./scripts/README.ru.md)**
+1. Откройте браузер
+2. Перейдите на <http://localhost:5173/>
+3. Начните тестирование!
 
-### 3. Р—Р°РїСѓСЃРє С‚РѕР»СЊРєРѕ РєР»РёРµРЅС‚Р° (РґР»СЏ СЂР°Р·СЂР°Р±РѕС‚РєРё)
+**Остановка:** Нажмите `Ctrl+C` в терминале.
 
-```bash
+ **[Полная документация по скриптам](./scripts/README.ru.md)**
+
+### 3. Запуск только клиента (для разработки)
+
+``bash
 npm run dev
-```
+``
 
-Vite dev СЃРµСЂРІРµСЂ Р·Р°РїСѓСЃС‚РёС‚СЃСЏ РЅР° http://localhost:5173/  
-РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РєР»РёРµРЅС‚ РїРѕРґРєР»СЋС‡Р°РµС‚СЃСЏ Рє `ws://localhost:8080/` (РјРѕР¶РЅРѕ РёР·РјРµРЅРёС‚СЊ С‡РµСЂРµР· `VITE_SERVER_URL`).
+Vite dev сервер запустится на <http://localhost:5173/>  
+По умолчанию клиент подключается к `ws://localhost:8080/` (можно изменить через `VITE_SERVER_URL`).
 
-### 4. Production СЃР±РѕСЂРєР°
+### 4. Production сборка
 
-```bash
+``bash
 npm run build
-```
+``
 
-РђСЂС‚РµС„Р°РєС‚С‹ СЃР±РѕСЂРєРё Р±СѓРґСѓС‚ РІ РєР°С‚Р°Р»РѕРіРµ `dist/`. Р”Р»СЏ РїСЂРµРґРїСЂРѕСЃРјРѕС‚СЂР°:
+Артефакты сборки будут в каталоге `dist/`. Для предпросмотра:
 
-```bash
+``bash
 npm run preview
-```
+``
 
-## рџ§Є РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ
+##  Тестирование
 
-### Р›РёРЅС‚РёРЅРі
+### Линтинг
 
-```bash
+``bash
 npm run lint
-```
+``
 
-Р—Р°РїСѓСЃРєР°РµС‚ ESLint СЃ РїРѕР»РёС‚РёРєРѕР№ "zero warnings".
+Запускает ESLint с политикой "zero warnings".
 
-### Р®РЅРёС‚-С‚РµСЃС‚С‹
+### Юнит-тесты
 
-```bash
-npm test              # РѕРґРЅРѕРєСЂР°С‚РЅС‹Р№ Р·Р°РїСѓСЃРє
-npm run test:watch    # watch СЂРµР¶РёРј
-npm run coverage      # СЃ РѕС‚С‡РµС‚РѕРј РїРѕРєСЂС‹С‚РёСЏ
-```
+``bash
+npm test              # однократный запуск
+npm run test:watch    # watch режим
+npm run coverage      # с отчетом покрытия
+``
 
-РўРµСЃС‚С‹ СЂРµР°Р»РёР·РѕРІР°РЅС‹ РЅР° **Vitest** Рё РІС‹РїРѕР»РЅСЏСЋС‚СЃСЏ РІ jsdom РѕРєСЂСѓР¶РµРЅРёРё.
+Тесты реализованы на **Vitest** и выполняются в jsdom окружении.
 
-## рџ“љ Р”РѕРєСѓРјРµРЅС‚Р°С†РёСЏ
+##  Документация
 
-Р’СЃСЏ РґРѕРєСѓРјРµРЅС‚Р°С†РёСЏ РїСЂРѕРµРєС‚Р° РЅР°С…РѕРґРёС‚СЃСЏ РІ РєР°С‚Р°Р»РѕРіРµ `docs/`.
+Вся документация проекта находится в каталоге `docs/`.
 
-- РћР±Р·РѕСЂ РґРѕРєСѓРјРµРЅС‚Р°С†РёРё: `docs/README.md`
-- РќР°РІРёРіР°С†РёСЏ: `docs/INDEX.md`
-- РљР°С‚Р°Р»РѕРі СЃРїРµС†РёС„РёРєР°С†РёР№: `docs/specs/README.md`
+- Обзор документации: `docs/README.md`
+- Навигация: `docs/INDEX.md`
+- Каталог спецификаций: `docs/specs/README.md`
 
-### РћСЃРЅРѕРІРЅС‹Рµ СЂР°Р·РґРµР»С‹:
+### Основные разделы
 
 - **Game Design (GDD):** `docs/gdd/`
-- **РЎРїРµС†РёС„РёРєР°С†РёРё:**  
-  - `docs/specs/spec_pilot_assist_coupled.md` - СЂРµР¶РёРј Coupled
-  - `docs/specs/spec_flight_decoupled.md` - СЂРµР¶РёРј Decoupled
-  - `docs/specs/gameplay/` - РёРіСЂРѕРІС‹Рµ РјРµС…Р°РЅРёРєРё, Р±РѕРµРІС‹Рµ С„РѕСЂРјСѓР»С‹
-  - `docs/specs/tech/` - Р°СЂС…РёС‚РµРєС‚СѓСЂР°, С‚РµС…РЅРѕР»РѕРіРёРё
-  - `docs/specs/audit/` - Р°СѓРґРёС‚С‹ РґРѕРєСѓРјРµРЅС‚Р°С†РёРё
-- **PvE РґРёР·Р°Р№РЅ:** `docs/pve/`
-- **Р СѓРєРѕРІРѕРґСЃС‚РІР°:** `docs/guides/`
-- **РђСЂС…РёРІ:** `docs/archive/`, `docs/_converted/`
+- **Спецификации:**  
+  - `docs/specs/spec_pilot_assist_coupled.md` - режим Coupled
+  - `docs/specs/spec_flight_decoupled.md` - режим Decoupled
+  - `docs/specs/gameplay/` - игровые механики, боевые формулы
+  - `docs/specs/tech/` - архитектура, технологии
+  - `docs/specs/audit/` - аудиты документации
+- **PvE дизайн:** `docs/pve/`
+- **Руководства:** `docs/guides/`
+- **Архив:** `docs/archive/`, `docs/_converted/`
 
-## рџ› пёЏ РЈРїСЂР°РІР»РµРЅРёРµ РґРѕРєСѓРјРµРЅС‚Р°С†РёРµР№
+##  Управление документацией
 
-### РќРѕСЂРјР°Р»РёР·Р°С†РёСЏ Markdown С„Р°Р№Р»РѕРІ
+### Нормализация Markdown файлов
 
-```bash
+``bash
 npm run docs:normalize
-```
+``
 
-### РљРѕРЅРІРµСЂС‚Р°С†РёСЏ РІРЅРµС€РЅРёС… РґРѕРєСѓРјРµРЅС‚РѕРІ (PDF/DOCX в†’ Markdown)
+### Конвертация внешних документов (PDF/DOCX  Markdown)
 
-```bash
+``bash
 npm run docs:convert
-```
+``
 
-РљРѕРЅРІРµСЂС‚РёСЂРѕРІР°РЅРЅС‹Рµ С„Р°Р№Р»С‹ СЃРѕС…СЂР°РЅСЏСЋС‚СЃСЏ РІ `docs/_converted/`.
+Конвертированные файлы сохраняются в `docs/_converted/`.
 
-## рџЋ® РЈРїСЂР°РІР»РµРЅРёРµ РІ РёРіСЂРµ
+##  Управление в игре
 
-- **WASD** - РґРІРёРіР°С‚РµР»Рё
-- **Q/E** - РїРѕРІРѕСЂРѕС‚ (yaw)
-- **O** - РїРµСЂРµРєР»СЋС‡РµРЅРёРµ flight link
-- **F3** - РїРµСЂРµРєР»СЋС‡РµРЅРёРµ HUD РѕРІРµСЂР»РµСЏ
+- **WASD** - двигатели
+- **Q/E** - поворот (yaw)
+- **O** - переключение flight link
+- **F3** - переключение HUD оверлея
 
-## рџ”§ РЈСЃС‚СЂР°РЅРµРЅРёРµ РЅРµРїРѕР»Р°РґРѕРє
+##  Устранение неполадок
 
-### РџРѕСЂС‚С‹ Р·Р°РЅСЏС‚С‹
+### Порты заняты
 
-Р•СЃР»Рё РїРѕСЏРІР»СЏРµС‚СЃСЏ РѕС€РёР±РєР° Рѕ Р·Р°РЅСЏС‚С‹С… РїРѕСЂС‚Р°С… (7777, 8080, 5173):
+Если появляется ошибка о занятых портах (7777, 8080, 5173):
 
-```bash
-# РќР°Р№С‚Рё РїСЂРѕС†РµСЃСЃ
+``bash
+# Найти процесс
 lsof -i :7777
 lsof -i :8080
 lsof -i :5173
 
-# РћСЃС‚Р°РЅРѕРІРёС‚СЊ РїСЂРѕС†РµСЃСЃ
+# Остановить процесс
 kill -9 <PID>
-```
+``
 
 **Windows:**
-```batch
+
+``batch
 netstat -ano | findstr :7777
 taskkill /PID <PID> /F
-```
+``
 
-### Backend РЅРµ Р·Р°РїСѓСЃРєР°РµС‚СЃСЏ
+### Backend не запускается
 
-1. РџСЂРѕРІРµСЂСЊС‚Рµ, С‡С‚Рѕ СѓСЃС‚Р°РЅРѕРІР»РµРЅ .NET 8.0 SDK:
-   ```bash
+1. Проверьте, что установлен .NET 8.0 SDK:
+
+   ``bash
    dotnet --version
-   ```
+   ``
 
-2. РџРѕРїСЂРѕР±СѓР№С‚Рµ СЃРѕР±СЂР°С‚СЊ РІСЂСѓС‡РЅСѓСЋ:
-   ```bash
+2. Попробуйте собрать вручную:
+
+   ``bash
    dotnet build U2.sln
-   ```
+   ``
 
-3. РџСЂРѕРІРµСЂСЊС‚Рµ Р»РѕРіРё РІ `logs/backend.log`
+3. Проверьте логи в `logs/backend.log`
 
-### Client РЅРµ Р·Р°РїСѓСЃРєР°РµС‚СЃСЏ
+### Client не запускается
 
-1. РџРµСЂРµСѓСЃС‚Р°РЅРѕРІРёС‚Рµ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё:
-   ```bash
+1. Переустановите зависимости:
+
+   ``bash
    npm install
-   ```
+   ``
 
-2. РџСЂРѕРІРµСЂСЊС‚Рµ Р»РѕРіРё РІ `logs/client.log`
+2. Проверьте логи в `logs/client.log`
 
-рџ“– **[РџРѕР»РЅРѕРµ СЂСѓРєРѕРІРѕРґСЃС‚РІРѕ РїРѕ СѓСЃС‚СЂР°РЅРµРЅРёСЋ РЅРµРїРѕР»Р°РґРѕРє](./scripts/README.ru.md#СѓСЃС‚СЂР°РЅРµРЅРёРµ-РЅРµРїРѕР»Р°РґРѕРє)**
+ **[Полное руководство по устранению неполадок](./scripts/README.ru.md#устранение-неполадок)**
 
-## рџ¤ќ Р’РЅРµСЃРµРЅРёРµ РёР·РјРµРЅРµРЅРёР№
+##  Внесение изменений
 
-1. РР·РјРµРЅРµРЅРёСЏ РґРѕР»Р¶РЅС‹ СЃРѕРѕС‚РІРµС‚СЃС‚РІРѕРІР°С‚СЊ СЃРїРµС†РёС„РёРєР°С†РёСЏРј РІ `docs/specs/`
-2. РџСЂРё РёР·РјРµРЅРµРЅРёРё РїРѕРІРµРґРµРЅРёСЏ РѕР±РЅРѕРІРёС‚Рµ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰СѓСЋ СЃРїРµС†РёС„РёРєР°С†РёСЋ Рё РµС‘ `Changelog`
-3. Р—Р°РїСѓСЃС‚РёС‚Рµ `npm run lint` Рё `npm test` РїРµСЂРµРґ РѕС‚РїСЂР°РІРєРѕР№ РёР·РјРµРЅРµРЅРёР№
+1. Изменения должны соответствовать спецификациям в `docs/specs/`
+2. При изменении поведения обновите соответствующую спецификацию и её `Changelog`
+3. Запустите 
+pm run lint` и 
+pm test` перед отправкой изменений
 
-РЎРѕРѕР±С‰РµРЅРёСЏ РѕР± РѕС€РёР±РєР°С… Рё РїСЂРµРґР»РѕР¶РµРЅРёСЏ С„СѓРЅРєС†РёР№ РїСЂРёРІРµС‚СЃС‚РІСѓСЋС‚СЃСЏ С‡РµСЂРµР· GitHub issues.
+Сообщения об ошибках и предложения функций приветствуются через GitHub issues.
 
-## рџ“„ Р›РёС†РµРЅР·РёСЏ
+##  Лицензия
 
-РџСЂРѕРµРєС‚ Р»РёС†РµРЅР·РёСЂРѕРІР°РЅ РїРѕРґ **MIT License**.  
-РЎРј. С„Р°Р№Р» `LICENSE` РёР»Рё СЃС‚СЂР°РЅРёС†Сѓ СЂРµРїРѕР·РёС‚РѕСЂРёСЏ РЅР° GitHub.
+Проект лицензирован под **MIT License**.  
+См. файл `LICENSE` или страницу репозитория на GitHub.
 
-## рџ”— РџРѕР»РµР·РЅС‹Рµ СЃСЃС‹Р»РєРё
+##  Полезные ссылки
 
-- **[РЎРєСЂРёРїС‚С‹ Р°РІС‚РѕРјР°С‚РёР·Р°С†РёРё (RU)](./scripts/README.ru.md)** - РїРѕРґСЂРѕР±РЅР°СЏ РґРѕРєСѓРјРµРЅС‚Р°С†РёСЏ РїРѕ Р·Р°РїСѓСЃРєСѓ СЃРµСЂРІРµСЂРѕРІ
-- **[РЎРєСЂРёРїС‚С‹ Р°РІС‚РѕРјР°С‚РёР·Р°С†РёРё (EN)](./scripts/README.md)** - automation scripts documentation
-- **[M2.3 РџР»Р°РЅ](./M2.3-PLAN.md)** - РїР»Р°РЅ СЃРµС‚РµРІРѕР№ Р°СЂС…РёС‚РµРєС‚СѓСЂС‹
-- **[Р”РѕСЂРѕР¶РЅР°СЏ РєР°СЂС‚Р°](./ROADMAP.md)** - roadmap РїСЂРѕРµРєС‚Р°
-
-
-
-
-
-
-
-
-
-
+- **[Скрипты автоматизации (RU)](./scripts/README.ru.md)** - подробная документация по запуску серверов
+- **[Скрипты автоматизации (EN)](./scripts/README.md)** - automation scripts documentation
+- **[M2.3 План](./M2.3-PLAN.md)** - план сетевой архитектуры
+- **[Дорожная карта](./ROADMAP.md)** - roadmap проекта
