@@ -76,17 +76,23 @@ public class FlightAssistSystem : IExecuteSystem
         float maxLateral = limits.LinearSpeedMax_mps.Lateral;
         float maxDecel_mps2 = limits.CrewGLimit.Linear_g * 9.81f;
 
+        // Check if we're currently overspeeding BEFORE clamping
+        bool isOverspeedingX = localVelX > maxForward || localVelX < -maxReverse;
+        bool isOverspeedingY = MathF.Abs(localVelY) > maxLateral;
+
         localVelX = ClampWithSmoothing(localVelX, maxForward, -maxReverse, maxDecel_mps2);
         localVelY = ClampWithSmoothing(localVelY, maxLateral, -maxLateral, maxDecel_mps2);
 
         // Step 3: Apply linear damping when controls are idle (autopilot slowdown)
+        // BUT only if we're not already in emergency braking mode
         bool isLinearIdle = MathF.Abs(control.Thrust) < 0.01f && MathF.Abs(control.Strafe_X) < 0.01f;
-        if (isLinearIdle)
+        if (isLinearIdle && !isOverspeedingX && !isOverspeedingY)
         {
-            // Exponential decay: v_new = v * exp(-k * dt)
-            // k chosen to decelerate at 50% of max safe deceleration
-            float dampingRate = (maxDecel_mps2 * 0.5f);
-            float dampingFactor = MathF.Exp(-dampingRate * _deltaTime / (MathF.Abs(localVelX) + MathF.Abs(localVelY) + 1e-6f));
+            // Exponential decay: v_new = v * exp(-λ * dt)
+            // where λ (decay rate) is chosen for comfortable deceleration
+            // λ = 1.0 gives ~18% reduction in 10 frames (@ 60Hz)
+            float decayRate = 1.0f; // Per second
+            float dampingFactor = MathF.Exp(-decayRate * _deltaTime);
             localVelX *= dampingFactor;
             localVelY *= dampingFactor;
         }
