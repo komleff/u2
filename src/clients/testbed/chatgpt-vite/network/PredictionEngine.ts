@@ -192,69 +192,18 @@ export class PredictionEngine {
     state.velocity.x += accelX * deltaTime;
     state.velocity.y += accelY * deltaTime;
 
-    // Flight Assist: velocity damping and speed limiting
+    // Angular motion
+    const angularAccel = this.physics.yawAccel * input.yawInput;
+    state.angularVelocity += angularAccel * deltaTime;
+
+    // M3.0: Flight Assist ON/OFF
     if (input.flightAssist) {
-      // Transform velocity to ship-local space
-      const cosRot = Math.cos(state.rotation);
-      const sinRot = Math.sin(state.rotation);
-
-      const localVelX = state.velocity.x * cosRot + state.velocity.y * sinRot;
-      const localVelY = -state.velocity.x * sinRot + state.velocity.y * cosRot;
-
-      // Apply speed limits in local space
-      const forwardSpeed = localVelX;
-      const lateralSpeed = localVelY;
-
-      let clampedForward = forwardSpeed;
-      let clampedLateral = lateralSpeed;
-
-      if (forwardSpeed > 0) {
-        clampedForward = Math.min(forwardSpeed, this.physics.maxForwardSpeed);
-      } else {
-        clampedForward = Math.max(forwardSpeed, -this.physics.maxReverseSpeed);
-      }
-
-      clampedLateral = Math.max(
-        -this.physics.maxStrafeSpeed,
-        Math.min(lateralSpeed, this.physics.maxStrafeSpeed)
-      );
-
-      // Apply damping if no thrust input
-      const dampingFactor = 0.9; // Exponential decay per second
-      const dampingThisFrame = Math.pow(dampingFactor, deltaTime);
-
-      if (input.thrust === 0) {
-        clampedForward *= dampingThisFrame;
-      }
-      if (input.strafeX === 0 && input.strafeY === 0) {
-        clampedLateral *= dampingThisFrame;
-      }
-
-      // Transform back to world space
-      state.velocity.x = clampedForward * cosRot - clampedLateral * sinRot;
-      state.velocity.y = clampedForward * sinRot + clampedLateral * cosRot;
+      this.applyFlightAssist(state, input, deltaTime);
     }
 
     // Update position
     state.position.x += state.velocity.x * deltaTime;
     state.position.y += state.velocity.y * deltaTime;
-
-    // Angular motion
-    const angularAccel = this.physics.yawAccel * input.yawInput;
-    state.angularVelocity += angularAccel * deltaTime;
-
-    // Flight Assist: angular velocity limiting and damping
-    if (input.flightAssist) {
-      state.angularVelocity = Math.max(
-        -this.physics.maxYawRate,
-        Math.min(state.angularVelocity, this.physics.maxYawRate)
-      );
-
-      if (input.yawInput === 0) {
-        const angularDamping = 0.9;
-        state.angularVelocity *= Math.pow(angularDamping, deltaTime);
-      }
-    }
 
     // Update rotation
     state.rotation += state.angularVelocity * deltaTime;
@@ -262,6 +211,80 @@ export class PredictionEngine {
     // Normalize rotation to [-PI, PI]
     while (state.rotation > Math.PI) state.rotation -= 2 * Math.PI;
     while (state.rotation < -Math.PI) state.rotation += 2 * Math.PI;
+  }
+
+  /**
+   * Apply Flight Assist limits and damping (M3.0)
+   * Matches server-side FlightAssistSystem.cs implementation
+   */
+  private applyFlightAssist(state: EntityState, input: PlayerInput, deltaTime: number): void {
+    const crewGLimit = 11.0; // g (from physics.json limits.crew_g_limit)
+    const dampingRate = 2.0; // Matches C# constant
+
+    // 1. Limit linear speed to FA:ON maximum
+    const speed = Math.hypot(state.velocity.x, state.velocity.y);
+
+    // Determine max speed based on primary control direction
+    let maxSpeed: number;
+    if (input.thrust > 0.1) {
+      maxSpeed = this.physics.maxForwardSpeed;
+    } else if (input.thrust < -0.1) {
+      maxSpeed = this.physics.maxReverseSpeed;
+    } else if (Math.abs(input.strafeX) > 0.1 || Math.abs(input.strafeY) > 0.1) {
+      maxSpeed = this.physics.maxStrafeSpeed;
+    } else {
+      // Idle: use most restrictive limit
+      maxSpeed = Math.min(
+        this.physics.maxForwardSpeed,
+        Math.min(this.physics.maxReverseSpeed, this.physics.maxStrafeSpeed)
+      );
+    }
+
+    if (speed > maxSpeed && maxSpeed > 0) {
+      // Apply damping to reduce speed towards limit
+      const overspeed = speed - maxSpeed;
+      const maxDecel = crewGLimit * 9.81; // Convert g to m/s²
+      const targetDamping = overspeed / deltaTime; // Damping needed to reach limit in one frame
+      const actualDamping = Math.min(targetDamping, maxDecel); // Respect g-limit
+
+      const dampingFactor = Math.max(0, 1.0 - (actualDamping * deltaTime) / speed);
+      state.velocity.x *= dampingFactor;
+      state.velocity.y *= dampingFactor;
+    }
+
+    // 2. Dampen angular velocity when no yaw input (rotation stabilization)
+    if (Math.abs(input.yawInput) < 0.01 && Math.abs(state.angularVelocity) > 1e-3) {
+      // Get max angular acceleration from ship config
+      const maxAngularAccel_radps2 = Math.max(
+        this.physics.yawAccel,
+        Math.max(this.physics.pitchAccel, this.physics.rollAccel)
+      );
+
+      // PD-style damping: reduce rotation with rate limited by max acceleration
+      const angularDampingRateCalc =
+        (dampingRate * maxAngularAccel_radps2) / Math.max(Math.abs(state.angularVelocity), 1e-3);
+      const angularDampingFactor = Math.exp(-angularDampingRateCalc * deltaTime);
+      state.angularVelocity *= angularDampingFactor;
+    }
+
+    // 3. Apply linear damping when controls are idle (auto-brake)
+    const isIdle =
+      Math.abs(input.thrust) < 0.01 &&
+      Math.abs(input.strafeX) < 0.01 &&
+      Math.abs(input.strafeY) < 0.01 &&
+      Math.abs(input.yawInput) < 0.01;
+
+    if (isIdle) {
+      // Gentle damping at half the max deceleration
+      const dampingAccel = crewGLimit * 9.81 * 0.5;
+      const linearSpeed = Math.hypot(state.velocity.x, state.velocity.y);
+
+      if (linearSpeed > 1e-3) {
+        const linearDampingFactor = Math.exp((-dampingAccel / linearSpeed) * deltaTime);
+        state.velocity.x *= linearDampingFactor;
+        state.velocity.y *= linearDampingFactor;
+      }
+    }
   }
 
   /**

@@ -67,8 +67,8 @@ public class FlightAssistSystem : IExecuteSystem
             velocity.Linear *= dampingFactor;
         }
 
-        // 2. Dampen angular velocity (rotation stabilization)
-        if (MathF.Abs(velocity.Angular) > 1e-3f)
+        // 2. Dampen angular velocity when no yaw input (rotation stabilization)
+        if (MathF.Abs(control.Yaw_Input) < 0.01f && MathF.Abs(velocity.Angular) > 1e-3f)
         {
             // Get max angular acceleration from ship config
             var angularAccel = config.Physics.AngularAcceleration_dps2;
