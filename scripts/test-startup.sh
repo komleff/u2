@@ -73,7 +73,8 @@ echo ""
 
 echo "6. Testing backend server can start (3 second test)..."
 # Try to start the server for a few seconds and then kill it
-dotnet run --project src/server/U2.Server.csproj --no-build -c Release -- --network > /tmp/test-backend.log 2>&1 &
+mkdir -p ./logs
+dotnet run --project src/server/U2.Server.csproj --no-build -c Release -- --network > ./logs/test-backend.log 2>&1 &
 SERVER_PID=$!
 sleep 3
 
@@ -85,16 +86,28 @@ if kill -0 $SERVER_PID 2>/dev/null; then
 else
     echo -e "${RED}✗ Backend server failed to start${NC}"
     echo -e "${YELLOW}Log output:${NC}"
-    cat /tmp/test-backend.log
+    cat ./logs/test-backend.log
     ((TESTS_FAILED++))
 fi
 echo ""
 
 echo "7. Checking port availability..."
-# Check both TCP and UDP
-test_check "Port 7777 is available" "! lsof -Pi :7777 -t"
-test_check "Port 8080 is available" "! lsof -Pi :8080 -t"
-test_check "Port 5173 is available" "! lsof -Pi :5173 -t"
+# Use more portable port checking
+if command -v lsof >/dev/null 2>&1; then
+    test_check "Port 7777 is available" "! lsof -Pi :7777 -t"
+    test_check "Port 8080 is available" "! lsof -Pi :8080 -t"
+    test_check "Port 5173 is available" "! lsof -Pi :5173 -t"
+elif command -v netstat >/dev/null 2>&1; then
+    test_check "Port 7777 is available" "! netstat -tuln 2>/dev/null | grep -q ':7777 '"
+    test_check "Port 8080 is available" "! netstat -tuln 2>/dev/null | grep -q ':8080 '"
+    test_check "Port 5173 is available" "! netstat -tuln 2>/dev/null | grep -q ':5173 '"
+elif command -v ss >/dev/null 2>&1; then
+    test_check "Port 7777 is available" "! ss -tuln 2>/dev/null | grep -q ':7777 '"
+    test_check "Port 8080 is available" "! ss -tuln 2>/dev/null | grep -q ':8080 '"
+    test_check "Port 5173 is available" "! ss -tuln 2>/dev/null | grep -q ':5173 '"
+else
+    echo -e "${YELLOW}Skipping port checks (no lsof/netstat/ss available)${NC}"
+fi
 echo ""
 
 # Summary

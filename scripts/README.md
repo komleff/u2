@@ -1,6 +1,8 @@
 # U2 Server Automation Scripts
 
-Этот каталог содержит скрипты для автоматического запуска серверов проекта U2 для онлайн-тестирования.
+> 📖 **[Русская версия документации](./README.ru.md)** | **[Russian version](./README.ru.md)**
+
+This directory contains automation scripts for starting U2 project servers for online testing.
 
 ## Назначение
 

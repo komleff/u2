@@ -17,6 +17,10 @@ NC='\033[0m' # No Color
 BACKEND_PORT_UDP=7777
 BACKEND_PORT_WS=8080
 CLIENT_PORT=5173
+LOG_DIR="./logs"
+
+# Create logs directory if it doesn't exist
+mkdir -p "$LOG_DIR"
 
 echo -e "${BLUE}╔════════════════════════════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║  U2 Online Testing - Server Startup Script                    ║${NC}"
@@ -26,10 +30,29 @@ echo ""
 # Function to check if a port is in use (TCP or UDP)
 check_port() {
     local port=$1
-    # Check both TCP and UDP
-    if lsof -Pi :$port -t >/dev/null 2>&1 ; then
-        return 0
+    # Try lsof first (most reliable)
+    if command -v lsof >/dev/null 2>&1; then
+        if lsof -Pi :$port -t >/dev/null 2>&1 ; then
+            return 0
+        else
+            return 1
+        fi
+    # Fallback to netstat if lsof not available
+    elif command -v netstat >/dev/null 2>&1; then
+        if netstat -tuln 2>/dev/null | grep -q ":$port "; then
+            return 0
+        else
+            return 1
+        fi
+    # Fallback to ss if neither lsof nor netstat available
+    elif command -v ss >/dev/null 2>&1; then
+        if ss -tuln 2>/dev/null | grep -q ":$port "; then
+            return 0
+        else
+            return 1
+        fi
     else
+        echo -e "${YELLOW}Warning: Cannot check port availability (lsof, netstat, and ss not found)${NC}"
         return 1
     fi
 }
@@ -104,7 +127,7 @@ echo ""
 
 # Start the C# backend server
 echo -e "${BLUE}Starting C# backend server...${NC}"
-dotnet run --project src/server/U2.Server.csproj --no-build -c Release -- --network > /tmp/u2-backend.log 2>&1 &
+dotnet run --project src/server/U2.Server.csproj --no-build -c Release -- --network > "$LOG_DIR/backend.log" 2>&1 &
 BACKEND_PID=$!
 
 # Wait a moment for the server to start
@@ -114,7 +137,7 @@ sleep 2
 if ! kill -0 $BACKEND_PID 2>/dev/null; then
     echo -e "${RED}Error: Backend server failed to start${NC}"
     echo -e "${YELLOW}Log output:${NC}"
-    cat /tmp/u2-backend.log
+    cat "$LOG_DIR/backend.log"
     exit 1
 fi
 
@@ -125,7 +148,7 @@ echo ""
 
 # Start the Vite client server
 echo -e "${BLUE}Starting Vite development client...${NC}"
-npm run dev > /tmp/u2-client.log 2>&1 &
+npm run dev > "$LOG_DIR/client.log" 2>&1 &
 CLIENT_PID=$!
 
 # Wait a moment for the client to start
@@ -135,7 +158,7 @@ sleep 3
 if ! kill -0 $CLIENT_PID 2>/dev/null; then
     echo -e "${RED}Error: Client server failed to start${NC}"
     echo -e "${YELLOW}Log output:${NC}"
-    cat /tmp/u2-client.log
+    cat "$LOG_DIR/client.log"
     exit 1
 fi
 
@@ -156,8 +179,8 @@ echo -e "${GREEN}Client:${NC}"
 echo -e "  Browser:   http://localhost:${CLIENT_PORT}/"
 echo ""
 echo -e "${YELLOW}Logs:${NC}"
-echo -e "  Backend:   /tmp/u2-backend.log"
-echo -e "  Client:    /tmp/u2-client.log"
+echo -e "  Backend:   $LOG_DIR/backend.log"
+echo -e "  Client:    $LOG_DIR/client.log"
 echo ""
 echo -e "${BLUE}Press Ctrl+C to stop all servers${NC}"
 echo ""
@@ -168,7 +191,7 @@ while true; do
     if ! kill -0 $BACKEND_PID 2>/dev/null; then
         echo -e "${RED}Backend server stopped unexpectedly${NC}"
         echo -e "${YELLOW}Last log entries:${NC}"
-        tail -20 /tmp/u2-backend.log
+        tail -20 "$LOG_DIR/backend.log"
         exit 1
     fi
     
@@ -176,7 +199,7 @@ while true; do
     if ! kill -0 $CLIENT_PID 2>/dev/null; then
         echo -e "${RED}Client server stopped unexpectedly${NC}"
         echo -e "${YELLOW}Last log entries:${NC}"
-        tail -20 /tmp/u2-client.log
+        tail -20 "$LOG_DIR/client.log"
         exit 1
     fi
     
