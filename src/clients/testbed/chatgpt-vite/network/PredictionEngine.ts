@@ -192,7 +192,7 @@ export class PredictionEngine {
     state.velocity.x += accelX * deltaTime;
     state.velocity.y += accelY * deltaTime;
 
-    // Flight Assist: velocity damping and speed limiting
+     // Flight Assist: velocity damping and speed limiting
     if (input.flightAssist) {
       // Transform velocity to ship-local space
       const cosRot = Math.cos(state.rotation);
@@ -201,33 +201,46 @@ export class PredictionEngine {
       const localVelX = state.velocity.x * cosRot + state.velocity.y * sinRot;
       const localVelY = -state.velocity.x * sinRot + state.velocity.y * cosRot;
 
-      // Apply speed limits in local space
-      const forwardSpeed = localVelX;
-      const lateralSpeed = localVelY;
+      // Apply speed limits with g-limited braking (matching server)
+      const maxForward = this.physics.maxForwardSpeed;
+      const maxReverse = this.physics.maxReverseSpeed;
+      const maxLateral = this.physics.maxStrafeSpeed;
+      const maxDecel_mps2 = 11.0 * 9.81; // crew g-limit: 11g
 
-      let clampedForward = forwardSpeed;
-      let clampedLateral = lateralSpeed;
+      let clampedForward = localVelX;
+      let clampedLateral = localVelY;
 
-      if (forwardSpeed > 0) {
-        clampedForward = Math.min(forwardSpeed, this.physics.maxForwardSpeed);
-      } else {
-        clampedForward = Math.max(forwardSpeed, -this.physics.maxReverseSpeed);
+      // Check for overspeed BEFORE clamping (for idle damping logic)
+      const isOverspeedingX = localVelX > maxForward || localVelX < -maxReverse;
+      const isOverspeedingY = Math.abs(localVelY) > maxLateral;
+
+      // Apply gradual g-limited braking if overspeeding
+      if (localVelX > maxForward) {
+        const overspeed = localVelX - maxForward;
+        const decelThisFrame = Math.min(overspeed, maxDecel_mps2 * deltaTime);
+        clampedForward = localVelX - decelThisFrame;
+      } else if (localVelX < -maxReverse) {
+        const overspeed = Math.abs(localVelX + maxReverse);
+        const decelThisFrame = Math.min(overspeed, maxDecel_mps2 * deltaTime);
+        clampedForward = localVelX + decelThisFrame;
       }
 
-      clampedLateral = Math.max(
-        -this.physics.maxStrafeSpeed,
-        Math.min(lateralSpeed, this.physics.maxStrafeSpeed)
-      );
-
-      // Apply damping if no thrust input
-      const dampingFactor = 0.9; // Exponential decay per second
-      const dampingThisFrame = Math.pow(dampingFactor, deltaTime);
-
-      if (input.thrust === 0) {
-        clampedForward *= dampingThisFrame;
+      if (Math.abs(localVelY) > maxLateral) {
+        const overspeed = Math.abs(localVelY) - maxLateral;
+        const decelThisFrame = Math.min(overspeed, maxDecel_mps2 * deltaTime);
+        clampedLateral = localVelY > 0 
+          ? localVelY - decelThisFrame 
+          : localVelY + decelThisFrame;
       }
-      if (input.strafeX === 0 && input.strafeY === 0) {
-        clampedLateral *= dampingThisFrame;
+
+      // Apply idle damping ONLY if not overspeeding (matching server)
+      const isLinearIdle = input.thrust === 0 && input.strafeX === 0 && input.strafeY === 0;
+      if (isLinearIdle && !isOverspeedingX && !isOverspeedingY) {
+        // Exponential decay matching server: v_new = v * exp(-λ * dt)
+        const decayRate = 1.0; // per second (matches server)
+        const dampingFactor = Math.exp(-decayRate * deltaTime);
+        clampedForward *= dampingFactor;
+        clampedLateral *= dampingFactor;
       }
 
       // Transform back to world space
@@ -245,14 +258,21 @@ export class PredictionEngine {
 
     // Flight Assist: angular velocity limiting and damping
     if (input.flightAssist) {
+      const maxYawRate_radps = this.physics.maxYawRate;
+      
+      // Clamp angular velocity
       state.angularVelocity = Math.max(
-        -this.physics.maxYawRate,
-        Math.min(state.angularVelocity, this.physics.maxYawRate)
+        -maxYawRate_radps,
+        Math.min(state.angularVelocity, maxYawRate_radps)
       );
 
+      // Apply angular damping when yaw control is idle (matching server)
       if (input.yawInput === 0) {
-        const angularDamping = 0.9;
-        state.angularVelocity *= Math.pow(angularDamping, deltaTime);
+        // Critical damping for fast stabilization (matches server)
+        const maxAngularAccel_radps2 = this.physics.yawAccel; // Already in rad/s²
+        const angularDampingRate = 2.0 * maxAngularAccel_radps2;
+        const angularDampingFactor = Math.exp(-angularDampingRate * deltaTime);
+        state.angularVelocity *= angularDampingFactor;
       }
     }
 

@@ -119,7 +119,7 @@ export class InputManager {
         // Handle FA toggle immediately
         if (action === "fa-toggle") {
           this.flightAssist = !this.flightAssist;
-          console.log(`[M3.0] Flight Assist: ${this.flightAssist ? "ON" : "OFF"}`);
+          console.info(`[M3.0] Flight Assist: ${this.flightAssist ? "ON" : "OFF"}`);
         }
         this.toggles.add(action);
       }
