@@ -5,6 +5,83 @@ All notable changes to the U2 Flight Test Sandbox project will be documented in 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2025-11-22
+
+### Summary
+
+Infrastructure and physics enhancements release. Adds complete Docker containerization for development environment, enhanced physics synchronization with rotational parameters, AI agent documentation, and comprehensive code quality improvements with zero-warning enforcement.
+
+### Added
+
+#### Docker Development Environment (PR #35)
+
+- Multi-stage `Dockerfile.server` for .NET 8.0 backend
+- `Dockerfile.client` with Alpine base image for Vite development server
+- `docker-compose.yml` orchestration for integrated server + client setup
+- `.dockerignore` for optimized build context
+- `scripts/start-docker.ps1` - PowerShell automation script with colored output
+- `scripts/start-docker.sh` - Bash automation script for Unix systems
+- WebSocket relay Docker compatibility with wildcard binding fallback
+- One-command development environment startup
+- Docker documentation in README.md with quick start guide
+
+#### Physics Synchronization (PR #29)
+
+- `pitch_accel_dps2` parameter in `physics.json` (180.0 deg/s²)
+- `roll_accel_dps2` parameter in `physics.json` (360.0 deg/s²)
+- Enhanced `SharedPhysics.cs` mapping with rotational parameters
+- TypeScript `physics.ts` mapping with fallback values for backward compatibility
+- Median-based RTT metrics in latency tests (resistant to outliers)
+- Physics synchronization validation tests
+
+#### AI Agent Documentation (PR #33)
+
+- `.github/copilot-instructions.md` - Comprehensive guide for AI coding agents (258 lines)
+- Architecture principles (physics sync, network patterns, ECS)
+- Development workflows (commands, testing, debugging patterns)
+- Common development patterns (adding physics params, modifying protocol)
+- Project constraints documentation (determinism, zero-warnings, fixed timestep)
+- File organization guide (backend C#, frontend TypeScript)
+- Milestone structure and DoD tracking instructions
+
+#### Documentation & Tooling (PR #32)
+
+- Automation scripts for server startup with validation
+- Enhanced Node.js version checking with improved regex
+- Bilingual documentation support (English/Russian)
+
+### Changed
+
+- Docker base image: `node:20-bullseye` → `node:20-alpine` (security improvement)
+- ESLint configuration: Added `dist/**`, `proto/**`, `*.d.ts` to ignores in `eslint.config.js`
+- Physics configuration: Now synchronized via shared `physics.json` between C# and TypeScript
+- README.md: Fixed UTF-8 encoding issues in Russian section
+- README.md: Added Docker setup section with complete instructions
+- WebSocket relay: Added fallback binding mechanism for Docker compatibility
+
+### Fixed
+
+- ESLint not ignoring generated files (dist/, proto/)
+- UTF-8 encoding corruption in Russian README section (мojibake)
+- 23 markdown linting errors (MD022, MD031, MD032, MD034, MD051, MD026)
+- WebSocket `HttpListener` binding in Docker containers (localhost → + wildcard)
+- Unused variable warnings in integration tests (prefixed with underscore)
+
+### Removed
+
+- Deprecated `.eslintignore` file (functionality moved to `eslint.config.js`)
+- Old PR artifacts from root directory (PR #34)
+- Outdated documentation files from archive
+
+### Technical Metrics
+
+- C# Tests: 201/201 passing ✅
+- TypeScript Tests: 11/11 passing ✅
+- ESLint Warnings: 0 ✅
+- Docker Images: 2 (server + client)
+- Code Quality: Zero-warning policy enforced
+- Security: 3 HIGH vulnerabilities eliminated (Alpine migration)
+
 ## [0.5.0] - 2025-11-20
 
 ### Summary
@@ -143,4 +220,5 @@ MIT License
 
 ---
 
-[0.5.0]: https://github.com/dkomlev/u2/releases/tag/v0.5.0
+[0.6.0]: https://github.com/komleff/u2/releases/tag/v0.6.0
+[0.5.0]: https://github.com/komleff/u2/releases/tag/v0.5.0
