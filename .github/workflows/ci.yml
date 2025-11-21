@@ -15,6 +15,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -28,4 +33,13 @@ jobs:
 
       - name: Test
         run: dotnet test --no-build --configuration Release --verbosity normal
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Validate physics sync (client)
+        run: npm run test --workspace=src/clients/testbed/chatgpt-vite -- tests/physics-sync.spec.ts
+
+      - name: Validate physics sync (shared)
+        run: dotnet test --no-build --configuration Release --filter SharedPhysicsTests
 
