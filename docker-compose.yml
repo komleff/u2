@@ -19,7 +19,8 @@ services:
     image: u2/client
     container_name: u2-client
     environment:
-      VITE_SERVER_URL: ws://server:8080/
+      # Browser runs on host, so point to host-exposed port
+      VITE_SERVER_URL: ws://localhost:8080/
     ports:
       - "5173:5173"
     depends_on:
