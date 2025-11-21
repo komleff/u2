@@ -108,7 +108,8 @@ public class FlightAssistSystem : IExecuteSystem
         velocity.Linear *= DampingFactor;
         
         // Zero out very small velocities to prevent drift
-        if (velocity.Linear.SqrMagnitude < 0.01f)
+        // Threshold: 0.01 m/s, squared for performance (0.0001)
+        if (velocity.Linear.SqrMagnitude < 0.0001f)
         {
             velocity.Linear = Vector2.Zero;
         }
@@ -121,6 +122,7 @@ public class FlightAssistSystem : IExecuteSystem
     {
         return MathF.Abs(control.Thrust) < 0.01f &&
                MathF.Abs(control.Strafe_X) < 0.01f &&
+               MathF.Abs(control.Strafe_Y) < 0.01f &&
                MathF.Abs(control.Yaw_Input) < 0.01f;
     }
 }

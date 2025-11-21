@@ -223,7 +223,9 @@ export class PredictionEngine {
         state.velocity.y *= DAMPING_FACTOR;
 
         // Zero out very small velocities to prevent drift
-        if (Math.hypot(state.velocity.x, state.velocity.y) < 0.01) {
+        // Threshold: 0.01 m/s, squared for performance (0.0001)
+        const sqrThreshold = 0.0001;
+        if (state.velocity.x * state.velocity.x + state.velocity.y * state.velocity.y < sqrThreshold) {
           state.velocity.x = 0;
           state.velocity.y = 0;
         }

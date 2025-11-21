@@ -107,7 +107,7 @@ public class FlightAssistSystemTests
         // Arrange
         var config = SharedPhysics.ToShipConfig();
         var maxSpeed = config.FlightAssistLimits.LinearSpeedMax_mps.Forward;
-        var excessiveVelocity = new Vector2(maxSpeed * 2.0f, maxSpeed * 2.0f); // 45-degree angle
+        var excessiveVelocity = new Vector2(maxSpeed * 2.0f, maxSpeed * 2.0f); // Diagonal direction
         var ship = CreateTestShip(flightAssistEnabled: true, excessiveVelocity);
         
         var originalDirection = excessiveVelocity.Normalized;
