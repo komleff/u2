@@ -40,7 +40,7 @@ test_check() {
 echo "1. Checking prerequisites..."
 test_check "dotnet CLI available" "command -v dotnet"
 test_check "npm CLI available" "command -v npm"
-test_check "Node.js version >= 18" "node -v | grep -E 'v(1[8-9]|[2-9][0-9])\.'"
+test_check "Node.js version >= 18" "node -v | grep -E 'v(1[8-9]|[2-9][0-9])\.[0-9]+\.[0-9]+'"
 echo ""
 
 echo "2. Checking project structure..."
