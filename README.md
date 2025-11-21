@@ -60,11 +60,27 @@ docker compose build
 docker compose up
 ```
 
-�?-�?�?�?�? ��?�?�?�?�?�?��:
-- Backend: UDP `7777`, WebSocket `8080` (экспонируются наружу)
-- Vite dev server: `http://localhost:5173/` (с `VITE_SERVER_URL=ws://server:8080/` внутри Compose)
+-Что делает:
+ - Поднимает C# backend (UDP `7777`, WebSocket `8080`) и Vite dev server (`http://localhost:5173/`).
+ - Внутри Compose клиент ходит на `ws://server:8080/` (см. `VITE_SERVER_URL`).
 
-�?�?�?�?�?�?��?���� Compose���?�?�?��: `docker compose down`.
+-Быстрые команды:
+```bash
+# старт/логи/останов
+docker compose up            # запустить
+docker compose logs -f       # смотреть логи
+docker compose down          # остановить и убрать контейнеры
+```
+
+-Проверка локально:
+1) После `docker compose up` зайдите в браузер на `http://localhost:5173/`.
+2) Убедитесь, что WebSocket доступен на `ws://localhost:8080/` (Network таб).
+3) Если порты заняты, поменяйте пробросы в `docker-compose.yml` (например, `5174:5173`).
+
+-Полезно знать:
+ - Первое `build` скачивает SDK/Node — может занять время.
+ - Образы: `u2/server`, `u2/client` (см. `docker-compose.yml`).
+ - Убрать всё вместе с сетями/volume: `docker compose down --remove-orphans --volumes`.
 
 ### Development server (client only)
 
