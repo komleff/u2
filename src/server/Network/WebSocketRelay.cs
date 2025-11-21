@@ -43,12 +43,32 @@ public class WebSocketRelay : IDisposable
 
         _cts = new CancellationTokenSource();
         _httpListener = new HttpListener();
-        _httpListener.Prefixes.Add($"http://localhost:{_wsPort}/");
+        
+        // Bind to wildcard first (works inside Docker), fall back to localhost if ACLs block it
+        var prefixes = new[]
+        {
+            $"http://+:{_wsPort}/",
+            $"http://localhost:{_wsPort}/"
+        };
+
+        foreach (var prefix in prefixes)
+        {
+            try
+            {
+                _httpListener.Prefixes.Add(prefix);
+            }
+            catch (HttpListenerException ex)
+            {
+                _logger.LogWarning(ex, "Failed to add WebSocket listener prefix {Prefix}", prefix);
+            }
+        }
         
         try
         {
             _httpListener.Start();
-            _logger.LogInformation("WebSocket relay listening on ws://localhost:{Port}/", _wsPort);
+            _logger.LogInformation(
+                "WebSocket relay listening on {Prefixes}", 
+                string.Join(", ", _httpListener.Prefixes));
             
             _listenerTask = Task.Run(() => AcceptConnectionsAsync(_cts.Token));
         }

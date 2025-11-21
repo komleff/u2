@@ -221,7 +221,7 @@ const runIntegration = process.env.U2_RUN_INTEGRATION === '1' || process.env.U2_
   let serverProcess: ChildProcess | null = null;
   let client: NetworkClient | null = null;
   let activeLatencySim: LatencySimulator | null = null;
-  let lastSnapshot: WorldSnapshotProto | null = null;
+  let _lastSnapshot: WorldSnapshotProto | null = null;
 
   const waitForServer = (timeoutMs: number) =>
     new Promise<void>((resolve, reject) => {

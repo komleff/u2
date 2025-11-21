@@ -5,7 +5,16 @@ import eslintConfigPrettier from "eslint-config-prettier";
 
 export default [
   {
-    ignores: ["dist/**", "coverage/**", "node_modules/**", "src/network/proto/**"]
+    ignores: [
+      "dist/**",
+      "coverage/**", 
+      "node_modules/**",
+      "src/network/proto/**",
+      "src/clients/**/dist/**",
+      "src/clients/**/network/proto/**",
+      "**/*.min.js",
+      "**/*.d.ts"
+    ]
   },
   js.configs.recommended,
   eslintConfigPrettier,
