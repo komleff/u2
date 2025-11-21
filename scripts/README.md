@@ -4,18 +4,18 @@
 
 This directory contains automation scripts for starting U2 project servers for online testing.
 
-## Назначение
+## Purpose
 
-Скрипты автоматизируют запуск следующих компонентов:
+The scripts automate the launch of the following components:
 
-1. **C# Backend Server** - серверная часть игры
-   - UDP сервер на порту 7777
-   - WebSocket relay на порту 8080
+1. **C# Backend Server** - game server
+   - UDP server on port 7777
+   - WebSocket relay on port 8080
    
-2. **Vite Development Client** - клиентская часть
-   - HTTP сервер на порту 5173
+2. **Vite Development Client** - client application  
+   - HTTP server on port 5173
 
-## Использование
+## Usage
 
 ### Linux / macOS
 
@@ -23,13 +23,13 @@ This directory contains automation scripts for starting U2 project servers for o
 ./scripts/start-servers.sh
 ```
 
-Скрипт автоматически:
-- Проверит наличие необходимых зависимостей (.NET SDK, Node.js)
-- Проверит доступность портов
-- Соберет C# проект
-- Запустит оба сервера
-- Выведет информацию о подключении
-- Будет ожидать нажатия Ctrl+C для остановки
+The script automatically:
+- Checks for required dependencies (.NET SDK, Node.js)
+- Validates port availability
+- Builds the C# project
+- Starts both servers
+- Displays connection information
+- Waits for Ctrl+C to stop
 
 ### Windows
 
@@ -37,29 +37,29 @@ This directory contains automation scripts for starting U2 project servers for o
 scripts\start-servers.bat
 ```
 
-Скрипт откроет два отдельных окна:
-- Одно для C# backend сервера
-- Одно для Vite client сервера
+The script will open two separate windows:
+- One for the C# backend server
+- One for the Vite client server
 
-Для остановки серверов закройте соответствующие окна или нажмите Ctrl+C в них.
+To stop the servers, close the respective windows or press Ctrl+C in them.
 
-## Требования
+## Requirements
 
-- **.NET 8.0 SDK** или выше
-- **Node.js 18** или выше
-- **npm** (устанавливается вместе с Node.js)
+- **.NET 8.0 SDK** or higher
+- **Node.js 18** or higher
+- **npm** (installed with Node.js)
 
-## Порты
+## Ports
 
-По умолчанию используются следующие порты:
+The following ports are used by default:
 
-| Сервис | Протокол | Порт | URL |
-|--------|----------|------|-----|
+| Service | Protocol | Port | URL |
+|---------|----------|------|-----|
 | Backend UDP | UDP | 7777 | localhost:7777 |
 | Backend WebSocket | WebSocket | 8080 | ws://localhost:8080/ |
 | Client | HTTP | 5173 | http://localhost:5173/ |
 
-## Логи
+## Logs
 
 ### Linux / macOS
 
@@ -78,95 +78,91 @@ tail -f logs/client.log
 
 ### Windows
 
-Логи отображаются непосредственно в окнах серверов.
+Logs are displayed directly in the server windows.
 
-## Устранение неполадок
+## Troubleshooting
 
-### Порт уже занят
+### Port Already in Use
 
-Если порт занят другим процессом, скрипт выдаст ошибку. Найдите и остановите процесс, занимающий порт:
+If a port is occupied by another process, the script will show an error. Find and stop the process using the port:
 
 **Linux / macOS:**
 ```bash
-# Найти процесс
+# Find the process
 lsof -i :7777
 lsof -i :8080
 lsof -i :5173
 
-# Остановить процесс
+# Stop the process
 kill -9 <PID>
 ```
 
 **Windows:**
 ```batch
-# Найти процесс
+# Find the process
 netstat -ano | findstr :7777
 netstat -ano | findstr :8080
 netstat -ano | findstr :5173
 
-# Остановить процесс
+# Stop the process
 taskkill /PID <PID> /F
 ```
 
-### Backend сервер не запускается
+### Backend Server Won't Start
 
-1. Проверьте, что .NET 8.0 SDK установлен:
+1. Verify .NET 8.0 SDK is installed:
    ```bash
    dotnet --version
    ```
 
-2. Попробуйте собрать проект вручную:
+2. Try building the project manually:
    ```bash
    dotnet build U2.sln
    ```
 
-3. Проверьте логи:
+3. Check the logs:
    ```bash
    cat logs/backend.log
    ```
 
-4. Попробуйте запустить сервер вручную:
+4. Try running the server manually:
    ```bash
    dotnet run --project src/server/U2.Server.csproj -- --network
    ```
 
-### Client сервер не запускается
+### Client Server Won't Start
 
-1. Проверьте, что зависимости установлены:
+1. Ensure dependencies are installed:
    ```bash
    npm install
    ```
 
-2. Проверьте логи:
+2. Check the logs:
    ```bash
    cat logs/client.log
    ```
 
-3. Попробуйте запустить вручную:
+3. Try running manually:
    ```bash
    npm run dev
    ```
 
-3. Проверьте логи в `/tmp/u2-client.log` (Linux/macOS)
+## Manual Startup
 
-## Ручной запуск
+If the automation script doesn't work, you can start the servers manually:
 
-Если автоматический скрипт не работает, можно запустить серверы вручную:
+### Backend (in first terminal)
 
-### Backend (в отдельном терминале)
 ```bash
 dotnet run --project src/server/U2.Server.csproj -- --network
 ```
 
-### Client (в отдельном терминале)
+### Client (in second terminal)
+
 ```bash
 npm run dev
 ```
 
-## Разработка
+## Additional Information
 
-При разработке новых функций рекомендуется запускать серверы в отдельных терминалах для лучшей видимости логов и возможности перезапуска только одного из компонентов.
-
-## Дополнительная информация
-
-Подробнее о проекте см. в [README.md](../README.md) в корне репозитория.
+For more details about the project, see the [main README.md](../README.md) in the repository root.
