@@ -5,6 +5,7 @@ This document describes the release process for the U2 Flight Test Sandbox proje
 ## Overview
 
 Releases follow [Semantic Versioning](https://semver.org/):
+
 - **MAJOR** version when you make incompatible API changes
 - **MINOR** version when you add functionality in a backward compatible manner
 - **PATCH** version when you make backward compatible bug fixes
@@ -30,6 +31,7 @@ Before creating a release, ensure:
 ### 3. Create CHANGELOG Entry
 
 Update `CHANGELOG.md` with:
+
 - Release version and date
 - Summary of changes
 - Added features
@@ -41,6 +43,7 @@ Update `CHANGELOG.md` with:
 ### 4. Create Release Notes
 
 Create a file `RELEASE-NOTES-v{version}.md` with:
+
 - Highlights and key features
 - Technical specifications
 - Getting started guide
@@ -57,11 +60,13 @@ node scripts/prepare-release.mjs {version}
 ```
 
 Example:
+
 ```bash
 node scripts/prepare-release.mjs 0.5.0
 ```
 
 This script will:
+
 - ✅ Check git status (clean working tree)
 - ✅ Validate tag doesn't exist
 - ✅ Run tests
@@ -76,13 +81,14 @@ git push origin v{version}
 ```
 
 Example:
+
 ```bash
 git push origin v0.5.0
 ```
 
 ### 7. Create GitHub Release
 
-1. Go to: https://github.com/dkomlev/u2/releases/new
+1. Go to: <https://github.com/dkomlev/u2/releases/new>
 2. Select the tag you just pushed (e.g., `v0.5.0`)
 3. Set release title: `U2 Flight Test Sandbox v{version}`
 4. Copy content from `RELEASE-NOTES-v{version}.md` as description
@@ -136,12 +142,14 @@ Follow step 7 from the automated process above.
 ### Major Release (X.0.0)
 
 Major releases include:
+
 - Breaking changes
 - Major new features
 - Architecture changes
 - API redesigns
 
 Requires:
+
 - Detailed migration guide
 - Deprecation notices for removed features
 - Comprehensive testing
@@ -150,12 +158,14 @@ Requires:
 ### Minor Release (X.Y.0)
 
 Minor releases include:
+
 - New features (backward compatible)
 - Performance improvements
 - Enhanced functionality
 - New documentation
 
 Requires:
+
 - Feature documentation
 - Integration testing
 - User guide updates
@@ -163,12 +173,14 @@ Requires:
 ### Patch Release (X.Y.Z)
 
 Patch releases include:
+
 - Bug fixes
 - Security patches
 - Documentation fixes
 - Minor improvements
 
 Requires:
+
 - Bug verification
 - Regression testing
 - CHANGELOG update
@@ -190,11 +202,13 @@ See `ROADMAP.md` for the complete development timeline.
 ## Version Numbering Strategy
 
 Current strategy (v0.x.x):
+
 - Each completed milestone increments minor version
 - Bug fixes and patches increment patch version
 - Breaking changes will trigger 1.0.0 when stable
 
 Example:
+
 - `0.5.0` - M2.3 complete (client prediction)
 - `0.6.0` - M3 complete (flight assist)
 - `0.7.0` - M4 complete (HUD)
@@ -205,6 +219,7 @@ Example:
 For critical bugs in released versions:
 
 1. Create hotfix branch from release tag
+
    ```bash
    git checkout -b hotfix/v0.5.1 v0.5.0
    ```
@@ -214,6 +229,7 @@ For critical bugs in released versions:
 3. Update CHANGELOG.md with hotfix details
 
 4. Create new patch version
+
    ```bash
    git tag -a v0.5.1 -m "Hotfix v0.5.1: Critical bug fix"
    git push origin v0.5.1
@@ -222,6 +238,7 @@ For critical bugs in released versions:
 5. Create GitHub release
 
 6. Merge hotfix back to main
+
    ```bash
    git checkout main
    git merge hotfix/v0.5.1
@@ -244,6 +261,7 @@ v0.6.0-alpha.1
 ```
 
 Example workflow:
+
 ```bash
 # Create beta
 node scripts/prepare-release.mjs 0.6.0-beta.1
@@ -273,12 +291,14 @@ If a release has critical issues:
 ## Release Artifacts
 
 Current releases include:
+
 - Source code (automatic from tag)
 - CHANGELOG.md
 - RELEASE-NOTES-v{version}.md
 - Documentation in `docs/`
 
 Future releases may include:
+
 - Compiled binaries
 - Docker images
 - npm packages
@@ -287,9 +307,10 @@ Future releases may include:
 ## Questions?
 
 For questions about the release process, see:
+
 - Project README: `README.md`
 - Roadmap: `ROADMAP.md`
-- Issues: https://github.com/dkomlev/u2/issues
+- Issues: <https://github.com/dkomlev/u2/issues>
 
 ---
 

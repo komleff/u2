@@ -23,7 +23,7 @@ public class NetworkGameLoop
     private readonly float _snapshotRate; // Hz
     private readonly float _snapshotInterval; // seconds
     private uint _currentTick;
-    // Keep connections alive unless �?�?�?�<�� �?��?��?�?�?���'; ��?�?�?�'���� �'�����?���?�' ���?��?�?�?��> �� �?��?���?��? �?�?�%�?�?�?�'���
+    // Keep connections alive until they exceed the stale timeout
     private readonly TimeSpan _staleTimeout = TimeSpan.FromSeconds(60);
     private readonly TimeSpan _staleCheckInterval = TimeSpan.FromSeconds(1);
     private double _nextCleanupTime;
@@ -217,3 +217,4 @@ public class NetworkGameLoop
 
     public uint GetCurrentTick() => _currentTick;
 }
+

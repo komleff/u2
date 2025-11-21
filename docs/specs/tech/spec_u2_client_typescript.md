@@ -476,11 +476,11 @@ Vite создаёт оптимизированный бандл в директ�
 
 ## 12. Ссылки и ресурсы
 
-- **Three.js документация:** https://threejs.org/docs/
-- **Protobuf.js:** https://github.com/protobufjs/protobuf.js
-- **Vite документация:** https://vitejs.dev/
-- **Vitest:** https://vitest.dev/
-- **Руководство по клиентскому предсказанию:** https://www.gabrielgambetta.com/client-server-game-architecture.html
+- **Three.js документация:** <https://threejs.org/docs/>
+- **Protobuf.js:** <https://github.com/protobufjs/protobuf.js>
+- **Vite документация:** <https://vitejs.dev/>
+- **Vitest:** <https://vitest.dev/>
+- **Руководство по клиентскому предсказанию:** <https://www.gabrielgambetta.com/client-server-game-architecture.html>
 
 ------
 

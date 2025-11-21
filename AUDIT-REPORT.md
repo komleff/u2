@@ -23,6 +23,7 @@
 ### 1.1. Требования спецификации (M0.1)
 
 **Из спецификации** `spec_u2_dev_plan_v086_minimal.md`:
+
 ```
 Структура: shared/, server/, client/
 Пакеты: Protobuf, NUnit, логирование
@@ -55,6 +56,7 @@ DoD: CI сборка работает, один пустой тест прохо
 ### 2.1. Vector2/Vector3
 
 **Требования из спецификации**:
+
 ```csharp
 public struct Vector2 {
   public float x, y;
@@ -86,6 +88,7 @@ public struct Vector2 {
 ### 2.2. Релятивистская физика
 
 **Требования из спецификации**:
+
 ```csharp
 public static float Gamma(float beta) {
   float beta2 = beta * beta;
@@ -105,6 +108,7 @@ public static float Gamma(float beta) {
 | `ClampVelocity(v, c')` | ✅ (доп.) | ✅ ClampVelocity_ClampsToMaxSpeed |
 
 **Свойства γ (проверенные тестами)**:
+
 - ✅ γ(0) = 1.0
 - ✅ γ(0.5) ≈ 1.1547
 - ✅ γ(0.8) ≈ 1.6667
@@ -121,6 +125,7 @@ public static float Gamma(float beta) {
 ### 2.3. LocationConfig
 
 **Требования из спецификации**:
+
 ```csharp
 public class LocationConfig {
   public float c_prime_mps = 5000;  // константа!
@@ -150,6 +155,7 @@ public class LocationConfig {
 ### 2.4. ShipConfig v0.8.6
 
 **Требования из спецификации**:
+
 ```json
 {
   "meta": { "id", "name", "manufacturer", "version" },
@@ -195,6 +201,7 @@ public class LocationConfig {
 ### 2.5. ShipValidator
 
 **Требования из спецификации**:
+
 ```csharp
 public class ShipValidator {
   public static bool Validate(ShipConfig ship) {
@@ -218,6 +225,7 @@ public class ShipValidator {
 | Reverse < Forward | - | ✅ (доп.) | ✅ Validate_ReverseExceedsForward_GeneratesWarning |
 
 **Диапазоны G-лимитов**:
+
 - snub: 8-15g ✅
 - light: 6-12g ✅
 - medium: 4-8g ✅
@@ -233,6 +241,7 @@ public class ShipValidator {
 ### 2.6. Миграция 0.6.4 → 0.8.6
 
 **Требования из спецификации**:
+
 ```csharp
 public class ConfigMigrator {
   public static ShipConfig MigrateFrom064(OldConfig old) {
@@ -249,6 +258,7 @@ public class ConfigMigrator {
 > "⏸️ **Migration 0.6.4 → 0.8.6** - Will implement when loading actual ship JSONs"
 
 **Обоснование**: В спецификации указано, что миграция выполняется, но в README отмечено, что она отложена до загрузки реальных JSON. Это допустимо, так как:
+
 1. Структура v0.8.6 полностью реализована
 2. Валидация работает
 3. Нет реальных JSON для миграции в текущем milestone
@@ -263,6 +273,7 @@ public class ConfigMigrator {
 ### 3.1. Компоненты
 
 **Требования из спецификации**:
+
 ```csharp
 [Game] Transform2DComponent, VelocityComponent, MassComponent,
        ControlStateComponent, FlightAssistComponent,
@@ -292,6 +303,7 @@ public class ConfigMigrator {
 ### 3.2. Системы (заглушки для будущего)
 
 **Требования из спецификации**:
+
 ```csharp
 public class PhysicsSystem : IExecuteSystem { /* M1 */ }
 public class FlightAssistSystem : IExecuteSystem { /* M3 */ }
@@ -312,6 +324,7 @@ public class FlightAssistSystem : IExecuteSystem { /* M3 */ }
 ### 3.3. Инфраструктура ECS
 
 **Требования из спецификации**:
+
 ```
 DoD:
 - Entities создаются/удаляются
@@ -336,6 +349,7 @@ DoD:
 | **Benchmark** | `Tests/ECS/EcsBenchmarks.cs` | ✅ | ✅ Benchmark_10kEntities_ProcessesUnder16ms |
 
 **Сгенерированные классы** (ручная реализация):
+
 - ✅ `GameContext.cs` - Entitas context wrapper
 - ✅ `GameEntity.cs` - Entity API с component accessors
 - ✅ `GameComponentsLookup.cs` - Component indices 0-8
@@ -365,6 +379,7 @@ DoD:
 ### 4.2. Детализация property-based тестов
 
 `Gamma_AlwaysGreaterThanOrEqualToOne(beta)` - **100 тестов** с случайными значениями β ∈ [0, 1):
+
 - Все проверяют γ(β) ≥ 1.0
 - Проверяют корректность вычислений на краях диапазона
 - Охват: 0.014778074 до 0.9970706
@@ -378,10 +393,12 @@ DoD:
 ### 5.1. Конфигурация
 
 **Файлы**:
+
 - ✅ `.github/workflows/ci.yml` - Активный workflow
 - ⚠️ `.github/workflows/dotnet-build.yml` - Дубликат (windows-latest)
 
 **Активный workflow** (`ci.yml`):
+
 ```yaml
 - Setup .NET 8.0.x
 - dotnet restore
@@ -473,12 +490,14 @@ DoD:
 ### 7.2. Code style
 
 **EditorConfig**:
+
 - ✅ C# naming conventions (private fields с `_`)
 - ✅ Indentation: 4 spaces
 - ✅ End of line: CRLF (Windows)
 - ✅ Insert final newline
 
 **Соблюдение**:
+
 - ✅ Все C# файлы следуют conventions
 - ⚠️ Markdown файлы имеют MD022/MD032 warnings (несущественно)
 
@@ -547,6 +566,7 @@ DoD:
 **📊 Оценка: A+ (Отлично)**
 
 **Обоснование**:
+
 - ✅ Полное соответствие спецификации v0.8.6 Minimal
 - ✅ 100% покрытие тестами (158/158)
 - ✅ Корректная архитектура (FA:ON/OFF, fixed c', ECS)
@@ -561,6 +581,7 @@ DoD:
 ### 11.1. Готовность к M1 (Физика)
 
 **Проверка prerequisites**:
+
 - ✅ Vector2/Vector3 математика
 - ✅ RelativisticMath.Gamma(beta)
 - ✅ LocationConfig с c'
@@ -568,6 +589,7 @@ DoD:
 - ✅ ShipConfig.Physics (FA:OFF ускорения)
 
 **Рекомендации**:
+
 1. ✅ Все готово для реализации PhysicsSystem
 2. ✅ Формула p → v с γ может быть реализована
 3. ✅ CalculateForce() может использовать ShipConfig.Physics
@@ -603,6 +625,7 @@ DoD:
 **Проект ГОТОВ к реализации M1 (Серверная физика)** ✅
 
 Все необходимые компоненты на месте:
+
 - Математика (vectors, gamma)
 - Физические концепции (c', β, γ)
 - ECS инфраструктура

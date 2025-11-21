@@ -5,5 +5,8 @@
     "composite": true,
     "types": ["node"]
   },
-  "include": ["vite.config.ts", "eslint.config.js"]
+  "include": [
+    "src/clients/testbed/chatgpt-vite/vite.config.ts",
+    "eslint.config.js"
+  ]
 }

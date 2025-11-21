@@ -40,6 +40,7 @@ Implements relativistic kinematics with:
    - Normalizes rotation to `[-π, π]`
 
 **Configuration**:
+
 ```csharp
 var physics = new PhysicsSystem(
     context,
@@ -49,6 +50,7 @@ var physics = new PhysicsSystem(
 ```
 
 **Tests**: 9 tests (7 passing)
+
 - ✅ No force → constant velocity
 - ✅ Forward thrust → velocity increases
 - ✅ Velocity clamped at c'
@@ -84,6 +86,7 @@ Implements elastic collisions with:
    - Each ship moved by `overlap/2`
 
 **Configuration**:
+
 ```csharp
 var collision = new CollisionSystem(
     context,
@@ -92,6 +95,7 @@ var collision = new CollisionSystem(
 ```
 
 **Tests**: 7 tests (6 passing)
+
 - ✅ No collision → ships unaffected
 - ✅ Head-on collision → ships bounce
 - ✅ Collision applies damage
@@ -113,6 +117,7 @@ p = γmv
 ```
 
 At high speeds (v → c'), γ increases significantly:
+
 - v = 0.5c': γ ≈ 1.15
 - v = 0.8c': γ ≈ 1.67
 - v = 0.9c': γ ≈ 2.29
@@ -126,6 +131,7 @@ J = -(1 + e)·(v_B - v_A)·n / (1/m_A + 1/m_B)
 ```
 
 Where:
+
 - `e` = coefficient of restitution (0.5 for damped bounces)
 - `n` = collision normal
 - `m` = mass in kg
@@ -142,6 +148,7 @@ Example: 10-tonne ship at 50 m/s → impulse ≈ 500,000 kg·m/s → damage ≈ 
 ## Integration
 
 **GameWorld System Order**:
+
 1. `FlightAssistSystem` - Process player inputs
 2. `PhysicsSystem` - Update positions and velocities
 3. `CollisionSystem` - Detect and resolve collisions
@@ -150,10 +157,12 @@ Example: 10-tonne ship at 50 m/s → impulse ≈ 500,000 kg·m/s → damage ≈ 
 ## Performance
 
 **Collision Detection**: O(n²)
+
 - Acceptable for <100 ships
 - For larger simulations, consider spatial partitioning (quadtree, spatial hash)
 
 **Physics Integration**: O(n)
+
 - Newton-Raphson: 5 iterations per entity per frame
 - 60 FPS with 100 ships: 30,000 iterations/sec
 

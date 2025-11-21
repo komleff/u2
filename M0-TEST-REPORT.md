@@ -71,11 +71,13 @@
 ### 1. ❌ .NET SDK не установлен
 
 **Проблема**:
+
 ```
 It was not possible to find any installed .NET Core SDKs
 ```
 
 **Решение**:
+
 ```powershell
 # Установка .NET 8 SDK
 winget install Microsoft.DotNet.SDK.8
@@ -86,11 +88,13 @@ winget install Microsoft.DotNet.SDK.8
 
 ### 2. ⚠️ Entitas Code Generation не настроена
 
-**Проблема**: 
+**Проблема**:
+
 - `GameContext`, `GameEntity` должны генерироваться автоматически
 - В текущей конфигурации кодогенератор не запущен
 
 **Решение (уже применено)**:
+
 - ✅ Созданы ручные реализации в `Generated/` папке
 - Классы реализуют минимально необходимый API для тестов
 - В production можно настроить автогенерацию через `Entitas.CodeGeneration.Plugins`
@@ -98,10 +102,12 @@ winget install Microsoft.DotNet.SDK.8
 ### 3. ⚠️ Protobuf не компилируется
 
 **Проблема**:
+
 - `ecs.proto` файл существует, но не компилируется в C# классы
 - Требуется добавить в `.csproj` или использовать `protoc`
 
 **Решение (уже применено)**:
+
 - ✅ Созданы ручные C# классы в `Proto/Generated/ProtoMessages.cs`
 - Реализуют все необходимые message types
 - В production можно настроить автокомпиляцию через MSBuild
@@ -109,9 +115,11 @@ winget install Microsoft.DotNet.SDK.8
 ### 4. ℹ️ Markdown linting ошибки
 
 **Проблема**:
+
 - Несколько markdown файлов имеют форматирование, не соответствующее MD022/MD032/MD031
 
 **Решение**:
+
 - Это не блокирует тесты, можно исправить позже
 - Используется для документации, не влияет на код
 
@@ -163,6 +171,7 @@ dotnet test --filter "FullyQualifiedName~EcsBenchmarkTests"
 ### Шаг 5: Проверка DoD M0.3
 
 После запуска тестов проверить:
+
 - ✅ Все 58 тестов (33 M0.2 + 25 M0.3) проходят
 - ✅ Benchmark показывает < 16ms для 10k entities
 - ✅ Нет ошибок компиляции
@@ -170,6 +179,7 @@ dotnet test --filter "FullyQualifiedName~EcsBenchmarkTests"
 ## Ожидаемые результаты
 
 ### M0.2 Tests (33 total)
+
 ```
 ✅ Vector2Tests (13 tests)
   - Magnitude, Normalized, Dot product
@@ -191,6 +201,7 @@ dotnet test --filter "FullyQualifiedName~EcsBenchmarkTests"
 ```
 
 ### M0.3 Tests (25 total)
+
 ```
 ✅ EntityFactoryTests (12 tests)
   - Entity creation with all components
@@ -213,12 +224,14 @@ dotnet test --filter "FullyQualifiedName~EcsBenchmarkTests"
 ## Статус по Definition of Done
 
 ### M0.1 Repository Setup
+
 - ✅ Repository structure created
 - ✅ CI/CD configured
 - ✅ EditorConfig in place
 - ⚠️ CI не запускался (требует .NET SDK в GitHub Actions runner)
 
 ### M0.2 Math + Physics + Validation
+
 - ✅ Vector2/3 implemented
 - ✅ RelativisticMath implemented
 - ✅ ShipConfig v0.8.6 schema
@@ -226,6 +239,7 @@ dotnet test --filter "FullyQualifiedName~EcsBenchmarkTests"
 - ⏳ **Pending**: 33 tests pass (требует .NET SDK)
 
 ### M0.3 Entitas ECS
+
 - ✅ 9 components defined
 - ✅ 3 system stubs created
 - ✅ GameWorld orchestration
@@ -237,16 +251,19 @@ dotnet test --filter "FullyQualifiedName~EcsBenchmarkTests"
 ## Рекомендации
 
 ### Немедленные действия
+
 1. **Установить .NET 8 SDK** - блокирует все тестирование
 2. **Запустить `dotnet test`** - проверить, что все 58 тестов проходят
 3. **Проверить benchmark** - убедиться, что 10k entities < 16ms
 
 ### Краткосрочные улучшения
+
 1. **Настроить Entitas CodeGeneration** - заменить ручные Generated/ классы
 2. **Настроить Protobuf компиляцию** - добавить в .csproj build pipeline
 3. **Исправить markdown linting** - для чистоты репозитория
 
 ### Долгосрочные задачи
+
 1. **GitHub Actions CI/CD** - убедиться, что тесты проходят в CI
 2. **Code coverage** - добавить отчёты о покрытии тестами
 3. **Приступить к M1** - Physics Implementation (3-4 недели)
@@ -254,6 +271,7 @@ dotnet test --filter "FullyQualifiedName~EcsBenchmarkTests"
 ## Файлы изменённые в этой проверке
 
 Добавлены для работы без кодогенерации:
+
 ```
 + src/shared/ECS/Generated/GameContext.cs
 + src/shared/ECS/Generated/GameEntity.cs  

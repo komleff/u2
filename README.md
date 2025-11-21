@@ -148,4 +148,3 @@ See the `LICENSE` file if present, or the license section on the GitHub reposito
 ---
 
 Build prepared with Codex (GPT-5).
-
