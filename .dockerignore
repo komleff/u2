@@ -1,0 +1,16 @@
+node_modules
+npm-debug.log
+logs
+coverage
+dist
+*.tgz
+.DS_Store
+*.swp
+*.swo
+*.tmp
+**/bin
+**/obj
+.vscode
+.idea
+.git
+.github

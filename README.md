@@ -53,6 +53,19 @@ scripts\start-servers.bat
 
 See `scripts/README.md` for detailed information about the automation scripts.
 
+### Docker (server + Vite)
+
+```bash
+docker compose build
+docker compose up
+```
+
+�?-�?�?�?�? ��?�?�?�?�?�?��:
+- Backend: UDP `7777`, WebSocket `8080` (экспонируются наружу)
+- Vite dev server: `http://localhost:5173/` (с `VITE_SERVER_URL=ws://server:8080/` внутри Compose)
+
+�?�?�?�?�?�?��?���� Compose���?�?�?��: `docker compose down`.
+
 ### Development server (client only)
 
 ```bash
