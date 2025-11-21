@@ -55,32 +55,32 @@ See `scripts/README.md` for detailed information about the automation scripts.
 
 ### Docker (server + Vite)
 
-```bash
-docker compose build
-docker compose up
-```
+Что делает:
+- Поднимает C# backend (UDP 7777, WebSocket 8080) и Vite dev server (http://localhost:5173/).
+- Внутри Compose клиент ходит на ws://server:8080/ (см. VITE_SERVER_URL).
 
--Р§С‚Рѕ РґРµР»Р°РµС‚:
- - РџРѕРґРЅРёРјР°РµС‚ C# backend (UDP `7777`, WebSocket `8080`) Рё Vite dev server (`http://localhost:5173/`).
- - Р’РЅСѓС‚СЂРё Compose РєР»РёРµРЅС‚ С…РѕРґРёС‚ РЅР° `ws://server:8080/` (СЃРј. `VITE_SERVER_URL`).
+Быстрый старт одной командой:
+`ash
+./scripts/start-docker.sh       # macOS/Linux
+.\\scripts\\start-docker.ps1      # Windows PowerShell
+`
 
--Р‘С‹СЃС‚СЂС‹Рµ РєРѕРјР°РЅРґС‹:
-```bash
-# СЃС‚Р°СЂС‚/Р»РѕРіРё/РѕСЃС‚Р°РЅРѕРІ
-docker compose up            # Р·Р°РїСѓСЃС‚РёС‚СЊ
-docker compose logs -f       # СЃРјРѕС‚СЂРµС‚СЊ Р»РѕРіРё
-docker compose down          # РѕСЃС‚Р°РЅРѕРІРёС‚СЊ Рё СѓР±СЂР°С‚СЊ РєРѕРЅС‚РµР№РЅРµСЂС‹
-```
+Если хочется вручную:
+`ash
+docker compose up            # запустить
+docker compose logs -f       # смотреть логи
+docker compose down          # остановить и убрать контейнеры
+`
 
--РџСЂРѕРІРµСЂРєР° Р»РѕРєР°Р»СЊРЅРѕ:
-1) РџРѕСЃР»Рµ `docker compose up` Р·Р°Р№РґРёС‚Рµ РІ Р±СЂР°СѓР·РµСЂ РЅР° `http://localhost:5173/`.
-2) РЈР±РµРґРёС‚РµСЃСЊ, С‡С‚Рѕ WebSocket РґРѕСЃС‚СѓРїРµРЅ РЅР° `ws://localhost:8080/` (Network С‚Р°Р±).
-3) Р•СЃР»Рё РїРѕСЂС‚С‹ Р·Р°РЅСЏС‚С‹, РїРѕРјРµРЅСЏР№С‚Рµ РїСЂРѕР±СЂРѕСЃС‹ РІ `docker-compose.yml` (РЅР°РїСЂРёРјРµСЂ, `5174:5173`).
+Проверка локально:
+1) После запуска зайдите в браузер на http://localhost:5173/.
+2) Убедитесь, что WebSocket доступен на ws://localhost:8080/ (Network таб).
+3) Если порты заняты, поменяйте пробросы в docker-compose.yml (например, 5174:5173).
 
--РџРѕР»РµР·РЅРѕ Р·РЅР°С‚СЊ:
- - РџРµСЂРІРѕРµ `build` СЃРєР°С‡РёРІР°РµС‚ SDK/Node вЂ” РјРѕР¶РµС‚ Р·Р°РЅСЏС‚СЊ РІСЂРµРјСЏ.
- - РћР±СЂР°Р·С‹: `u2/server`, `u2/client` (СЃРј. `docker-compose.yml`).
- - РЈР±СЂР°С‚СЊ РІСЃС‘ РІРјРµСЃС‚Рµ СЃ СЃРµС‚СЏРјРё/volume: `docker compose down --remove-orphans --volumes`.
+Полезно знать:
+- Первое uild скачивает SDK/Node — может занять время.
+- Образы: u2/server, u2/client (см. docker-compose.yml).
+- Убрать всё вместе с сетями/volume: docker compose down --remove-orphans --volumes.
 
 ### Development server (client only)
 
@@ -407,5 +407,6 @@ taskkill /PID <PID> /F
 - **[РЎРєСЂРёРїС‚С‹ Р°РІС‚РѕРјР°С‚РёР·Р°С†РёРё (EN)](./scripts/README.md)** - automation scripts documentation
 - **[M2.3 РџР»Р°РЅ](./M2.3-PLAN.md)** - РїР»Р°РЅ СЃРµС‚РµРІРѕР№ Р°СЂС…РёС‚РµРєС‚СѓСЂС‹
 - **[Р”РѕСЂРѕР¶РЅР°СЏ РєР°СЂС‚Р°](./ROADMAP.md)** - roadmap РїСЂРѕРµРєС‚Р°
+
 
 
