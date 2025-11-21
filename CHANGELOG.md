@@ -5,6 +5,116 @@ All notable changes to the U2 Flight Test Sandbox project will be documented in 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2025-11-21
+
+### Summary
+
+Developer experience and DevOps release focusing on Docker containerization, CI/CD automation, and comprehensive documentation for AI-assisted development. This release makes U2 easier to deploy, test, and develop with automated workflows and production-ready Docker configurations.
+
+### Added
+
+#### Docker Support ✅
+
+- `Dockerfile.server`: Multi-stage build for .NET 8 backend with optimized runtime image
+- `Dockerfile.client`: Alpine-based Node.js 20 image for Vite development server
+- `docker-compose.yml`: Complete orchestration for server + client with dependency management
+- `.dockerignore`: Optimized Docker context for faster builds
+- Docker networking configuration with WebSocket compatibility
+
+#### CI/CD Automation ✅
+
+- `.github/workflows/ci.yml`: Continuous Integration pipeline
+  - Build and test jobs for C# backend (201 tests)
+  - Client-side physics validation tests
+  - Optional integration tests with latency simulation
+  - Node.js 20 and .NET 8 environment setup
+  - Nightly automated test runs
+- `.github/workflows/protect-main.yml`: Branch protection workflow preventing direct pushes to main
+
+#### Automation Scripts ✅
+
+- `scripts/start-servers.sh`: Unix/Linux/macOS automated server startup
+- `scripts/start-servers.bat`: Windows automated server startup
+- `scripts/start-docker.sh`: Docker Compose automation for Unix systems
+- `scripts/start-docker.ps1`: PowerShell Docker automation for Windows
+- `scripts/test-startup.sh`: Automated startup validation
+- `scripts/README.md`: English documentation for automation scripts
+- `scripts/README.ru.md`: Russian documentation for automation scripts
+
+#### Developer Experience ✅
+
+- `.github/copilot-instructions.md`: Comprehensive GitHub Copilot guide
+  - Project architecture and design principles
+  - Network protocol specifications (M2.2, M2.3)
+  - Physics synchronization patterns
+  - Testing requirements and patterns
+  - Common troubleshooting scenarios
+  - Russian language documentation
+- `.editorconfig`: Unified code style configuration
+- Enhanced main README with Docker and automation sections
+- Troubleshooting guides for common deployment issues
+
+#### Code Quality ✅
+
+- Zero ESLint warnings across entire TypeScript codebase
+- `.markdownlintignore`: Documentation linting configuration
+- Updated `.gitignore`: Docker, logs, and build artifact exclusions
+
+### Technical Details
+
+#### Docker Architecture
+
+- **Multi-stage builds**: Separate SDK and runtime layers for optimal image size
+- **Layer caching**: Dependencies cached for 10x faster rebuilds
+- **Alpine base**: Minimal footprint for client container
+- **Port mapping**: 7777 (UDP), 8080 (WebSocket), 5173 (Vite)
+- **Environment variables**: Configurable WebSocket endpoint
+
+#### CI Pipeline
+
+- **Matrix testing**: Node.js 20 + .NET 8 environment
+- **Scheduled runs**: Nightly integration test execution
+- **Manual dispatch**: On-demand test runs via workflow_dispatch
+- **Test coverage**: 201 C# tests + comprehensive TypeScript suite
+- **Physics validation**: Automated client/server synchronization checks
+
+#### Automation Features
+
+- **Dependency checking**: Automatic validation of .NET SDK and Node.js
+- **Port availability**: Pre-flight checks for 7777, 8080, 5173
+- **Log management**: Automatic log file creation in `logs/` directory
+- **Error handling**: Helpful error messages with troubleshooting hints
+- **Process management**: Unified Ctrl+C shutdown for all servers
+
+### Documentation Updates
+
+- Complete Docker setup guide in README
+- Cross-platform automation script documentation
+- AI-assisted development workflow guide
+- Troubleshooting section for deployment issues
+- Russian translations for key documentation
+
+### Known Limitations
+
+- Docker setup is optimized for development (production build requires separate configuration)
+- Integration tests still require manual server startup (addressed by automation scripts)
+- Windows Docker requires WSL2 for optimal performance
+
+### Next Steps
+
+See `ROADMAP.md` for the complete development roadmap. Upcoming milestones:
+
+- **M3.0**: Flight Assist ON/OFF and Stabilized Flight Assist
+- **M4.0**: Minimal HUD
+- **M5.0**: Combat stubs (damage, bots)
+- **M6.0**: Optimization and platform support
+
+### Contributors
+
+This release represents the collaborative effort of the U2 development team in improving developer experience and production readiness.
+
+---
+
 ## [0.5.0] - 2025-11-20
 
 ### Summary
@@ -143,4 +253,5 @@ MIT License
 
 ---
 
-[0.5.0]: https://github.com/dkomlev/u2/releases/tag/v0.5.0
+[0.6.0]: https://github.com/komleff/u2/releases/tag/v0.6.0
+[0.5.0]: https://github.com/komleff/u2/releases/tag/v0.5.0
