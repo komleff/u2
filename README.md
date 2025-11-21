@@ -32,7 +32,26 @@ Game‑design and technical specifications live in Markdown and are treated as f
 npm install
 ```
 
-### Development server
+### Online testing (automated server startup)
+
+For online multiplayer testing, use the automated server startup script:
+
+```bash
+npm run start:servers
+```
+
+This script automatically starts both:
+- **C# backend server** (UDP on port 7777, WebSocket on port 8080)
+- **Vite development client** (HTTP on port 5173)
+
+On Windows, use:
+```batch
+scripts\start-servers.bat
+```
+
+See `scripts/README.md` for detailed information about the automation scripts.
+
+### Development server (client only)
 
 ```bash
 npm run dev
