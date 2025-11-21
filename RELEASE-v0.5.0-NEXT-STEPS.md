@@ -23,7 +23,7 @@
 
 The current branch `copilot/create-release-version` needs to be merged to `main`:
 
-1. Review and approve the PR: https://github.com/dkomlev/u2/pulls
+1. Review and approve the PR: <https://github.com/dkomlev/u2/pulls>
 2. Merge the PR to main branch
 3. Pull the latest main branch locally
 
@@ -55,7 +55,7 @@ git push origin v0.5.0
 
 ### Step 3: Create GitHub Release
 
-1. Go to: https://github.com/dkomlev/u2/releases/new
+1. Go to: <https://github.com/dkomlev/u2/releases/new>
 
 2. Fill in the release form:
    - **Choose a tag**: Select `v0.5.0` from dropdown
@@ -72,8 +72,8 @@ git push origin v0.5.0
 
 After publishing, verify:
 
-1. Release appears on GitHub: https://github.com/dkomlev/u2/releases
-2. Tag is visible: https://github.com/dkomlev/u2/tags
+1. Release appears on GitHub: <https://github.com/dkomlev/u2/releases>
+2. Tag is visible: <https://github.com/dkomlev/u2/tags>
 3. Release notes are properly formatted
 4. All links in release notes work
 
@@ -89,14 +89,17 @@ After publishing, verify:
 ## 📦 Release Contents
 
 ### Documentation
+
 - `CHANGELOG.md` - Complete changelog for v0.5.0
 - `RELEASE-NOTES-v0.5.0.md` - Detailed release notes
 - `RELEASE-PROCESS.md` - Release process documentation
 
 ### Automation
+
 - `scripts/prepare-release.mjs` - Automated release preparation script
 
 ### Code
+
 - Complete source code as of this commit
 - All milestones M0.1 through M2.3 completed
 
@@ -107,22 +110,26 @@ After publishing, verify:
 ### What's Included in v0.5.0
 
 ✅ **Physics Engine (M1)**
+
 - Relativistic flight model
 - Coupled/Decoupled modes
 - Flight Assist ON/OFF
 - G-limits and constraints
 
 ✅ **Network Protocol (M2.1)**
+
 - Protocol Buffers implementation
 - 190/190 tests passing
 - Efficient binary serialization
 
 ✅ **Server Infrastructure (M2.2)**
+
 - .NET 8 UDP server
 - Connection management
 - Message processing pipeline
 
 ✅ **Client-Side Prediction (M2.3)**
+
 - WebSocket relay
 - Prediction engine
 - Server reconciliation
@@ -151,14 +158,14 @@ If you have questions about the release process:
 
 1. See `RELEASE-PROCESS.md` for detailed process documentation
 2. Use the automated script: `node scripts/prepare-release.mjs 0.5.0`
-3. Check GitHub issues: https://github.com/dkomlev/u2/issues
+3. Check GitHub issues: <https://github.com/dkomlev/u2/issues>
 
 ---
 
 ## 📞 Support
 
-- **Repository**: https://github.com/dkomlev/u2
-- **Issues**: https://github.com/dkomlev/u2/issues
+- **Repository**: <https://github.com/dkomlev/u2>
+- **Issues**: <https://github.com/dkomlev/u2/issues>
 - **Documentation**: See `docs/` directory
 
 ---

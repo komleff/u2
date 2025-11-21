@@ -15,6 +15,7 @@
 ## Исходные материалы
 
 Конвертированные из PDF/DOCX документы находятся в [_converted/](../_converted/):
+
 - [moscow-pve.md](../_converted/moscow-pve.md) — MoSCoW-требования к PvE
 - [pve.md](../_converted/pve.md) — детальный анализ PvE-кампаний
 - [mmo.md](../_converted/mmo.md), [mmo-2.md](../_converted/mmo-2.md) — анализ аудитории MMO

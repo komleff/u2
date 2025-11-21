@@ -6,6 +6,9 @@ on:
       - main
       - gpt-5_1-m0_1-repo-build
   pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 4 * * *' # nightly at 04:00 UTC
 
 jobs:
   build-and-test:
@@ -14,6 +17,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -28,4 +36,46 @@ jobs:
 
       - name: Test
         run: dotnet test --no-build --configuration Release --verbosity normal
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Validate physics sync (client)
+        run: npm run test --workspace=src/clients/testbed/chatgpt-vite -- tests/physics-sync.spec.ts
+
+      - name: Validate physics sync (shared)
+        run: dotnet test --no-build --configuration Release --filter SharedPhysicsTests
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Run integration tests (client)
+        env:
+          U2_RUN_INTEGRATION: '1'
+        run: npm run test --workspace=src/clients/testbed/chatgpt-vite
 

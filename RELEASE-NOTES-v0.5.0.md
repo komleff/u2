@@ -8,9 +8,10 @@
 
 ## 🎉 Highlights
 
-This is the **first official release** of the U2 Flight Test Sandbox - a canvas-based flight systems sandbox for the **Universe Unlimited (U2)** project. 
+This is the **first official release** of the U2 Flight Test Sandbox - a canvas-based flight systems sandbox for the **Universe Unlimited (U2)** project.
 
 Version 0.5.0 delivers a complete technical foundation with:
+
 - ✅ **Relativistic flight physics**
 - ✅ **Client-server architecture** with UDP/WebSocket support
 - ✅ **Client-side prediction** with server reconciliation
@@ -24,6 +25,7 @@ Version 0.5.0 delivers a complete technical foundation with:
 ### Core Systems
 
 #### Physics Engine (M1)
+
 - 2D relativistic flight model
 - Coupled/Decoupled flight modes
 - Flight Assist ON/OFF support
@@ -31,6 +33,7 @@ Version 0.5.0 delivers a complete technical foundation with:
 - Real-time physics simulation
 
 #### Network Protocol (M2.1)
+
 - Protocol Buffers for efficient serialization
 - Type-safe message definitions
 - Client/Server message types
@@ -38,6 +41,7 @@ Version 0.5.0 delivers a complete technical foundation with:
 - Full test coverage (190/190 tests)
 
 #### Server Infrastructure (M2.2)
+
 - .NET 8 UDP server
 - Connection management
 - Message processing pipeline
@@ -45,6 +49,7 @@ Version 0.5.0 delivers a complete technical foundation with:
 - Server-side entity simulation
 
 #### Client-Side Prediction (M2.3)
+
 - WebSocket relay for browser communication
 - Prediction engine with input buffering
 - Server reconciliation system
@@ -119,6 +124,7 @@ Complete documentation is available in the `docs/` directory:
 ### Milestone Documentation
 
 Each completed milestone has comprehensive documentation:
+
 - **M0.1-M0.3**: Foundation and build system
 - **M1**: Relativistic physics
 - **M2.1**: Protocol Buffers
@@ -166,6 +172,7 @@ This is an early release focused on technical foundation. The following features
 ## 🛣️ Roadmap
 
 ### Completed Milestones (v0.5.0)
+
 - ✅ **M0.1-M0.3**: Repository, mathematics, ECS
 - ✅ **M1**: Relativistic physics
 - ✅ **M2.1**: Protobuf protocol
@@ -173,6 +180,7 @@ This is an early release focused on technical foundation. The following features
 - ✅ **M2.3**: Client prediction
 
 ### Upcoming Milestones
+
 - 🔜 **M3**: FA:ON/OFF with stabilization system (3-4 weeks)
 - 🔜 **M4**: Minimal HUD (1-2 weeks)
 - 🔜 **M5**: Combat stubs - damage and bots (2-3 weeks)
@@ -215,8 +223,8 @@ Contributions are welcome! Please:
 
 ## 📞 Support
 
-- **Repository**: https://github.com/dkomlev/u2
-- **Issues**: https://github.com/dkomlev/u2/issues
+- **Repository**: <https://github.com/dkomlev/u2>
+- **Issues**: <https://github.com/dkomlev/u2/issues>
 - **Documentation**: See `docs/` directory
 
 ---
@@ -224,6 +232,7 @@ Contributions are welcome! Please:
 ## 🙏 Acknowledgments
 
 Built with:
+
 - TypeScript + Vite
 - .NET 8
 - Protocol Buffers

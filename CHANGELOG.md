@@ -14,6 +14,7 @@ First official release of the U2 Flight Test Sandbox - a canvas-based flight sys
 ### Added
 
 #### M0.1: Repository and Build System ✅
+
 - Initial project structure with TypeScript/Vite setup
 - ESLint configuration with zero-warning policy
 - Vitest testing framework with jsdom environment
@@ -21,18 +22,21 @@ First official release of the U2 Flight Test Sandbox - a canvas-based flight sys
 - Basic README and project documentation
 
 #### M0.2: Mathematics + Validation + Migration ✅
+
 - Core mathematical functions for flight physics
 - Validation framework for physics calculations
 - Test infrastructure with comprehensive coverage
 - Migration to modern TypeScript/Vite toolchain
 
 #### M0.3: Entitas ECS ✅
+
 - Entity Component System (ECS) architecture
 - Core ECS components: Transform2D, Velocity, Mass, ControlState
 - ECS systems for physics simulation
 - Component validation and testing
 
 #### M1: Relativistic Physics ✅
+
 - Relativistic flight physics implementation
 - 2D flight model with coupled/decoupled modes
 - Flight Assist ON/OFF support
@@ -40,6 +44,7 @@ First official release of the U2 Flight Test Sandbox - a canvas-based flight sys
 - Comprehensive physics tests
 
 #### M2.1: Protobuf Protocol ✅
+
 - Protocol Buffers implementation for network communication
 - Message definitions for game state synchronization
 - Client/Server message types (190/190 tests passing)
@@ -47,6 +52,7 @@ First official release of the U2 Flight Test Sandbox - a canvas-based flight sys
 - Type-safe message handling
 
 #### M2.2: UDP Server ✅
+
 - .NET 8 UDP server implementation
 - Connection management system
 - Message processing pipeline
@@ -54,6 +60,7 @@ First official release of the U2 Flight Test Sandbox - a canvas-based flight sys
 - Server-side physics simulation
 
 #### M2.3: Client-Side Prediction and Reconciliation ✅
+
 - WebSocket relay for browser-to-server communication
 - Client-side prediction engine
 - Input buffering and replay system
@@ -74,6 +81,7 @@ First official release of the U2 Flight Test Sandbox - a canvas-based flight sys
 ### Documentation
 
 Complete documentation available in `docs/` directory:
+
 - High-level overview: `docs/README.md`
 - Documentation index: `docs/INDEX.md`
 - Specifications catalog: `docs/specs/README.md`
@@ -81,6 +89,7 @@ Complete documentation available in `docs/` directory:
 - Development roadmap: `ROADMAP.md`
 
 Key specification documents:
+
 - Flight modes: `docs/specs/spec_pilot_assist_coupled.md`, `docs/specs/spec_flight_decoupled.md`
 - Architecture: `docs/specs/tech/`
 - Combat formulas: `docs/specs/gameplay/`
@@ -97,6 +106,7 @@ Key specification documents:
 ### Next Steps
 
 See `ROADMAP.md` for the complete development roadmap. Upcoming milestones:
+
 - **M3**: FA:ON/OFF and Stabilized Flight Assist
 - **M4**: Minimal HUD
 - **M5**: Combat stubs (damage, bots)

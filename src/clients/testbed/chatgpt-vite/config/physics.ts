@@ -1,46 +1,49 @@
+import sharedPhysics from "../../../../shared/physics.json";
+
 export interface PhysicsConfig {
-  // Linear acceleration (m/s²)
-  forwardAccel: number;
-  reverseAccel: number;
-  strafeAccel: number;
+  forwardAccel: number; // m/s²
+  reverseAccel: number; // m/s²
+  strafeAccel: number; // m/s²
 
-  // Angular acceleration (rad/s²)
-  yawAccel: number;
+  yawAccel: number; // rad/s²
+  pitchAccel: number; // rad/s²
+  rollAccel: number; // rad/s²
 
-  // FA:ON speed limits (m/s)
-  maxForwardSpeed: number;
-  maxReverseSpeed: number;
-  maxStrafeSpeed: number;
+  maxForwardSpeed: number; // m/s
+  maxReverseSpeed: number; // m/s
+  maxStrafeSpeed: number; // m/s
+  maxYawRate: number; // rad/s
 
-  // FA:ON angular limits (rad/s)
-  maxYawRate: number;
-
-  // Mass properties
-  mass: number;
-  inertia: number;
+  mass: number; // kg
+  inertia: number; // kg*m² (approx)
 }
 
+const degToRad = (deg: number) => (deg * Math.PI) / 180;
+
+const massKg = sharedPhysics.hull.dry_mass_t * 1000;
+const inertiaBox =
+  (massKg *
+    (sharedPhysics.geometry.length_m * sharedPhysics.geometry.length_m +
+      sharedPhysics.geometry.width_m * sharedPhysics.geometry.width_m)) /
+  12;
+
 /**
- * Shared physics defaults for the stage-1 fighter (kept in sync with server values).
+ * Shared physics defaults for the stage-1 fighter (synced with server JSON).
  */
 export const DEFAULT_PHYSICS: PhysicsConfig = {
-  // Linear acceleration
-  forwardAccel: 90.0, // 90 m/s² forward
-  reverseAccel: 67.5, // 67.5 m/s² reverse
-  strafeAccel: 85.0, // 85 m/s² lateral
+  forwardAccel: sharedPhysics.physics.forward_accel_mps2,
+  reverseAccel: sharedPhysics.physics.reverse_accel_mps2,
+  strafeAccel: sharedPhysics.physics.strafe_accel_mps2,
 
-  // Angular acceleration
-  yawAccel: 4.189, // 240°/s² = 4.189 rad/s²
+  yawAccel: degToRad(sharedPhysics.physics.yaw_accel_dps2),
+  pitchAccel: degToRad(sharedPhysics.physics.pitch_accel_dps2 ?? 180.0),
+  rollAccel: degToRad(sharedPhysics.physics.roll_accel_dps2 ?? 220.0),
 
-  // FA:ON speed limits
-  maxForwardSpeed: 260.0, // 260 m/s forward
-  maxReverseSpeed: 180.0, // 180 m/s reverse
-  maxStrafeSpeed: 220.0, // 220 m/s lateral
+  maxForwardSpeed: sharedPhysics.limits.linear_speed_max_mps.forward,
+  maxReverseSpeed: sharedPhysics.limits.linear_speed_max_mps.reverse,
+  maxStrafeSpeed: sharedPhysics.limits.linear_speed_max_mps.lateral,
+  maxYawRate: degToRad(sharedPhysics.limits.angular_speed_max_dps.yaw),
 
-  // FA:ON angular limits
-  maxYawRate: 1.396, // 80°/s = 1.396 rad/s
-
-  // Mass
-  mass: 10000.0, // 10 tons
-  inertia: 50000.0 // Approximate for small fighter
+  mass: massKg,
+  inertia: inertiaBox
 };

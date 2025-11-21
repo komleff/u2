@@ -42,13 +42,13 @@ public class Program
     private static void RunM1Mode(ILoggerFactory loggerFactory, ILogger<Program> logger)
     {
         var location = LocationConfig.CombatZone(); // c' = 5000 m/s
-        const float targetFPS = 60.0f;
-        const float deltaTime = 1.0f / targetFPS;
+        const float physicsRate = 30.0f; // Spec: server physics 30 Hz
+        const float deltaTime = 1.0f / physicsRate;
         
         logger.LogInformation("Location: {LocationName}, c' = {SpeedOfLight} m/s", 
             location.Name, location.CPrime_mps);
         logger.LogInformation("Physics tick rate: {FPS} FPS (dt = {DeltaTime:F4}s)", 
-            targetFPS, deltaTime);
+            physicsRate, deltaTime);
         
         var world = new GameWorld(
             speedOfLight_mps: location.CPrime_mps,
@@ -79,16 +79,16 @@ public class Program
     private static async Task RunNetworkMode(ILoggerFactory loggerFactory, ILogger<Program> logger)
     {
         const int port = 7777;
-        const float snapshotRate = 15.0f; // Hz (as per spec)
+        const float physicsRate = 30.0f;   // Hz (spec: server physics)
+        const float snapshotRate = 15.0f;  // Hz (spec: snapshot broadcast)
         
         var location = LocationConfig.CombatZone(); // c' = 5000 m/s
-        const float targetFPS = 60.0f;
-        const float deltaTime = 1.0f / targetFPS;
+        const float deltaTime = 1.0f / physicsRate;
         
         logger.LogInformation("Location: {LocationName}, c' = {SpeedOfLight} m/s", 
             location.Name, location.CPrime_mps);
         logger.LogInformation("Physics tick rate: {FPS} FPS (dt = {DeltaTime:F4}s)", 
-            targetFPS, deltaTime);
+            physicsRate, deltaTime);
         logger.LogInformation("Snapshot broadcast rate: {SnapshotRate} Hz", snapshotRate);
         
         // Create game world
@@ -133,7 +133,8 @@ public class Program
             world,
             udpServer,
             connectionManager,
-            snapshotRate
+            snapshotRate,
+            physicsRate
         );
         
         // Start server

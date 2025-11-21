@@ -25,4 +25,10 @@
     <Protobuf Include="Proto\ecs.proto" GrpcServices="None" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="physics.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

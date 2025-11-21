@@ -22,12 +22,14 @@
 ### 0.2. Flight Assist ON vs OFF (КРИТИЧНО для v0.8.6)
 
 **FA:OFF (свободный полёт):**
+
 - Команды → прямо в тягу/момент
 - Максимальные ускорения из `physics`
 - Скорости **НЕ ограничиваются** (кроме 0.999c′)
 - Летит по инерции
 
 **FA:ON (стабилизированный полёт):**
+
 - Автопилот стабилизирует
 - Те же ускорения из `physics`
 - Скорости **ограничиваются** `flightAssistLimits.linearSpeedMax_mps`
@@ -91,6 +93,7 @@
 ```
 
 **Что убрали:**
+
 - ❌ `signature_km` (пока не нужно, нет сканирования)
 - ❌ Тепловые параметры
 - ❌ Щиты, броня
@@ -104,11 +107,13 @@
 **Цель:** Готовый каркас.
 
 **Содержание:**
+
 - Структура: `shared/`, `server/`, `client/`
 - Пакеты: Protobuf, NUnit, логирование
 - Code-style, EditorConfig
 
 **DoD:**
+
 - CI сборка работает
 - Один пустой тест проходит
 
@@ -121,6 +126,7 @@
 **Содержание:**
 
 1. **Векторная алгебра:**
+
    ```csharp
    public struct Vector2 {
      public float x, y;
@@ -130,6 +136,7 @@
    ```
 
 2. **Релятивистская физика:**
+
    ```csharp
    public static class RelativisticMath {
      public static float Gamma(float beta) {
@@ -141,6 +148,7 @@
    ```
 
 3. **LocationConfig (фиксированное c′):**
+
    ```csharp
    public class LocationConfig {
      public float c_prime_mps = 5000;  // константа!
@@ -149,6 +157,7 @@
    ```
 
 4. **Минимальная структура ShipConfig v0.8.6:**
+
    ```csharp
    public class ShipConfig {
      public ShipMeta Meta;
@@ -164,6 +173,7 @@
    ```
 
 5. **Валидация:**
+
    ```csharp
    public class ShipValidator {
      public static bool Validate(ShipConfig ship) {
@@ -176,6 +186,7 @@
    ```
 
 6. **Миграция 0.6.4 → 0.8.6:**
+
    ```csharp
    public class ConfigMigrator {
      public static ShipConfig MigrateFrom064(OldConfig old) {
@@ -188,6 +199,7 @@
    ```
 
 **DoD:**
+
 - γ-тесты проходят
 - Все номиналы валидируются
 - Миграция работает на тестовых конфигах
@@ -201,6 +213,7 @@
 **Содержание:**
 
 **Компоненты (минимум):**
+
 ```csharp
 [Game] public sealed class Transform2DComponent : IComponent {
   public Vector2 position;
@@ -240,6 +253,7 @@
 ```
 
 **Системы-заглушки:**
+
 ```csharp
 public class PhysicsSystem : IExecuteSystem {
   public void Execute() { /* M1 */ }
@@ -251,6 +265,7 @@ public class FlightAssistSystem : IExecuteSystem {
 ```
 
 **DoD:**
+
 - Entities создаются/удаляются
 - Сериализация работает
 - Benchmark: 10k entities < 16 мс
@@ -321,10 +336,12 @@ Vector2 CalculateForce(GameEntity entity) {
 ```
 
 **Что НЕ делаем:**
+
 - ❌ Тепловая модель (заглушка, всегда T = const)
 - ❌ Перегрев и троттлинг
 
 **DoD:**
+
 - Корабль разгоняется от 0 до 0.5c′
 - γ растёт корректно
 - Не превышает 0.999c′
@@ -337,6 +354,7 @@ Vector2 CalculateForce(GameEntity entity) {
 **Цель:** Визуальное тестирование физики.
 
 **Содержание:**
+
 - Локальная копия PhysicsSystem
 - Ввод WASD/мышь (упрощённый)
 - Рендеринг 2D sprites
@@ -344,10 +362,12 @@ Vector2 CalculateForce(GameEntity entity) {
 - Минимальный HUD: скорость, ускорение, курс
 
 **Что НЕ делаем:**
+
 - ❌ Сложный ввод с геймпадом
 - ❌ Отладочные визуализации (пока)
 
 **DoD:**
+
 - Корабль отображается
 - WASD управление работает
 - FPS 60
@@ -359,6 +379,7 @@ Vector2 CalculateForce(GameEntity entity) {
 ### M2.1. Protobuf-протокол (1 неделя)
 
 **Минимальные сообщения:**
+
 ```protobuf
 message ManeuverCommand {
   uint32 entity_id = 1;
@@ -384,6 +405,7 @@ message WorldSnapshot {
 ```
 
 **DoD:**
+
 - Сериализация < 200 байт на 12 кораблей
 
 ---
@@ -391,16 +413,19 @@ message WorldSnapshot {
 ### M2.2. UDP + reconciliation (2-3 недели)
 
 **Содержание:**
+
 - UDP-транспорт (сервер → клиенты)
 - Client-side prediction
 - Reconciliation (replay)
 
 **Упрощения:**
+
 - Без адаптивного битрейта
 - Без компрессии
 - Фиксированные частоты: 30 Hz команды, 15 Hz снимки
 
 **DoD:**
+
 - Онлайн 2 игрока работает
 - RTT 50 мс без рывков
 - RTT 200 мс стабилизируется за 1-2 сек
@@ -414,6 +439,7 @@ message WorldSnapshot {
 **Цель:** Реализовать переключение режимов.
 
 **Содержание:**
+
 ```csharp
 // Игрок нажимает Z
 if (Input.GetKeyDown(KeyCode.Z)) {
@@ -426,6 +452,7 @@ hudText.color = player.flightAssist.enabled ? Color.green : Color.yellow;
 ```
 
 **DoD:**
+
 - Переключение работает
 - Индикация в HUD
 
@@ -475,11 +502,13 @@ void StabilizeFA_ON(GameEntity entity) {
 ```
 
 **Упрощения:**
+
 - Без jerk-лимитирования (пока)
 - Без контроля g-перегрузок (пока)
 - Без эскалации (M5)
 
 **DoD:**
+
 - FA:ON: при отпускании управления вращение гасится < 2 сек
 - FA:ON: скорость ограничена
 - FA:OFF: летит по инерции, не гасит
@@ -491,6 +520,7 @@ void StabilizeFA_ON(GameEntity entity) {
 **Цель:** Базовая информация.
 
 **Содержание:**
+
 ```csharp
 // Скорость
 float speed = player.velocity.linear.Magnitude;
@@ -515,11 +545,13 @@ if (Input.GetKey(KeyCode.F3)) {
 ```
 
 **Что НЕ делаем:**
+
 - ❌ Наблюдение с задержкой света (пока не нужно)
 - ❌ Голограммы
 - ❌ Сложные визуализации
 
 **DoD:**
+
 - HUD читаем
 - Нет падения FPS
 
@@ -532,6 +564,7 @@ if (Input.GetKey(KeyCode.F3)) {
 **Цель:** Заглушка модуля боя.
 
 **Содержание:**
+
 ```csharp
 public interface IDamageSystem {
   void ApplyDamage(uint target_id, float damage);
@@ -561,11 +594,13 @@ if (fireCommand.Received) {
 ```
 
 **Что НЕ делаем:**
+
 - ❌ P_hit (вероятность)
 - ❌ Щиты, броня
 - ❌ ТТХ оружия
 
 **DoD:**
+
 - Стрельба работает
 - HP снижается
 - Корабль уничтожается при HP=0
@@ -577,6 +612,7 @@ if (fireCommand.Received) {
 **Цель:** Заглушка AI.
 
 **Содержание:**
+
 ```csharp
 public class RandomBotSystem : IExecuteSystem {
   public void Execute() {
@@ -599,6 +635,7 @@ public class RandomBotSystem : IExecuteSystem {
 ```
 
 **Альтернатива (чуть умнее):**
+
 ```csharp
 // Патруль по случайным точкам
 Vector2 waypoint = bot.ai.currentWaypoint;
@@ -609,11 +646,13 @@ FlyTowards(bot, waypoint);
 ```
 
 **Что НЕ делаем:**
+
 - ❌ Тактика
 - ❌ Кооперация
 - ❌ Уклонение
 
 **DoD:**
+
 - Боты двигаются
 - Боты иногда стреляют
 - 8 ботов работают без лагов
@@ -625,12 +664,14 @@ FlyTowards(bot, waypoint);
 ### M6.1. Оптимизация (2 недели)
 
 **Содержание:**
+
 - Профилирование (Unity Profiler)
 - Пулы объектов (снаряды, эффекты)
 - Батчинг спрайтов
 - Оптимизация сериализации
 
 **DoD:**
+
 - FPS 60 (1080p)
 - Сеть < 50 кбит/с
 - Server tick < 25 мс
@@ -640,14 +681,17 @@ FlyTowards(bot, waypoint);
 ### M6.2. Платформы (1-2 недели)
 
 **Содержание:**
+
 - ПК (Windows/Linux)
 - WebGL (опционально)
 
 **Упрощения:**
+
 - Без мобильных (пока)
 - Только клавиатура/мышь
 
 **DoD:**
+
 - ПК сборка работает
 - Онлайн работает
 
@@ -685,6 +729,7 @@ FlyTowards(bot, waypoint);
 После построения фундамента (M0-M6):
 
 **M7+: Расширения (по необходимости)**
+
 - Детальная тепловая модель
 - Щиты (новая концепция)
 - Броня (новая концепция)
@@ -724,17 +769,20 @@ FlyTowards(bot, waypoint);
 ## Приоритеты
 
 **Критично (нельзя откладывать):**
+
 - ✅ Релятивистская физика с γ
 - ✅ FA:ON/OFF различие
 - ✅ Reconciliation
 - ✅ Stabilized ассистент
 
 **Важно (заглушки обязательны):**
+
 - ✅ Примитивный урон
 - ✅ Примитивные боты
 - ✅ Минимальный HUD
 
 **Можно отложить (M7+):**
+
 - ⏳ Тепло
 - ⏳ Щиты/броня
 - ⏳ Сложная стрельба

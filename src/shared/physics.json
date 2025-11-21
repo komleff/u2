@@ -1,0 +1,39 @@
+{
+  "meta": {
+    "id": "default_fighter",
+    "name": "Default Fighter",
+    "manufacturer": "Generic",
+    "version": "0.8.6"
+  },
+  "geometry": {
+    "length_m": 11.5,
+    "width_m": 11.0,
+    "height_m": 3.5
+  },
+  "hull": {
+    "dry_mass_t": 10.0,
+    "hull_hp": 1000.0
+  },
+  "physics": {
+    "forward_accel_mps2": 90.0,
+    "reverse_accel_mps2": 67.5,
+    "strafe_accel_mps2": 85.0,
+    "yaw_accel_dps2": 200.0,
+    "pitch_accel_dps2": 180.0,
+    "roll_accel_dps2": 220.0
+  },
+  "limits": {
+    "crew_g_limit": 11.0,
+    "linear_speed_max_mps": {
+      "forward": 260.0,
+      "reverse": 180.0,
+      "lateral": 220.0,
+      "vertical": 220.0
+    },
+    "angular_speed_max_dps": {
+      "yaw": 80.0,
+      "pitch": 95.0,
+      "roll": 130.0
+    }
+  }
+}

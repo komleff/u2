@@ -18,13 +18,17 @@ public class NetworkGameLoop
     private readonly UdpServer _server;
     private readonly ConnectionManager _connectionManager;
     
+    private readonly float _physicsRate; // Hz
+    private readonly float _physicsInterval; // seconds
     private readonly float _snapshotRate; // Hz
     private readonly float _snapshotInterval; // seconds
     private uint _currentTick;
-    // Keep connections alive unless явный дисконнект; короткий таймаут приводил к миганию сущностей
+    // Keep connections alive until they exceed the stale timeout
     private readonly TimeSpan _staleTimeout = TimeSpan.FromSeconds(60);
     private readonly TimeSpan _staleCheckInterval = TimeSpan.FromSeconds(1);
     private double _nextCleanupTime;
+    private double _nextPhysicsTime;
+    private double _nextSnapshotTime;
     
     private bool _isRunning;
     private CancellationTokenSource? _cancellationTokenSource;
@@ -35,12 +39,15 @@ public class NetworkGameLoop
         GameWorld gameWorld,
         UdpServer server,
         ConnectionManager connectionManager,
-        float snapshotRate = 15.0f)
+        float snapshotRate = 15.0f,
+        float physicsRate = 30.0f)
     {
         _logger = logger;
         _gameWorld = gameWorld;
         _server = server;
         _connectionManager = connectionManager;
+        _physicsRate = physicsRate;
+        _physicsInterval = 1.0f / physicsRate;
         _snapshotRate = snapshotRate;
         _snapshotInterval = 1.0f / snapshotRate;
         _currentTick = 0;
@@ -62,8 +69,9 @@ public class NetworkGameLoop
         _isRunning = true;
         _loopTask = Task.Run(() => GameLoopAsync(_cancellationTokenSource.Token));
         
-        _logger.LogInformation("Game loop started at {SnapshotRate} Hz (interval: {Interval:F4}s)",
-            _snapshotRate, _snapshotInterval);
+        _logger.LogInformation(
+            "Game loop started: physics {PhysicsRate} Hz (dt={PhysicsDt:F4}s), snapshots {SnapshotRate} Hz (interval: {SnapshotDt:F4}s)",
+            _physicsRate, _physicsInterval, _snapshotRate, _snapshotInterval);
     }
 
     /// <summary>
@@ -85,10 +93,11 @@ public class NetworkGameLoop
 
     private async Task GameLoopAsync(CancellationToken cancellationToken)
     {
-        var intervalMs = (int)(_snapshotInterval * 1000);
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-        var nextTickTime = stopwatch.Elapsed.TotalSeconds;
-        _nextCleanupTime = stopwatch.Elapsed.TotalSeconds + _staleCheckInterval.TotalSeconds;
+        var now = stopwatch.Elapsed.TotalSeconds;
+        _nextPhysicsTime = now;
+        _nextSnapshotTime = now + _snapshotInterval;
+        _nextCleanupTime = now + _staleCheckInterval.TotalSeconds;
 
         _logger.LogDebug("Starting game loop");
 
@@ -96,35 +105,36 @@ public class NetworkGameLoop
         {
             try
             {
-                var frameStart = stopwatch.Elapsed.TotalSeconds;
+                now = stopwatch.Elapsed.TotalSeconds;
 
-                // Execute game world tick
-                _gameWorld.Execute();
-                _currentTick++;
+                // Execute fixed-step physics as many times as needed to catch up
+                while (now >= _nextPhysicsTime && !cancellationToken.IsCancellationRequested)
+                {
+                    _gameWorld.Execute();
+                    _currentTick++;
+                    _nextPhysicsTime += _physicsInterval;
+                }
 
-                // Broadcast world snapshot to all clients
-                await BroadcastWorldSnapshot();
+                // Broadcast world snapshot on its own cadence
+                if (now >= _nextSnapshotTime)
+                {
+                    await BroadcastWorldSnapshot();
+                    _nextSnapshotTime += _snapshotInterval;
+                }
 
                 // Periodic cleanup of stale connections/entities
-                if (stopwatch.Elapsed.TotalSeconds >= _nextCleanupTime)
+                if (now >= _nextCleanupTime)
                 {
                     CleanupStaleConnections();
                     _nextCleanupTime += _staleCheckInterval.TotalSeconds;
                 }
 
-                // Calculate sleep time to maintain fixed rate
-                nextTickTime += _snapshotInterval;
-                var sleepTime = nextTickTime - stopwatch.Elapsed.TotalSeconds;
-                
-                if (sleepTime > 0)
+                // Sleep until the next deadline to avoid busy loop
+                var nextDeadline = Math.Min(_nextPhysicsTime, _nextSnapshotTime);
+                var sleepSeconds = nextDeadline - stopwatch.Elapsed.TotalSeconds;
+                if (sleepSeconds > 0)
                 {
-                    await Task.Delay(TimeSpan.FromSeconds(sleepTime), cancellationToken);
-                }
-                else
-                {
-                    // Running behind schedule
-                    _logger.LogWarning("Game loop running behind: {Behind:F4}s", -sleepTime);
-                    nextTickTime = stopwatch.Elapsed.TotalSeconds;
+                    await Task.Delay(TimeSpan.FromSeconds(sleepSeconds), cancellationToken);
                 }
             }
             catch (OperationCanceledException)
@@ -207,3 +217,4 @@ public class NetworkGameLoop
 
     public uint GetCurrentTick() => _currentTick;
 }
+

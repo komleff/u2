@@ -43,7 +43,7 @@ public class IsometricSpaceCamera : MonoBehaviour
 {  
     \[Header("Target")\]  
     public Transform playerShip;  
-      
+
     \[Header("Positioning")\]  
     public Vector3 offset \= new Vector3(0, 10, \-12);  
     public float followSpeed \= 6f;  
@@ -228,7 +228,7 @@ public class PlayAreaConstraint : MonoBehaviour
 {  
     public float playPlaneY \= 0f; // Высота игровой плоскости  
     public float allowedYVariance \= 2f; // Небольшая вариация для визуала  
-      
+
     // Ограничение по X и Z  
     public Vector2 playAreaSize \= new Vector2(100f, 100f);  
       
@@ -451,4 +451,3 @@ Line Renderer:
 ---
 
 Это ТЗ можно передать ИИ-агентам или разработчикам для пошаговой реализации. Каждый блок независим и может разрабатываться параллельно\! 🚀
-
