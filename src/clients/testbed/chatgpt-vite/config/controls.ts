@@ -9,7 +9,8 @@ export type ControlAction =
   | "autopilot-toggle"
   | "rnd-impulse"
   | "hud-toggle"
-  | "online-toggle";
+  | "online-toggle"
+  | "flight-assist-toggle";
 
 export const CONTROL_MAP: Record<string, ControlAction> = {
   KeyW: "thrust-up",
@@ -22,5 +23,6 @@ export const CONTROL_MAP: Record<string, ControlAction> = {
   KeyR: "rnd-impulse",
   F2: "autopilot-toggle",
   F3: "hud-toggle",
-  KeyO: "online-toggle" // M2.3: Toggle online/offline mode
+  KeyO: "online-toggle", // M2.3: Toggle online/offline mode
+  KeyZ: "flight-assist-toggle" // M3.0: Toggle Flight Assist ON/OFF
 };

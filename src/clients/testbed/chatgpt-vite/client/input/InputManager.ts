@@ -108,6 +108,13 @@ export class InputManager {
   }
 
   private handleAction(action: ControlAction, isPressed: boolean) {
+    // Flight Assist toggle - immediate state change
+    if (action === "flight-assist-toggle" && isPressed) {
+      this.flightAssist = !this.flightAssist;
+      console.info(`[InputManager] Flight Assist: ${this.flightAssist ? 'ON' : 'OFF'}`);
+      return;
+    }
+
     // Toggle actions are edge-triggered
     if (
       ["mode-toggle", "autopilot-toggle", "hud-toggle", "online-toggle", "rnd-impulse"].includes(
