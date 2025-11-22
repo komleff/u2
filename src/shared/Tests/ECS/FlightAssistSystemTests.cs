@@ -261,7 +261,7 @@ public class FlightAssistSystemTests
     {
         // Arrange
         var ship = CreateTestShip(flightAssistEnabled: true);
-        ship.AddHealth(0.0f, 1000.0f); // Add health component first
+        ship.AddHealth(0.0f, 1000.0f); // Set HP to 0 to simulate destroyed ship
         ship.ReplaceVelocity(Vector2.Right * 500.0f, 0.0f);
 
         // Act
