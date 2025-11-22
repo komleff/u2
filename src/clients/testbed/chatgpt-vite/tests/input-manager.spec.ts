@@ -31,6 +31,7 @@ describe("InputManager", () => {
     source.emit("keydown", { code: "KeyD", preventDefault() {} });
     source.emit("keydown", { code: "KeyO", preventDefault() {} }); // online toggle
     source.emit("keydown", { code: "F2", preventDefault() {} }); // autopilot toggle
+    source.emit("keydown", { code: "KeyZ", preventDefault() {} }); // FA toggle (ON -> OFF)
 
     const frame = manager.poll();
 
@@ -38,7 +39,8 @@ describe("InputManager", () => {
     expect(frame.strafeX).toBe(1);
     expect(frame.toggles.online).toBe(true);
     expect(frame.toggles.autopilot).toBe(true);
-    expect(frame.flightAssist).toBe(true);
+    expect(frame.toggles.flightAssist).toBe(false);
+    expect(frame.flightAssist).toBe(false);
 
     manager.dispose();
   });

@@ -12,6 +12,7 @@ export type InputToggles = {
   mode?: boolean;
   autopilot?: boolean;
   impulse?: boolean;
+  flightAssist?: boolean;
 };
 
 export type CommandFrame = {
@@ -110,9 +111,14 @@ export class InputManager {
   private handleAction(action: ControlAction, isPressed: boolean) {
     // Toggle actions are edge-triggered
     if (
-      ["mode-toggle", "autopilot-toggle", "hud-toggle", "online-toggle", "rnd-impulse"].includes(
-        action
-      )
+      [
+        "mode-toggle",
+        "autopilot-toggle",
+        "hud-toggle",
+        "online-toggle",
+        "rnd-impulse",
+        "flight-assist-toggle"
+      ].includes(action)
     ) {
       if (isPressed) {
         this.toggles.add(action);
@@ -141,6 +147,10 @@ export class InputManager {
     if (this.toggles.delete("mode-toggle")) toggles.mode = true;
     if (this.toggles.delete("autopilot-toggle")) toggles.autopilot = true;
     if (this.toggles.delete("rnd-impulse")) toggles.impulse = true;
+    if (this.toggles.delete("flight-assist-toggle")) {
+      this.flightAssist = !this.flightAssist;
+      toggles.flightAssist = this.flightAssist;
+    }
 
     return toggles;
   }

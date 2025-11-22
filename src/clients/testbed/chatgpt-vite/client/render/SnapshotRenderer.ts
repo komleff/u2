@@ -23,8 +23,10 @@ export class SnapshotRenderer {
     status: TransportStatus,
     localEntityId: number | null,
     predicted: EntityState | null,
-    showOverlay = true
+    options?: { showOverlay?: boolean; flightAssist?: boolean }
   ) {
+    const showOverlay = options?.showOverlay ?? true;
+    const flightAssistEnabled = options?.flightAssist ?? true;
     const focus = frame.focus ?? { x: 0, y: 0 };
     const scale = this.computeScale();
 
@@ -45,7 +47,7 @@ export class SnapshotRenderer {
 
     this.ctx.restore();
     if (showOverlay) {
-      this.drawOverlay(frame, status);
+      this.drawOverlay(frame, status, flightAssistEnabled);
     }
   }
 
@@ -206,16 +208,18 @@ export class SnapshotRenderer {
     ctx.restore();
   }
 
-  private drawOverlay(frame: WorldFrame, status: TransportStatus) {
+  private drawOverlay(frame: WorldFrame, status: TransportStatus, flightAssistEnabled: boolean) {
     const ctx = this.ctx;
     ctx.save();
     ctx.resetTransform();
 
+    const panelWidth = 260;
+    const panelHeight = 120;
     ctx.fillStyle = "rgba(6, 12, 22, 0.8)";
-    ctx.fillRect(16, 16, 260, 88);
+    ctx.fillRect(16, 16, panelWidth, panelHeight);
     ctx.strokeStyle = "rgba(117, 242, 255, 0.5)";
     ctx.lineWidth = 2;
-    ctx.strokeRect(16, 16, 260, 88);
+    ctx.strokeRect(16, 16, panelWidth, panelHeight);
 
     ctx.fillStyle = "#c7f2ff";
     ctx.font = "16px 'Space Grotesk', 'DM Sans', 'Inter', system-ui";
@@ -234,6 +238,14 @@ export class SnapshotRenderer {
     ctx.fillText(`Tick: ${frame.tick}`, 28, 66);
     ctx.fillText(`Entities: ${frame.entities.length}`, 140, 66);
     ctx.fillText(`Last snapshot: ${Math.round(performance.now() - frame.timestamp)} ms ago`, 28, 90);
+
+    // Flight Assist indicator (M3)
+    const faLabel = flightAssistEnabled ? "FA: ON" : "FA: OFF";
+    const faColor = flightAssistEnabled ? "#6bf2b5" : "#ff6b6b";
+    ctx.fillStyle = "#c7f2ff";
+    ctx.fillText("Flight Assist:", 28, 114);
+    ctx.fillStyle = faColor;
+    ctx.fillText(faLabel, 140, 114);
 
     ctx.restore();
   }

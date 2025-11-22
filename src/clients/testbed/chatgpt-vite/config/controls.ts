@@ -5,6 +5,7 @@ export type ControlAction =
   | "strafe-right"
   | "yaw-left"
   | "yaw-right"
+  | "flight-assist-toggle"
   | "mode-toggle"
   | "autopilot-toggle"
   | "rnd-impulse"
@@ -18,6 +19,7 @@ export const CONTROL_MAP: Record<string, ControlAction> = {
   KeyD: "strafe-right",
   KeyQ: "yaw-left",
   KeyE: "yaw-right",
+  KeyZ: "flight-assist-toggle",
   KeyC: "mode-toggle",
   KeyR: "rnd-impulse",
   F2: "autopilot-toggle",

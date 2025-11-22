@@ -9,7 +9,7 @@ using U2.Shared.Config;
 namespace U2.Shared.ECS;
 
 /// <summary>
-/// Main ECS context holder and system executor
+/// Main ECS context holder and system executor.
 /// </summary>
 public class GameWorld
 {
@@ -28,15 +28,15 @@ public class GameWorld
     {
         var systems = new Entitas.Systems()
             // Update order matters!
-            .Add(new SysFlightAssist(context))  // Process inputs first
-            .Add(new SysPhysics(context, speedOfLight_mps, deltaTime));       // Then physics
+            .Add(new SysFlightAssist(context, deltaTime))              // Process Flight Assist first
+            .Add(new SysPhysics(context, speedOfLight_mps, deltaTime)); // Then physics
         
         if (enableCollisions)
         {
-            systems.Add(new SysCollision(context));     // Then collision detection (O(n²) - expensive for large entity counts)
+            systems.Add(new SysCollision(context)); // Then collision detection (O(n^2) - expensive for large entity counts)
         }
         
-        systems.Add(new SysHeat(context));         // Then heat management
+        systems.Add(new SysHeat(context)); // Then heat management
         
         return systems;
     }
@@ -62,7 +62,7 @@ public class GameWorld
     }
 
     /// <summary>
-    /// Create a player entity for network play
+    /// Create a player entity for network play.
     /// </summary>
     public GameEntity CreatePlayerEntity(uint clientId)
     {
@@ -77,7 +77,7 @@ public class GameWorld
     }
 
     /// <summary>
-    /// Get entity by ID
+    /// Get entity by ID.
     /// </summary>
     public GameEntity? GetEntityById(int id)
     {
@@ -86,7 +86,7 @@ public class GameWorld
     }
 
     /// <summary>
-    /// Get all entities in the world
+    /// Get all entities in the world.
     /// </summary>
     public GameEntity[] GetAllEntities()
     {
