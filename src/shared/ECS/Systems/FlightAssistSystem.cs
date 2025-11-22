@@ -86,14 +86,9 @@ public class FlightAssistSystem : IExecuteSystem
         float localVelY = -velocity.Linear.X * sin + velocity.Linear.Y * cos;
 
         // Apply forward/reverse limits
-        if (localVelX > 0)
-        {
-            localVelX = MathF.Min(localVelX, limits.LinearSpeedMax_mps.Forward);
-        }
-        else
-        {
-            localVelX = MathF.Max(localVelX, -limits.LinearSpeedMax_mps.Reverse);
-        }
+        localVelX = localVelX > 0
+            ? MathF.Min(localVelX, limits.LinearSpeedMax_mps.Forward)
+            : MathF.Max(localVelX, -limits.LinearSpeedMax_mps.Reverse);
 
         // Apply lateral limits
         localVelY = MathF.Max(-limits.LinearSpeedMax_mps.Lateral, 
