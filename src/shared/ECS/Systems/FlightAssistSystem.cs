@@ -8,7 +8,7 @@ namespace U2.Shared.ECS.Systems;
 /// FA:ON = enforce speed/g-limits, damping
 /// FA:OFF = raw control pass-through
 /// 
-/// Execution order: FlightAssistSystem → PhysicsSystem
+/// Execution order: PhysicsSystem → FlightAssistSystem
 /// This system modifies velocities AFTER physics integration (post-processing)
 /// </summary>
 public class FlightAssistSystem : IExecuteSystem
