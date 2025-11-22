@@ -44,7 +44,8 @@ public class WebSocketRelay : IDisposable
         _cts = new CancellationTokenSource();
         _httpListener = new HttpListener();
         
-        // Bind to wildcard first (works inside Docker), fall back to localhost if ACLs block it
+        // Try to bind to wildcard first (works inside Docker), fall back to localhost if ACLs block it
+        bool prefixAdded = false;
         var prefixes = new[]
         {
             $"http://+:{_wsPort}/",
@@ -56,11 +57,20 @@ public class WebSocketRelay : IDisposable
             try
             {
                 _httpListener.Prefixes.Add(prefix);
+                prefixAdded = true;
+                _logger.LogDebug("Successfully added WebSocket listener prefix {Prefix}", prefix);
+                break; // Use first successful prefix only
             }
             catch (HttpListenerException ex)
             {
-                _logger.LogWarning(ex, "Failed to add WebSocket listener prefix {Prefix}", prefix);
+                _logger.LogWarning(ex, "Failed to add WebSocket listener prefix {Prefix}, trying next...", prefix);
             }
+        }
+
+        if (!prefixAdded)
+        {
+            _logger.LogError("Failed to add any WebSocket listener prefix");
+            throw new InvalidOperationException("Could not bind WebSocket listener to any address");
         }
         
         try
