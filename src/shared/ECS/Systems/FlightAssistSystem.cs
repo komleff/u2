@@ -133,14 +133,39 @@ public class FlightAssistSystem : IExecuteSystem
     }
 
     /// <summary>
-    /// Apply damping to angular velocity (auto-stabilization)
+    /// Apply damping to angular velocity (auto-stabilization) and enforce speed limits
     /// </summary>
     private void ApplyAngularDamping(GameEntity entity)
     {
         var velocity = entity.velocity;
         var control = entity.controlState;
+        var limits = entity.shipConfig.Config.FlightAssistLimits;
+        
+        // Step 1: Apply angular speed limits (clamp to AngularSpeedMax)
+        var maxAngularSpeed_rps = limits.AngularSpeedMax_dps.Yaw * MathF.PI / 180.0f;
+        var clampedAngular = velocity.Angular;
+        
+        if (MathF.Abs(clampedAngular) > maxAngularSpeed_rps)
+        {
+            clampedAngular = MathF.Sign(clampedAngular) * maxAngularSpeed_rps;
+        }
+        
+        // Step 2: Apply soft deceleration if speed was limited (within g-limits)
+        if (MathF.Abs(clampedAngular - velocity.Angular) > 0.001f)
+        {
+            var config = entity.shipConfig.Config;
+            var maxAngularAccel = config.Physics.AngularAcceleration_dps2.Yaw * MathF.PI / 180.0f;
+            var maxDecel = limits.CrewGLimit.Linear_g * 9.81f;
+            var desiredChange = clampedAngular - velocity.Angular;
+            var maxChange = (maxDecel / 0.5f) * _deltaTime; // Scale to angular domain
+            
+            if (MathF.Abs(desiredChange) > maxChange)
+            {
+                clampedAngular = velocity.Angular + MathF.Sign(desiredChange) * maxChange;
+            }
+        }
 
-        // Only damp if not actively yawing
+        // Step 3: Damp when not actively yawing
         if (MathF.Abs(control.Yaw_Input) < 0.01f)
         {
             var config = entity.shipConfig.Config;
@@ -152,9 +177,10 @@ public class FlightAssistSystem : IExecuteSystem
             // Exponential decay
             var dampingFactor = MathF.Exp(-dampingRate * _deltaTime);
 
-            var newAngularVel = velocity.Angular * dampingFactor;
-            entity.ReplaceVelocity(velocity.Linear, newAngularVel);
+            clampedAngular = clampedAngular * dampingFactor;
         }
+
+        entity.ReplaceVelocity(velocity.Linear, clampedAngular);
     }
 
     /// <summary>
