@@ -52,3 +52,30 @@ html {
   color: #c7f2ff;
   text-shadow: 0 0 10px rgba(82, 225, 255, 0.8);
 }
+
+/* M3.0: Flight Assist indicator */
+.fa-indicator {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 8px 16px;
+  border-radius: 4px;
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+}
+
+.fa-indicator.fa-on {
+  color: #00ff88;
+  background: rgba(0, 255, 136, 0.1);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  text-shadow: 0 0 12px rgba(0, 255, 136, 0.8);
+}
+
+.fa-indicator.fa-off {
+  color: #ff4444;
+  background: rgba(255, 68, 68, 0.1);
+  border: 1px solid rgba(255, 68, 68, 0.3);
+  text-shadow: 0 0 12px rgba(255, 68, 68, 0.8);
+}

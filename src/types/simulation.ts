@@ -34,4 +34,5 @@ export interface HudTelemetry {
   aoa: number;
   altitude: number;
   warnings: string[];
+  flightAssist?: boolean; // M3.0: FA:ON/OFF indicator
 }

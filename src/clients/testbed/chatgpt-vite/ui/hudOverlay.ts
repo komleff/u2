@@ -10,8 +10,15 @@ export class HudOverlay {
   }
 
   render(telemetry: HudTelemetry) {
-    const { speed, aoa, altitude, warnings } = telemetry;
+    const { speed, aoa, altitude, warnings, flightAssist } = telemetry;
+    
+    // Flight Assist indicator (M3.0)
+    const faStatus = flightAssist !== undefined 
+      ? `<div class="fa-indicator ${flightAssist ? 'fa-on' : 'fa-off'}">FA:${flightAssist ? 'ON' : 'OFF'}</div>`
+      : '';
+    
     this.#element.innerHTML = `
+      ${faStatus}
       <div>SPD ${speed.toFixed(1)} m/s</div>
       <div>AOA ${(aoa * (180 / Math.PI)).toFixed(1)}°</div>
       <div>ALT ${altitude.toFixed(0)} m</div>
