@@ -18,16 +18,15 @@
 - **M0.3** - Entitas ECS ✅
 - **M1** - Релятивистская физика ✅
 - **M2.1** - Protobuf протокол (190/190 тестов) ✅
-- **M2.2** - UDP сервер (серверная часть) ✅
+- **M2.2** - UDP сервер ✅
+- **M2.3** - Client prediction & reconciliation ✅
 
 ### ⚠️ В процессе
 
-- **M2.2** - Client-side (ожидает M2.3) ⏳
+- **M3.0** - Flight Assist ON/OFF ⚠️
 
 ### 🔜 Запланировано
 
-- **M2.3** - Client prediction & reconciliation 🔜
-- **M3** - FA:ON/OFF + Stabilized 🔜
 - **M4** - Минимальный HUD 🔜
 - **M5** - Заглушки (урон, боты) 🔜
 - **M6** - Оптимизация + платформы 🔜
