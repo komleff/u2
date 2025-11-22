@@ -207,11 +207,16 @@ export class SnapshotRenderer {
     this.ctx.font = this.STYLE.fontLarge;
     this.ctx.fillText(`${speed.toFixed(0)} m/s`, 35, this.height - 30);
 
-    // 2. Flight Assist Panel (Bottom Right)
+    // 2. Flight Assist Panel (Bottom Right) - with color-coded icon
     const faText = faMode === "coupled" ? "FA: ON" : "FA: OFF";
-    const faColor = faMode === "coupled" ? "#000000" : "#cc0000"; // Red for OFF (Danger)
+    const faColor = faMode === "coupled" ? "#22dd22" : "#ff4444"; // Green for ON, Red for OFF
+    const faIconColor = faMode === "coupled" ? "#00aa00" : "#cc0000"; // Darker shades for icon
     
     this.drawPanel(this.width - 220, this.height - 100, 200, 80);
+    
+    // Draw colored status icon
+    this.drawStatusIcon(this.width - 195, this.height - 85, 12, faIconColor);
+    
     this.ctx.fillStyle = "#000000";
     this.ctx.font = this.STYLE.fontHeader;
     this.ctx.fillText("SYSTEM", this.width - 205, this.height - 70);
@@ -219,15 +224,46 @@ export class SnapshotRenderer {
     this.ctx.font = this.STYLE.fontLarge;
     this.ctx.fillText(faText, this.width - 205, this.height - 30);
 
-    // 3. Status Panel (Top Left)
-    this.drawPanel(20, 20, 250, 60);
+    // 3. Status Panel (Top Left) - with network status icon
+    const statusColor = status.connected ? "#22dd22" : (status.connecting ? "#ffaa00" : "#ff4444");
+    const statusIconColor = status.connected ? "#00aa00" : (status.connecting ? "#cc8800" : "#cc0000");
+    const statusText = status.connected ? "ONLINE" : (status.connecting ? "CONNECTING..." : "OFFLINE");
+    
+    this.drawPanel(20, 20, 280, 60);
+    
+    // Draw colored network status icon
+    this.drawStatusIcon(40, 35, 12, statusIconColor);
+    
     this.ctx.fillStyle = "#000000";
     this.ctx.font = this.STYLE.fontMain;
-    const statusText = status.connected ? "ONLINE" : (status.connecting ? "CONNECTING..." : "OFFLINE");
-    this.ctx.fillText(`NET: ${statusText}`, 35, 55);
-    this.ctx.fillText(`TICK: ${frame.tick}`, 150, 55);
+    this.ctx.fillStyle = statusColor;
+    this.ctx.fillText(`NET: ${statusText}`, 60, 45);
+    this.ctx.fillStyle = "#000000";
+    this.ctx.fillText(`TICK: ${frame.tick}`, 150, 45);
     
     // 4. Center Crosshair - REMOVED per user request
+  }
+
+  /**
+   * Draw a colored status indicator circle (●)
+   * Green (#00aa00) = Connected/OK
+   * Yellow (#cc8800) = Connecting/Warning
+   * Red (#cc0000) = Disconnected/Offline
+   */
+  private drawStatusIcon(x: number, y: number, radius: number, color: string) {
+    this.ctx.save();
+    this.ctx.fillStyle = color;
+    this.ctx.beginPath();
+    this.ctx.arc(x, y, radius, 0, Math.PI * 2);
+    this.ctx.fill();
+    
+    // Add slight glow effect
+    this.ctx.strokeStyle = color;
+    this.ctx.globalAlpha = 0.3;
+    this.ctx.lineWidth = 2;
+    this.ctx.stroke();
+    
+    this.ctx.restore();
   }
 
   private drawPanel(x: number, y: number, w: number, h: number) {
