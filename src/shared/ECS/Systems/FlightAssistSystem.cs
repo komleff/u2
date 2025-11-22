@@ -1,6 +1,7 @@
 using Entitas;
 using U2.Shared.Math;
 using U2.Shared.Ships;
+using U2.Shared.Physics;
 
 namespace U2.Shared.ECS.Systems;
 
@@ -28,6 +29,8 @@ public class FlightAssistSystem : IExecuteSystem
             GameMatcher.ControlState,
             GameMatcher.FlightAssist,
             GameMatcher.Velocity,
+            GameMatcher.Momentum,
+            GameMatcher.Mass,
             GameMatcher.ShipConfig,
             GameMatcher.Transform2D
         ));
@@ -62,6 +65,27 @@ public class FlightAssistSystem : IExecuteSystem
                 ApplyLinearDamping(entity, limits);
             }
         }
+    }
+
+    /// <summary>
+    /// Sync momentum to match the modified velocity.
+    /// Required because PhysicsSystem integrates momentum, not velocity.
+    /// </summary>
+    private void SyncMomentum(GameEntity entity)
+    {
+        var velocity = entity.velocity;
+        var mass = entity.mass;
+        
+        // Linear Momentum: p = γmv
+        var speed = velocity.Linear.Magnitude;
+        var beta = RelativisticMath.CalculateBeta(speed, _speedOfLight_mps);
+        var gamma = RelativisticMath.Gamma(beta);
+        var linearMomentum = velocity.Linear * (gamma * mass.Mass_kg);
+
+        // Angular Momentum: L = Iω (non-relativistic rotation)
+        var angularMomentum = velocity.Angular * mass.Inertia_kgm2;
+
+        entity.ReplaceMomentum(linearMomentum, angularMomentum);
     }
 
     /// <summary>
@@ -130,6 +154,7 @@ public class FlightAssistSystem : IExecuteSystem
         var newVelY = clampedForward * sin + clampedLateral * cos;
 
         entity.ReplaceVelocity(new Vector2(newVelX, newVelY), velocity.Angular);
+        SyncMomentum(entity);
     }
 
     /// <summary>
@@ -181,24 +206,77 @@ public class FlightAssistSystem : IExecuteSystem
         }
 
         entity.ReplaceVelocity(velocity.Linear, clampedAngular);
+        SyncMomentum(entity);
     }
 
     /// <summary>
-    /// Apply damping to linear velocity when idle (gentle braking)
+    /// Apply active braking to linear velocity when idle
+    /// Uses thrusters to stop the ship, limited by G-force
     /// </summary>
     private void ApplyLinearDamping(GameEntity entity, Ships.FlightAssistLimits limits)
     {
         var velocity = entity.velocity;
+        var transform = entity.transform2D;
+        var config = entity.shipConfig.Config.Physics;
 
-        // Gentle damping: half of max deceleration
-        var dampingAccel = limits.CrewGLimit.Linear_g * 9.81f * 0.5f;
-        var dampingRate = dampingAccel / (velocity.Linear.Magnitude + 0.1f);
-        
-        // Exponential decay
-        var dampingFactor = MathF.Exp(-dampingRate * _deltaTime);
+        // Transform velocity to ship-local space
+        var rotation = transform.Rotation;
+        var cos = MathF.Cos(rotation);
+        var sin = MathF.Sin(rotation);
 
-        var newLinearVel = velocity.Linear * dampingFactor;
-        entity.ReplaceVelocity(newLinearVel, velocity.Angular);
+        // Local velocity components (forward = +X, lateral = +Y)
+        var localVelX = velocity.Linear.X * cos + velocity.Linear.Y * sin;
+        var localVelY = -velocity.Linear.X * sin + velocity.Linear.Y * cos;
+
+        var maxDecel = limits.CrewGLimit.Linear_g * 9.81f; // m/s²
+
+        // 1. Longitudinal Braking (Forward/Reverse)
+        if (MathF.Abs(localVelX) > 0.01f)
+        {
+            bool isMovingForward = localVelX > 0;
+            // Use Reverse thrusters to stop forward motion, Forward thrusters to stop reverse motion
+            var reverseAccel = MathF.Abs(config.LinearAcceleration_mps2.Reverse);
+            var thrusterAccel = isMovingForward ? reverseAccel : config.LinearAcceleration_mps2.Forward;
+            
+            // Limit braking by G-force
+            var brakingAccel = MathF.Min(thrusterAccel, maxDecel);
+            var deltaV = brakingAccel * _deltaTime;
+
+            if (MathF.Abs(localVelX) > deltaV)
+            {
+                localVelX -= MathF.Sign(localVelX) * deltaV;
+            }
+            else
+            {
+                localVelX = 0;
+            }
+        }
+
+        // 2. Lateral Braking (Strafe)
+        if (MathF.Abs(localVelY) > 0.01f)
+        {
+            var thrusterAccel = config.StrafeAcceleration_mps2.Lateral;
+            
+            // Limit braking by G-force
+            var brakingAccel = MathF.Min(thrusterAccel, maxDecel);
+            var deltaV = brakingAccel * _deltaTime;
+
+            if (MathF.Abs(localVelY) > deltaV)
+            {
+                localVelY -= MathF.Sign(localVelY) * deltaV;
+            }
+            else
+            {
+                localVelY = 0;
+            }
+        }
+
+        // Transform back to world space
+        var newVelX = localVelX * cos - localVelY * sin;
+        var newVelY = localVelX * sin + localVelY * cos;
+
+        entity.ReplaceVelocity(new Vector2(newVelX, newVelY), velocity.Angular);
+        SyncMomentum(entity);
     }
 
     /// <summary>
