@@ -94,7 +94,18 @@ export class GameClient {
     }
 
     const view = this.snapshotStore.frame(this.transport.getLocalEntityId());
-    this.renderer.render(view, this.status, this.transport.getLocalEntityId(), this.predictedState, this.hudVisible);
+    
+    // Use actual input state for UI, not the toggled 'mode'
+    const faMode = frame.flightAssist ? "coupled" : "decoupled";
+    
+    this.renderer.render(
+      view,
+      this.status,
+      this.transport.getLocalEntityId(),
+      this.predictedState,
+      this.hudVisible,
+      faMode
+    );
 
     requestAnimationFrame(() => this.loop());
   }

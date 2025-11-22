@@ -202,32 +202,85 @@ export class PredictionEngine {
       const localVelY = -state.velocity.x * sinRot + state.velocity.y * cosRot;
 
       // Apply speed limits in local space
-      const forwardSpeed = localVelX;
-      const lateralSpeed = localVelY;
+      let clampedForward = localVelX;
+      let clampedLateral = localVelY;
 
-      let clampedForward = forwardSpeed;
-      let clampedLateral = lateralSpeed;
-
-      if (forwardSpeed > 0) {
-        clampedForward = Math.min(forwardSpeed, this.physics.maxForwardSpeed);
+      if (localVelX > 0) {
+        clampedForward = Math.min(localVelX, this.physics.maxForwardSpeed);
       } else {
-        clampedForward = Math.max(forwardSpeed, -this.physics.maxReverseSpeed);
+        clampedForward = Math.max(localVelX, -this.physics.maxReverseSpeed);
       }
 
       clampedLateral = Math.max(
         -this.physics.maxStrafeSpeed,
-        Math.min(lateralSpeed, this.physics.maxStrafeSpeed)
+        Math.min(localVelY, this.physics.maxStrafeSpeed)
       );
 
-      // Apply damping if no thrust input
-      const dampingFactor = 0.9; // Exponential decay per second
-      const dampingThisFrame = Math.pow(dampingFactor, deltaTime);
+      // Soft deceleration for speed limits (G-limited)
+      const maxDecel = this.physics.crewGLimit * 9.81;
+      const maxChange = maxDecel * deltaTime;
 
-      if (input.thrust === 0) {
-        clampedForward *= dampingThisFrame;
+      if (Math.abs(clampedForward - localVelX) > 0.01) {
+        const desiredChange = clampedForward - localVelX;
+        if (Math.abs(desiredChange) > maxChange) {
+          clampedForward = localVelX + Math.sign(desiredChange) * maxChange;
+        }
       }
-      if (input.strafeX === 0 && input.strafeY === 0) {
-        clampedLateral *= dampingThisFrame;
+
+      if (Math.abs(clampedLateral - localVelY) > 0.01) {
+        const desiredChange = clampedLateral - localVelY;
+        if (Math.abs(desiredChange) > maxChange) {
+          clampedLateral = localVelY + Math.sign(desiredChange) * maxChange;
+        }
+      }
+
+      // Apply damping if no thrust input (Braking)
+      if (input.thrust === 0 && input.strafeX === 0 && input.strafeY === 0) {
+         // Active Braking: Apply thrusters to stop (limited by G-force)
+         
+         // 1. Longitudinal Braking
+         if (Math.abs(clampedForward) > 0.01) {
+             const isMovingForward = clampedForward > 0;
+             // If moving forward, we use reverse thrusters to brake
+             const thrusterLimit = isMovingForward ? this.physics.reverseAccel : this.physics.forwardAccel;
+             const brakingAccel = Math.min(thrusterLimit, maxDecel);
+             
+             const deltaV = brakingAccel * deltaTime;
+             
+             if (Math.abs(clampedForward) > deltaV) {
+                 clampedForward -= Math.sign(clampedForward) * deltaV;
+             } else {
+                 clampedForward = 0;
+             }
+         }
+
+         // 2. Lateral Braking
+         if (Math.abs(clampedLateral) > 0.01) {
+             const thrusterLimit = this.physics.strafeAccel;
+             const brakingAccel = Math.min(thrusterLimit, maxDecel);
+             
+             const deltaV = brakingAccel * deltaTime;
+             
+             if (Math.abs(clampedLateral) > deltaV) {
+                 clampedLateral -= Math.sign(clampedLateral) * deltaV;
+             } else {
+                 clampedLateral = 0;
+             }
+         }
+      } else {
+         // If only partial input, damp the unused axes? 
+         // The server logic damps ALL axes if ALL inputs are idle.
+         // If any input is active, it relies on the speed limits to keep things in check.
+         // However, for better feel, we might want to damp lateral if only thrusting forward.
+         // But let's stick to server logic: "IsControlIdle" check.
+         // Wait, server logic: if (IsControlIdle) ApplyLinearDamping.
+         // So if I'm thrusting forward, I don't get lateral damping?
+         // That means I drift sideways forever while flying forward?
+         // Let's check server code again.
+         // Yes: if (IsControlIdle(entity.controlState)) ApplyLinearDamping(entity, limits);
+         // This implies that if I hold W, I will drift sideways if I had lateral momentum.
+         // That seems... odd for FA:ON. Usually FA:ON cancels all drift.
+         // But I must match server logic.
       }
 
       // Transform back to world space
@@ -245,14 +298,18 @@ export class PredictionEngine {
 
     // Flight Assist: angular velocity limiting and damping
     if (input.flightAssist) {
+      // 1. Clamp to max rate
       state.angularVelocity = Math.max(
         -this.physics.maxYawRate,
         Math.min(state.angularVelocity, this.physics.maxYawRate)
       );
 
+      // 2. Damping when no input
       if (input.yawInput === 0) {
-        const angularDamping = 0.9;
-        state.angularVelocity *= Math.pow(angularDamping, deltaTime);
+        // Damping rate proportional to angular acceleration (fast response)
+        const dampingRate = 2.0 * this.physics.yawAccel;
+        const dampingFactor = Math.exp(-dampingRate * deltaTime);
+        state.angularVelocity *= dampingFactor;
       }
     }
 

@@ -14,6 +14,8 @@ export interface PhysicsConfig {
   maxStrafeSpeed: number; // m/s
   maxYawRate: number; // rad/s
 
+  crewGLimit: number; // Gs
+
   mass: number; // kg
   inertia: number; // kg*m² (approx)
 }
@@ -43,6 +45,8 @@ export const DEFAULT_PHYSICS: PhysicsConfig = {
   maxReverseSpeed: sharedPhysics.limits.linear_speed_max_mps.reverse,
   maxStrafeSpeed: sharedPhysics.limits.linear_speed_max_mps.lateral,
   maxYawRate: degToRad(sharedPhysics.limits.angular_speed_max_dps.yaw),
+
+  crewGLimit: sharedPhysics.limits.crew_g_limit ?? 11.0,
 
   mass: massKg,
   inertia: inertiaBox

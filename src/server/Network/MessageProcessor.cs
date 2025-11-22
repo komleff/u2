@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Net;
 using Google.Protobuf;
 using Microsoft.Extensions.Logging;
@@ -18,6 +19,7 @@ public class MessageProcessor
     private readonly ConnectionManager _connectionManager;
     private readonly GameWorld _gameWorld;
     private readonly UdpServer _server;
+    private readonly ConcurrentQueue<Func<Task>> _messageQueue = new();
 
     public MessageProcessor(
         ILogger<MessageProcessor> logger,
@@ -33,31 +35,50 @@ public class MessageProcessor
 
     /// <summary>
     /// Process a received message from a client.
+    /// Queues the message for processing on the main game loop thread.
     /// </summary>
-    public async Task ProcessMessage(byte[] data, IPEndPoint endpoint)
+    public Task ProcessMessage(byte[] data, IPEndPoint endpoint)
     {
-        try
+        // Queue the message processing to ensure thread safety with Entitas
+        _messageQueue.Enqueue(async () => 
         {
-            var clientMessage = ClientMessageProto.Parser.ParseFrom(data);
-
-            switch (clientMessage.MessageCase)
+            try
             {
-                case ClientMessageProto.MessageOneofCase.ConnectionRequest:
-                    await HandleConnectionRequest(clientMessage.ConnectionRequest, endpoint);
-                    break;
+                var clientMessage = ClientMessageProto.Parser.ParseFrom(data);
 
-                case ClientMessageProto.MessageOneofCase.PlayerInput:
-                    HandlePlayerInput(clientMessage.PlayerInput, endpoint);
-                    break;
+                switch (clientMessage.MessageCase)
+                {
+                    case ClientMessageProto.MessageOneofCase.ConnectionRequest:
+                        await HandleConnectionRequest(clientMessage.ConnectionRequest, endpoint);
+                        break;
 
-                default:
-                    _logger.LogWarning("Unknown message type from {Endpoint}", endpoint);
-                    break;
+                    case ClientMessageProto.MessageOneofCase.PlayerInput:
+                        HandlePlayerInput(clientMessage.PlayerInput, endpoint);
+                        break;
+
+                    default:
+                        _logger.LogWarning("Unknown message type from {Endpoint}", endpoint);
+                        break;
+                }
             }
-        }
-        catch (Exception ex)
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing message from {Endpoint}", endpoint);
+            }
+        });
+
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Process all queued messages.
+    /// Must be called from the main game loop thread.
+    /// </summary>
+    public async Task UpdateAsync()
+    {
+        while (_messageQueue.TryDequeue(out var action))
         {
-            _logger.LogError(ex, "Error processing message from {Endpoint}", endpoint);
+            await action();
         }
     }
 
