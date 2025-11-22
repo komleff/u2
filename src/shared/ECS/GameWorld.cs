@@ -28,8 +28,8 @@ public class GameWorld
     {
         var systems = new Entitas.Systems()
             // Update order matters!
-            .Add(new SysFlightAssist(context, deltaTime))              // Process Flight Assist first
-            .Add(new SysPhysics(context, speedOfLight_mps, deltaTime)); // Then physics
+            .Add(new SysFlightAssist(context, deltaTime))  // FA applies limits & damping first
+            .Add(new SysPhysics(context, speedOfLight_mps, deltaTime));  // Physics integrates forces
         
         if (enableCollisions)
         {

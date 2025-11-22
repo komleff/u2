@@ -30,8 +30,8 @@ public class FlightAssistSystemTests
             FlightAssistLimits = new FlightAssistLimits
             {
                 CrewGLimit = new CrewGLimit { Linear_g = 6.0f },
-                LinearSpeedMax_mps = new LinearSpeedMax { Forward = 260f, Reverse = 130f, Lateral = 220f, Vertical = 220f },
-                AngularSpeedMax_dps = new AngularSpeedMax { Yaw = 30f }
+                LinearSpeedMax_mps = new LinearSpeedMax { Forward = 260f, Reverse = 130f },
+                AngularSpeedMax_dps = new AngularSpeedMax { Yaw = 80f }
             }
         };
     }

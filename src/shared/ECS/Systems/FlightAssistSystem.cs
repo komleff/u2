@@ -1,13 +1,12 @@
 using Entitas;
 using U2.Shared.Math;
-using U2.Shared.Ships;
 
 namespace U2.Shared.ECS.Systems;
 
 /// <summary>
-/// M3 Flight Assist system.
-/// FA:ON = clamp inputs, enforce speed/angle limits with g-based damping.
-/// FA:OFF = raw physics (без демпфинга).
+/// M3.0 Flight Assist system.
+/// FA:ON = speed limits + angular damping + linear damping when idle.
+/// FA:OFF = raw physics (no limits or damping).
 /// </summary>
 public class FlightAssistSystem : IExecuteSystem
 {
@@ -23,7 +22,6 @@ public class FlightAssistSystem : IExecuteSystem
     public void Execute()
     {
         var entities = _context.GetEntities(GameMatcher.AllOf(
-            GameMatcher.ControlState,
             GameMatcher.FlightAssist,
             GameMatcher.Velocity,
             GameMatcher.ShipConfig
@@ -31,88 +29,105 @@ public class FlightAssistSystem : IExecuteSystem
 
         foreach (var entity in entities)
         {
-            // Clamp входных значений (всегда, даже при FA:OFF)
-            var control = entity.controlState;
-            var clampedThrust = Clamp01(control.Thrust);
-            var clampedStrafeX = Clamp01(control.Strafe_X);
-            var clampedStrafeY = Clamp01(control.Strafe_Y);
-            var clampedYaw = Clamp01(control.Yaw_Input);
-            entity.ReplaceControlState(clampedThrust, clampedStrafeX, clampedStrafeY, clampedYaw);
-
-            if (!entity.flightAssist.Enabled)
+            if (entity.flightAssist.Enabled)
             {
-                continue; // FA:OFF → без демпфинга; PhysicsSystem обрабатывает движение
+                ApplyFA_ON(entity);
             }
-
-            var limits = entity.shipConfig.Config.FlightAssistLimits;
-            var velocity = entity.velocity;
-            var linear = velocity.Linear;
-            var angular = velocity.Angular;
-
-            // Ограничение линейной скорости по осям (2D: X=lat, Y=fwd/rev)
-            linear.X = Clamp(linear.X, -limits.LinearSpeedMax_mps.Lateral, limits.LinearSpeedMax_mps.Lateral);
-            linear.Y = Clamp(linear.Y, -limits.LinearSpeedMax_mps.Reverse, limits.LinearSpeedMax_mps.Forward);
-
-            // Дэмпинг при превышении общего лимита скорости (учитывает G-limit)
-            var speed = MathF.Sqrt(linear.X * linear.X + linear.Y * linear.Y);
-            var maxSpeed = MaxLinearLimit(limits.LinearSpeedMax_mps);
-            if (speed > maxSpeed && speed > 0.01f)
-            {
-                var damping = SpeedDamping(speed, maxSpeed, limits.CrewGLimit.Linear_g);
-                linear *= damping;
-            }
-
-            // Ограничение угловой скорости (в 2D используем yaw)
-            var maxYawRad = DegToRad(limits.AngularSpeedMax_dps.Yaw);
-            if (maxYawRad > 0.0f && MathF.Abs(angular) > maxYawRad)
-            {
-                var damping = SpeedDamping(MathF.Abs(angular), maxYawRad, limits.CrewGLimit.Linear_g);
-                angular = MathF.Sign(angular) * MathF.Abs(angular) * damping;
-            }
-
-            // Лёгкий дэмпинг дрейфа при отсутствии ввода
-            if (IsIdle(clampedThrust, clampedStrafeX, clampedStrafeY))
-            {
-                linear *= 0.98f;
-            }
-
-            entity.ReplaceVelocity(linear, angular);
+            // FA:OFF = no action, PhysicsSystem applies forces directly
         }
     }
 
-    private static float MaxLinearLimit(LinearSpeedMax limits)
+    private void ApplyFA_ON(GameEntity entity)
     {
-        return MathF.Max(MathF.Max(limits.Forward, limits.Reverse), limits.Lateral);
+        var config = entity.shipConfig.Config;
+        var limits = config.FlightAssistLimits;
+        var velocity = entity.velocity;
+
+        // 1. Linear speed limiting with G-limit respect
+        var linearVel = velocity.Linear;
+        var speed = linearVel.Magnitude;
+        var maxSpeed = limits.LinearSpeedMax_mps.Forward; // For 2D, use forward speed limit
+
+        if (speed > maxSpeed && speed > 0.01f)
+        {
+            var damping = CalculateSpeedDamping(speed, maxSpeed, limits.CrewGLimit.Linear_g);
+            linearVel *= damping;
+        }
+
+        // 2. Angular velocity damping (rotation stabilization)
+        var angularVel = velocity.Angular;
+        if (MathF.Abs(angularVel) > 0.001f)
+        {
+            var angularDamping = CalculateAngularDamping(
+                angularVel,
+                config.Physics.AngularAcceleration_dps2.Yaw // Use yaw for 2D rotation
+            );
+            angularVel *= angularDamping;
+        }
+
+        // 3. Linear damping when controls are idle
+        if (entity.hasControlState && IsControlIdle(entity))
+        {
+            var linearDamping = CalculateLinearDamping(limits.CrewGLimit.Linear_g);
+            linearVel *= linearDamping;
+        }
+
+        entity.ReplaceVelocity(linearVel, angularVel);
     }
 
-    private float SpeedDamping(float value, float limit, float maxAccel_g)
+    /// <summary>
+    /// Calculate damping factor to slow down when exceeding speed limit.
+    /// Respects G-limit: braking force limited to CrewGLimit.Linear_g.
+    /// </summary>
+    private float CalculateSpeedDamping(float currentSpeed, float maxSpeed, float gLimit_g)
     {
-        var overspeed = value - limit;
-        var maxDecel = maxAccel_g * 9.81f;
-        var dampingRate = MathF.Min(overspeed / _deltaTime, maxDecel) / value;
-        return MathF.Exp(-dampingRate * _deltaTime);
+        var excessSpeed = currentSpeed - maxSpeed;
+        var maxDecel_mps2 = gLimit_g * 9.81f; // Convert G to m/s²
+        var maxDecelThisTick = maxDecel_mps2 * _deltaTime;
+
+        // Clamp decel to avoid overshoot
+        var actualDecel = MathF.Min(excessSpeed, maxDecelThisTick);
+        var newSpeed = currentSpeed - actualDecel;
+
+        return newSpeed / currentSpeed; // Damping factor < 1.0
     }
 
-    private static float DegToRad(float degrees) => degrees * (MathF.PI / 180f);
-
-    private static bool IsIdle(float thrust, float strafeX, float strafeY)
+    /// <summary>
+    /// Calculate angular damping factor to stabilize rotation.
+    /// Uses ship's angular acceleration to determine damping strength.
+    /// </summary>
+    private float CalculateAngularDamping(float angularVel_radps, float angularAccel_dps2)
     {
-        return MathF.Abs(thrust) < 0.01f &&
-               MathF.Abs(strafeX) < 0.01f &&
-               MathF.Abs(strafeY) < 0.01f;
+        var angularAccel_radps2 = angularAccel_dps2 * MathF.PI / 180f;
+        var maxDampingThisTick = angularAccel_radps2 * _deltaTime;
+        var absAngularVel = MathF.Abs(angularVel_radps);
+
+        if (absAngularVel < maxDampingThisTick)
+        {
+            return 0f; // Full stop
+        }
+
+        var newAngularVel = absAngularVel - maxDampingThisTick;
+        return newAngularVel / absAngularVel; // Damping factor < 1.0
     }
 
-    private static float Clamp01(float value)
+    /// <summary>
+    /// Calculate linear damping when controls are idle (drift reduction).
+    /// </summary>
+    private float CalculateLinearDamping(float gLimit_g)
     {
-        if (value > 1f) return 1f;
-        if (value < -1f) return -1f;
-        return value;
+        var dampingAccel_mps2 = gLimit_g * 9.81f * 0.5f; // 50% of G-limit for gentle damping
+        var dampingThisTick = dampingAccel_mps2 * _deltaTime;
+
+        // Simple exponential damping approximation
+        return 1f - MathF.Min(dampingThisTick / 10f, 0.1f); // Max 10% reduction per tick
     }
 
-    private static float Clamp(float value, float min, float max)
+    private static bool IsControlIdle(GameEntity entity)
     {
-        if (value < min) return min;
-        if (value > max) return max;
-        return value;
+        var control = entity.controlState;
+        return MathF.Abs(control.Thrust) < 0.01f &&
+               MathF.Abs(control.Strafe_X) < 0.01f &&
+               MathF.Abs(control.Strafe_Y) < 0.01f;
     }
 }
