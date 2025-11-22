@@ -17,6 +17,7 @@
         "test:watch": "npm run test:watch --workspace=src/clients/testbed/chatgpt-vite",
         "coverage": "npm run coverage --workspace=src/clients/testbed/chatgpt-vite",
         "start:servers": "bash scripts/start-servers.sh",
+        "start:servers:win": "powershell -ExecutionPolicy Bypass -File scripts/start-servers.ps1",
         "docs:normalize": "node scripts/normalize-md.mjs",
         "docs:convert": "node scripts/convert-docs.mjs",
         "proto:generate": "pbjs -t static-module -w es6 -o src/clients/testbed/chatgpt-vite/network/proto/ecs.js src/shared/Proto/ecs.proto && pbts -o src/clients/testbed/chatgpt-vite/network/proto/ecs.d.ts src/clients/testbed/chatgpt-vite/network/proto/ecs.js"

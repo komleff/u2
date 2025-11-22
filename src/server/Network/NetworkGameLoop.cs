@@ -17,6 +17,7 @@ public class NetworkGameLoop
     private readonly GameWorld _gameWorld;
     private readonly UdpServer _server;
     private readonly ConnectionManager _connectionManager;
+    private readonly MessageProcessor _messageProcessor;
     
     private readonly float _physicsRate; // Hz
     private readonly float _physicsInterval; // seconds
@@ -39,6 +40,7 @@ public class NetworkGameLoop
         GameWorld gameWorld,
         UdpServer server,
         ConnectionManager connectionManager,
+        MessageProcessor messageProcessor,
         float snapshotRate = 15.0f,
         float physicsRate = 30.0f)
     {
@@ -46,6 +48,7 @@ public class NetworkGameLoop
         _gameWorld = gameWorld;
         _server = server;
         _connectionManager = connectionManager;
+        _messageProcessor = messageProcessor;
         _physicsRate = physicsRate;
         _physicsInterval = 1.0f / physicsRate;
         _snapshotRate = snapshotRate;
@@ -110,6 +113,9 @@ public class NetworkGameLoop
                 // Execute fixed-step physics as many times as needed to catch up
                 while (now >= _nextPhysicsTime && !cancellationToken.IsCancellationRequested)
                 {
+                    // Process queued network messages (inputs, connections) on the main thread
+                    await _messageProcessor.UpdateAsync();
+
                     _gameWorld.Execute();
                     _currentTick++;
                     _nextPhysicsTime += _physicsInterval;

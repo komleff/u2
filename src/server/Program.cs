@@ -133,6 +133,7 @@ public class Program
             world,
             udpServer,
             connectionManager,
+            messageProcessor,
             snapshotRate,
             physicsRate
         );

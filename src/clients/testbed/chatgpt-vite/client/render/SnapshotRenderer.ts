@@ -1,240 +1,252 @@
 import type { EntityState } from "@network/PredictionEngine";
-import { CLIENT_CONFIG } from "@config/client";
 import type { TransportStatus } from "../net/TransportLayer";
-import type { RenderEntity, WorldFrame } from "../world/SnapshotStore";
+import type { WorldFrame } from "../world/SnapshotStore";
 
 export class SnapshotRenderer {
   private ctx: CanvasRenderingContext2D;
-  private bgGradient: CanvasGradient | null = null;
-  private vignetteGradient: CanvasGradient | null = null;
+  private width = 0;
+  private height = 0;
+  private readonly GRID_SIZE = 250; // Larger grid for space feel
+
+  // Graphic Novel / Comic Style Configuration
+  private readonly STYLE = {
+    bgColor: "#121212", // Dark ink background
+    gridColor: "#2a2a2a",
+    
+    // Hero Ship (Player)
+    heroFill: "#ffffff",
+    heroStroke: "#000000",
+    heroStrokeWidth: 3,
+    
+    // Other Ships
+    enemyFill: "#ff4444",
+    enemyStroke: "#000000",
+    enemyStrokeWidth: 3,
+    
+    // UI / HUD
+    fontMain: "bold 16px 'Courier New', monospace",
+    fontHeader: "bold 24px 'Courier New', monospace",
+    fontLarge: "bold 48px 'Courier New', monospace",
+    
+    uiBg: "rgba(255, 255, 255, 0.9)",
+    uiBorder: "#000000",
+    uiBorderWidth: 4,
+    uiShadow: "5px 5px 0px rgba(0,0,0,0.5)",
+    
+    accentColor: "#ffcc00" // Comic book yellow
+  };
 
   constructor(private readonly canvas: HTMLCanvasElement) {
-    const ctx = canvas.getContext("2d");
-    if (!ctx) {
-      throw new Error("CanvasRenderingContext2D missing");
-    }
+    const ctx = canvas.getContext("2d", { alpha: false });
+    if (!ctx) throw new Error("No 2d context");
     this.ctx = ctx;
     this.resize();
     window.addEventListener("resize", () => this.resize());
   }
 
+  private resize() {
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
+    this.canvas.width = this.width;
+    this.canvas.height = this.height;
+  }
+
   render(
     frame: WorldFrame,
     status: TransportStatus,
-    localEntityId: number | null,
+    localId: number | null,
     predicted: EntityState | null,
-    showOverlay = true
+    hudVisible: boolean,
+    faMode: "coupled" | "decoupled" = "coupled"
   ) {
-    const focus = frame.focus ?? { x: 0, y: 0 };
-    const scale = this.computeScale();
+    // 1. Background (Inked Paper look)
+    this.ctx.fillStyle = this.STYLE.bgColor;
+    this.ctx.fillRect(0, 0, this.width, this.height);
 
-    this.drawBackground(focus, scale);
-
+    // 2. Camera Setup
     this.ctx.save();
-    this.ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
-    this.ctx.scale(1, 1);
-    this.ctx.translate(-focus.x * scale, -focus.y * scale);
+    
+    let camX = 0;
+    let camY = 0;
+    let playerVelocity = { x: 0, y: 0 };
 
-    for (const entity of frame.entities) {
-      this.drawEntity(entity, scale, entity.id === localEntityId);
+    // Determine camera focus
+    if (predicted) {
+        camX = predicted.position.x;
+        camY = predicted.position.y;
+        playerVelocity = predicted.velocity;
+    } else if (localId) {
+        // Find local entity in frame
+        const localEntity = frame.entities.find(e => e.id === localId);
+        if (localEntity) {
+            camX = localEntity.position.x;
+            camY = localEntity.position.y;
+            playerVelocity = localEntity.velocity;
+        }
+    } else if (frame.focus) {
+        camX = frame.focus.x;
+        camY = frame.focus.y;
     }
 
+    // Center camera
+    this.ctx.translate(this.width / 2, this.height / 2);
+    this.ctx.translate(-camX, -camY);
+
+    // 3. World Rendering
+    this.drawGrid(camX, camY);
+
+    // Draw Entities
+    for (const entity of frame.entities) {
+        const isLocal = entity.id === localId;
+        
+        // If local and we have prediction, skip snapshot rendering for local
+        if (isLocal && predicted) continue;
+
+        this.drawShip(entity.position.x, entity.position.y, entity.rotation, false);
+    }
+
+    // Draw Local Player (Predicted)
     if (predicted) {
-      this.drawGhost(predicted, scale);
+        this.drawShip(predicted.position.x, predicted.position.y, predicted.rotation, true);
     }
 
     this.ctx.restore();
-    if (showOverlay) {
-      this.drawOverlay(frame, status);
+
+    // 4. HUD / UI Overlay (Comic Panels)
+    if (hudVisible) {
+        this.drawHUD(status, playerVelocity, faMode, frame);
     }
   }
 
-  private resize() {
-    const dpr = window.devicePixelRatio || 1;
-    this.canvas.width = Math.floor(this.canvas.clientWidth * dpr);
-    this.canvas.height = Math.floor(this.canvas.clientHeight * dpr);
-    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  private drawGrid(camX: number, camY: number) {
+    this.ctx.strokeStyle = this.STYLE.gridColor;
+    this.ctx.lineWidth = 2;
+    this.ctx.beginPath();
 
-    const w = this.canvas.clientWidth;
-    const h = this.canvas.clientHeight;
+    const startX = Math.floor(camX / this.GRID_SIZE) * this.GRID_SIZE;
+    const startY = Math.floor(camY / this.GRID_SIZE) * this.GRID_SIZE;
 
-    this.bgGradient = this.ctx.createLinearGradient(0, 0, w, h);
-    this.bgGradient.addColorStop(0, "#060914");
-    this.bgGradient.addColorStop(0.5, "#081024");
-    this.bgGradient.addColorStop(1, "#05070f");
+    // Draw a large enough area to cover the screen
+    const extra = 2;
+    const cols = Math.ceil(this.width / this.GRID_SIZE) + extra * 2;
+    const rows = Math.ceil(this.height / this.GRID_SIZE) + extra * 2;
 
-    this.vignetteGradient = this.ctx.createRadialGradient(
-      w / 2,
-      h / 2,
-      Math.min(w, h) * 0.1,
-      w / 2,
-      h / 2,
-      Math.min(w, h) * 0.6
-    );
-    this.vignetteGradient.addColorStop(0, "rgba(0,0,0,0)");
-    this.vignetteGradient.addColorStop(1, "rgba(0,0,0,0.35)");
-  }
-
-  private computeScale() {
-    const viewRadius = CLIENT_CONFIG.render.viewRadius;
-    const viewport = Math.min(this.canvas.width, this.canvas.height);
-    return viewport / (viewRadius * 2);
-  }
-
-  private drawBackground(focus: { x: number; y: number }, scale: number) {
-    const ctx = this.ctx;
-    ctx.save();
-    ctx.resetTransform();
-    ctx.globalCompositeOperation = "source-over";
-
-    const w = this.canvas.clientWidth;
-    const h = this.canvas.clientHeight;
-
-    ctx.fillStyle = this.bgGradient ?? "#05070f";
-    ctx.fillRect(0, 0, w, h);
-
-    // World-aligned grid to replace drifting stars
-    const gridSpacingWorld = 150; // meters between grid lines
-    const gridSpacingPx = gridSpacingWorld * scale;
-    if (gridSpacingPx > 6) {
-      const centerX = w / 2;
-      const centerY = h / 2;
-      const offsetX = (-focus.x * scale) % gridSpacingPx;
-      const offsetY = (-focus.y * scale) % gridSpacingPx;
-
-      ctx.strokeStyle = "rgba(120, 170, 255, 0.2)";
-      ctx.lineWidth = 1;
-
-      ctx.beginPath();
-      for (let x = centerX + offsetX; x < w; x += gridSpacingPx) {
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, h);
-      }
-      for (let x = centerX + offsetX; x > 0; x -= gridSpacingPx) {
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, h);
-      }
-      for (let y = centerY + offsetY; y < h; y += gridSpacingPx) {
-        ctx.moveTo(0, y);
-        ctx.lineTo(w, y);
-      }
-      for (let y = centerY + offsetY; y > 0; y -= gridSpacingPx) {
-        ctx.moveTo(0, y);
-        ctx.lineTo(w, y);
-      }
-      ctx.stroke();
-
-      // Crosshair at world origin for orientation
-      ctx.strokeStyle = "rgba(200, 235, 255, 0.35)";
-      ctx.lineWidth = 1.5;
-      const originX = centerX - focus.x * scale;
-      const originY = centerY - focus.y * scale;
-      ctx.beginPath();
-      ctx.moveTo(originX - 8, originY);
-      ctx.lineTo(originX + 8, originY);
-      ctx.moveTo(originX, originY - 8);
-      ctx.lineTo(originX, originY + 8);
-      ctx.stroke();
+    // Vertical lines
+    const leftEdge = startX - (Math.ceil(this.width / 2 / this.GRID_SIZE) + extra) * this.GRID_SIZE;
+    for (let i = 0; i < cols + 5; i++) {
+        const x = leftEdge + i * this.GRID_SIZE;
+        this.ctx.moveTo(x, camY - this.height); 
+        this.ctx.lineTo(x, camY + this.height);
     }
 
-    // Comic-style vignette
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = this.vignetteGradient ?? "rgba(0,0,0,0.25)";
-    ctx.fillRect(0, 0, w, h);
-    ctx.restore();
-  }
-
-  private drawEntity(entity: RenderEntity, scale: number, isLocal: boolean) {
-    const ctx = this.ctx;
-    const size = 14;
-    const speed = Math.hypot(entity.velocity.x, entity.velocity.y);
-    const heading = entity.rotation;
-
-    ctx.save();
-    ctx.translate(entity.position.x * scale, entity.position.y * scale);
-    ctx.rotate(heading);
-
-    // Thruster trail
-    ctx.strokeStyle = isLocal ? "rgba(255, 150, 80, 0.7)" : "rgba(143, 231, 255, 0.55)";
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    ctx.moveTo(-size * 1.4, 0);
-    ctx.quadraticCurveTo(-size * 1.8, size * 0.4, -size * 2.2, 0);
-    ctx.quadraticCurveTo(-size * 1.8, -size * 0.4, -size * 1.4, 0);
-    ctx.stroke();
-
-    // Hull
-    ctx.fillStyle = isLocal ? "#ffdf8a" : "#7ce8ff";
-    ctx.strokeStyle = isLocal ? "#ff9f46" : "#2cd4ff";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(size, 0);
-    ctx.lineTo(-size, size * 0.8);
-    ctx.lineTo(-size * 0.6, 0);
-    ctx.lineTo(-size, -size * 0.8);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Speed hash marks to accentuate motion
-    const hashCount = Math.min(3, Math.max(1, Math.floor(speed / 40)));
-    ctx.strokeStyle = "rgba(152, 205, 255, 0.6)";
-    ctx.lineWidth = 1.5;
-    for (let i = 0; i < hashCount; i += 1) {
-      ctx.beginPath();
-      const offset = -size - i * 6;
-      ctx.moveTo(offset, -4);
-      ctx.lineTo(offset - 6, 0);
-      ctx.lineTo(offset, 4);
-      ctx.stroke();
+    // Horizontal lines
+    const topEdge = startY - (Math.ceil(this.height / 2 / this.GRID_SIZE) + extra) * this.GRID_SIZE;
+    for (let i = 0; i < rows + 5; i++) {
+        const y = topEdge + i * this.GRID_SIZE;
+        this.ctx.moveTo(camX - this.width, y);
+        this.ctx.lineTo(camX + this.width, y);
     }
 
-    ctx.restore();
+    this.ctx.stroke();
   }
 
-  private drawGhost(state: EntityState, scale: number) {
-    const ctx = this.ctx;
-    ctx.save();
-    ctx.translate(state.position.x * scale, state.position.y * scale);
-    ctx.rotate(state.rotation);
-    ctx.strokeStyle = "rgba(255,255,255,0.35)";
-    ctx.setLineDash([6, 6]);
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(0, 0, 18, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.restore();
+  private drawShip(x: number, y: number, rotation: number, isHero: boolean) {
+    this.ctx.save();
+    this.ctx.translate(x, y);
+    this.ctx.rotate(rotation);
+
+    // Shadow / Outline
+    this.ctx.shadowColor = "rgba(0,0,0,0.5)";
+    this.ctx.shadowBlur = 10;
+    this.ctx.shadowOffsetX = 5;
+    this.ctx.shadowOffsetY = 5;
+
+    // Ship Shape
+    this.ctx.beginPath();
+    if (isHero) {
+        // Hero Ship Design (Arrowhead with wings)
+        this.ctx.moveTo(20, 0);
+        this.ctx.lineTo(-15, 15);
+        this.ctx.lineTo(-5, 0);
+        this.ctx.lineTo(-15, -15);
+    } else {
+        // Enemy Ship Design (Same size as hero)
+        this.ctx.moveTo(20, 0);
+        this.ctx.lineTo(-15, 15);
+        this.ctx.lineTo(-5, 0);
+        this.ctx.lineTo(-15, -15);
+    }
+    this.ctx.closePath();
+
+    // Fill & Stroke
+    this.ctx.fillStyle = isHero ? this.STYLE.heroFill : this.STYLE.enemyFill;
+    this.ctx.fill();
+    
+    this.ctx.shadowColor = "transparent"; // Reset shadow for stroke
+    this.ctx.lineWidth = isHero ? this.STYLE.heroStrokeWidth : this.STYLE.enemyStrokeWidth;
+    this.ctx.strokeStyle = isHero ? this.STYLE.heroStroke : this.STYLE.enemyStroke;
+    this.ctx.stroke();
+
+    // Internal Detail (Cockpit/Engine)
+    this.ctx.beginPath();
+    this.ctx.fillStyle = "#000000";
+    this.ctx.arc(-5, 0, 3, 0, Math.PI * 2);
+    this.ctx.fill();
+
+    this.ctx.restore();
   }
 
-  private drawOverlay(frame: WorldFrame, status: TransportStatus) {
-    const ctx = this.ctx;
-    ctx.save();
-    ctx.resetTransform();
+  private drawHUD(status: TransportStatus, velocity: {x: number, y: number}, faMode: "coupled" | "decoupled", frame: WorldFrame) {
+    const speed = Math.hypot(velocity.x, velocity.y);
+    
+    // 1. Speed Panel (Bottom Left)
+    this.drawPanel(20, this.height - 100, 200, 80);
+    this.ctx.fillStyle = "#000000";
+    this.ctx.font = this.STYLE.fontHeader;
+    this.ctx.fillText("SPEED", 35, this.height - 70);
+    this.ctx.font = this.STYLE.fontLarge;
+    this.ctx.fillText(`${speed.toFixed(0)} m/s`, 35, this.height - 30);
 
-    ctx.fillStyle = "rgba(6, 12, 22, 0.8)";
-    ctx.fillRect(16, 16, 260, 88);
-    ctx.strokeStyle = "rgba(117, 242, 255, 0.5)";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(16, 16, 260, 88);
+    // 2. Flight Assist Panel (Bottom Right)
+    const faText = faMode === "coupled" ? "FA: ON" : "FA: OFF";
+    const faColor = faMode === "coupled" ? "#000000" : "#cc0000"; // Red for OFF (Danger)
+    
+    this.drawPanel(this.width - 220, this.height - 100, 200, 80);
+    this.ctx.fillStyle = "#000000";
+    this.ctx.font = this.STYLE.fontHeader;
+    this.ctx.fillText("SYSTEM", this.width - 205, this.height - 70);
+    this.ctx.fillStyle = faColor;
+    this.ctx.font = this.STYLE.fontLarge;
+    this.ctx.fillText(faText, this.width - 205, this.height - 30);
 
-    ctx.fillStyle = "#c7f2ff";
-    ctx.font = "16px 'Space Grotesk', 'DM Sans', 'Inter', system-ui";
+    // 3. Status Panel (Top Left)
+    this.drawPanel(20, 20, 250, 60);
+    this.ctx.fillStyle = "#000000";
+    this.ctx.font = this.STYLE.fontMain;
+    const statusText = status.connected ? "ONLINE" : (status.connecting ? "CONNECTING..." : "OFFLINE");
+    this.ctx.fillText(`NET: ${statusText}`, 35, 55);
+    this.ctx.fillText(`TICK: ${frame.tick}`, 150, 55);
+    
+    // 4. Center Crosshair - REMOVED per user request
+  }
 
-    const statusLabel = status.connected ? "ONLINE" : status.connecting ? "LINKING..." : "OFFLINE";
-    const statusColor = status.connected ? "#6bf2b5" : status.connecting ? "#f6c343" : "#ff6b6b";
+  private drawPanel(x: number, y: number, w: number, h: number) {
+      this.ctx.save();
+      
+      // Drop Shadow
+      this.ctx.fillStyle = this.STYLE.uiShadow.split(" ")[3]; // Hacky color extraction or just hardcode
+      this.ctx.fillStyle = "rgba(0,0,0,1)";
+      this.ctx.fillRect(x + 5, y + 5, w, h);
 
-    ctx.fillText(`Status: ${statusLabel}`, 28, 42);
-    ctx.fillStyle = statusColor;
-    ctx.beginPath();
-    ctx.arc(20, 38, 6, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = "#c7f2ff";
-    ctx.font = "14px 'Space Grotesk', 'DM Sans', 'Inter', system-ui";
-    ctx.fillText(`Tick: ${frame.tick}`, 28, 66);
-    ctx.fillText(`Entities: ${frame.entities.length}`, 140, 66);
-    ctx.fillText(`Last snapshot: ${Math.round(performance.now() - frame.timestamp)} ms ago`, 28, 90);
-
-    ctx.restore();
+      // Main Box
+      this.ctx.fillStyle = this.STYLE.uiBg;
+      this.ctx.fillRect(x, y, w, h);
+      
+      // Border
+      this.ctx.strokeStyle = this.STYLE.uiBorder;
+      this.ctx.lineWidth = this.STYLE.uiBorderWidth;
+      this.ctx.strokeRect(x, y, w, h);
+      
+      this.ctx.restore();
   }
 }
