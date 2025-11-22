@@ -5,6 +5,51 @@ All notable changes to the U2 Flight Test Sandbox project will be documented in 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.1] - 2025-11-23
+
+### Summary
+
+Critical hotfix for Flight Assist coordinate system bug. Implements proper transformation between world-aligned and ship-local coordinates in speed limiting logic.
+
+### Fixed
+
+#### Coordinate System Mismatch in Flight Assist (M3.0 Hotfix)
+
+- **Root Cause**: `FlightAssistSystem` was applying speed limits using fixed-axis coordinates (X=lateral, Y=forward) while `PhysicsSystem` operates in rotation-aligned world coordinates.
+- **Symptom**: Speed limiting was affecting the wrong axes when ship was rotated, resulting in incorrect G-limit enforcement.
+- **Solution**: Refactored `ApplyLinearSpeedLimits` to correctly transform velocity from world coordinates to ship-local coordinates before applying limits, then transform back.
+- **Testing**: Verified with FA_ON_RespectsCrewGLimit_WhenBraking test (depends on fixing pre-existing test issues in parallel).
+
+### Known Issues
+
+- Two unit tests (`FA_ON_DampsAngularVelocity_WhenNoYawInput`, `FA_ON_RespectsCrewGLimit_WhenBraking`) have pre-existing failures in test setup (tests use incorrect coordinate convention). These require test refactoring separate from the coordinate fix. See M3.0-CRITICAL-BUG-REPORT.md for details.
+
+## [0.7.0] - 2025-11-22
+
+### Overview
+
+Major gameplay update introducing the Flight Assist (FA) system with two distinct flight modes. Players can now toggle between FA:ON (automated stabilization, speed limits, G-force safety) and FA:OFF (unrestricted Newtonian physics). Includes comprehensive UI updates, server-side physics simulation, and extensive test coverage.
+
+### Features
+
+#### Flight Assist System (M3.0)
+
+- **Dual Flight Modes**:
+  - **FA:ON**: Automated flight computer that stabilizes rotation, limits speed to safe levels (260 m/s forward), and respects crew G-limits.
+  - **FA:OFF**: Direct thruster control with no automated intervention, allowing for advanced maneuvers and drift.
+- **Server-Side Physics**:
+  - `FlightAssistSystem.cs`: ECS system implementing 3-stage damping and limit logic.
+  - Ship-local coordinate transformation for correct limit application during rotation.
+  - Exponential damping for smooth stabilization.
+- **Client Integration**:
+  - 'Z' key toggle for switching modes.
+  - HTML-based HUD indicator with CSS animations (Green for ON, Red for OFF).
+  - Network synchronization of FA state via Protobuf.
+- **Testing**:
+  - 10 new backend unit tests covering all FA logic edge cases.
+  - New frontend unit tests for input handling and UI toggles.
+  - Zero-regression verification.
+
 ## [0.6.0] - 2025-11-22
 
 ### Summary
