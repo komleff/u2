@@ -7,6 +7,12 @@ export class SnapshotRenderer {
   private width = 0;
   private height = 0;
   private readonly GRID_SIZE = 250; // Larger grid for space feel
+  
+  // Track velocity for acceleration calculation
+  private lastVelocity = { x: 0, y: 0 };
+  private lastTime = Date.now();
+  private currentAcceleration = { x: 0, y: 0 };
+  private readonly SPEED_OF_LIGHT = 5000; // m/s (from physics config c')
 
   // Graphic Novel / Comic Style Configuration
   private readonly STYLE = {
@@ -205,6 +211,9 @@ export class SnapshotRenderer {
   private drawHUD(status: TransportStatus, velocity: {x: number, y: number}, faMode: "coupled" | "decoupled", frame: WorldFrame) {
     const speed = Math.hypot(velocity.x, velocity.y);
     
+    // Update acceleration calculation
+    this.updateAcceleration(velocity);
+    
     // === LEFT COLUMN: NETWORK & SERVER INFO ===
     
     // 1. Network Status Panel (Top-Left)
@@ -244,6 +253,40 @@ export class SnapshotRenderer {
     this.ctx.font = this.STYLE.fontSmall;
     this.ctx.fillText("COMBAT ZONE", 145, 155);
     
+    // 2b. Acceleration / G-Force Panel (Below Server Info)
+    const accelMagnitude = Math.hypot(this.currentAcceleration.x, this.currentAcceleration.y);
+    const gForce = accelMagnitude / 9.81; // Convert to Gs
+    const gColor = gForce < 3 ? this.STYLE.colorOnline : (gForce < 6 ? this.STYLE.colorWarning : this.STYLE.colorOffline);
+    
+    this.drawPanel(15, 185, 240, 90);
+    
+    this.ctx.fillStyle = this.STYLE.colorNeutral;
+    this.ctx.font = this.STYLE.fontTitle;
+    this.ctx.fillText("ACCELERATION", 32, 208);
+    
+    this.ctx.fillStyle = gColor;
+    this.ctx.font = this.STYLE.fontLarge;
+    this.ctx.fillText(`${gForce.toFixed(1)}`, 32, 238);
+    
+    this.ctx.fillStyle = this.STYLE.colorNeutral;
+    this.ctx.font = this.STYLE.fontValue;
+    this.ctx.fillText("G", 90, 238);
+    
+    this.ctx.font = this.STYLE.fontSmall;
+    this.ctx.fillText(`${accelMagnitude.toFixed(1)} m/s²`, 32, 258);
+    
+    // G-force warning indicator
+    if (gForce >= 6) {
+      this.ctx.fillStyle = this.STYLE.colorOffline;
+      this.ctx.fillText("⚠ HIGH G", 145, 238);
+    } else if (gForce >= 3) {
+      this.ctx.fillStyle = this.STYLE.colorWarning;
+      this.ctx.fillText("CAUTION", 145, 238);
+    } else {
+      this.ctx.fillStyle = this.STYLE.colorOnline;
+      this.ctx.fillText("NORMAL", 145, 238);
+    }
+    
     // === RIGHT COLUMN: FLIGHT SYSTEMS ===
     
     // 3. Flight Assist Panel (Top-Right)
@@ -266,28 +309,63 @@ export class SnapshotRenderer {
     this.ctx.font = this.STYLE.fontSmall;
     this.ctx.fillText(faMode === "coupled" ? "STABILIZED" : "MANUAL CTRL", this.width - 220, 80);
     
-    // 4. Position Panel (Below Flight Assist)
-    const posX = velocity.x !== 0 ? Math.round(velocity.x * 100) / 100 : 0; // Mock position based on velocity
-    const posY = velocity.y !== 0 ? Math.round(velocity.y * 100) / 100 : 0;
+    // 4. Heading / Compass Panel (Below Flight Assist)
+    const heading = this.calculateHeading(velocity);
     
     this.drawPanel(this.width - 255, 110, 240, 85);
     
     this.ctx.fillStyle = this.STYLE.colorNeutral;
     this.ctx.font = this.STYLE.fontTitle;
-    this.ctx.fillText("COORDINATES", this.width - 238, 133);
+    this.ctx.fillText("HEADING", this.width - 238, 133);
+    
+    this.ctx.font = this.STYLE.fontLarge;
+    this.ctx.fillStyle = this.STYLE.colorAccent;
+    this.ctx.fillText(`${heading.toFixed(0)}°`, this.width - 238, 163);
+    
+    this.ctx.fillStyle = this.STYLE.colorNeutral;
+    this.ctx.font = this.STYLE.fontSmall;
+    const cardinalDir = this.getCardinalDirection(heading);
+    this.ctx.fillText(cardinalDir, this.width - 238, 178);
+    
+    // Mini compass rose
+    this.drawMiniCompass(this.width - 115, 153, 20, heading);
+    
+    // 5. Relativity Panel (Below Heading)
+    // 5. Relativity Panel (Below Heading)
+    const gamma = this.calculateGamma(speed);
+    const percentC = (speed / this.SPEED_OF_LIGHT) * 100;
+    
+    this.drawPanel(this.width - 255, 205, 240, 90);
+    
+    this.ctx.fillStyle = this.STYLE.colorNeutral;
+    this.ctx.font = this.STYLE.fontTitle;
+    this.ctx.fillText("RELATIVITY", this.width - 238, 228);
     
     this.ctx.font = this.STYLE.fontValue;
-    this.ctx.fillText(`X: ${posX.toFixed(1)}`, this.width - 238, 155);
-    this.ctx.fillText(`Y: ${posY.toFixed(1)}`, this.width - 238, 175);
+    this.ctx.fillStyle = percentC > 50 ? this.STYLE.colorWarning : this.STYLE.colorAccent;
+    this.ctx.fillText(`${percentC.toFixed(1)}% c'`, this.width - 238, 250);
+    
+    this.ctx.fillStyle = this.STYLE.colorNeutral;
+    this.ctx.font = this.STYLE.fontSmall;
+    this.ctx.fillText(`γ = ${gamma.toFixed(3)}`, this.width - 238, 270);
+    
+    if (gamma > 1.05) {
+      this.ctx.fillStyle = this.STYLE.colorWarning;
+      this.ctx.fillText("TIME DILATION", this.width - 120, 270);
+    }
     
     // === BOTTOM ROW: VELOCITY & ANGULAR ===
     
-    // 5. Linear Velocity Panel (Bottom-Left)
+    // 5b. Linear Velocity Panel (Bottom-Left) - Enhanced with Speed Limit
     this.drawPanel(15, this.height - 110, 240, 95);
     
     this.ctx.fillStyle = this.STYLE.colorNeutral;
     this.ctx.font = this.STYLE.fontTitle;
     this.ctx.fillText("LINEAR SPEED", 32, this.height - 87);
+    
+    // Speed limit indicator for FA:ON
+    const speedLimit = faMode === "coupled" ? 500 : this.SPEED_OF_LIGHT; // 500 m/s limit for FA:ON
+    const speedPercent = faMode === "coupled" ? (speed / speedLimit) * 100 : 0;
     
     this.ctx.fillStyle = this.STYLE.colorAccent;
     this.ctx.font = this.STYLE.fontLarge;
@@ -300,6 +378,13 @@ export class SnapshotRenderer {
     this.ctx.font = this.STYLE.fontSmall;
     this.ctx.fillText(`Vx: ${velocity.x.toFixed(1)}`, 130, this.height - 70);
     this.ctx.fillText(`Vy: ${velocity.y.toFixed(1)}`, 130, this.height - 50);
+    
+    // FA:ON speed limit bar
+    if (faMode === "coupled") {
+      this.ctx.fillText(`LIMIT: ${speedLimit}`, 130, this.height - 30);
+      // Draw speed limit progress bar
+      this.drawSpeedLimitBar(150, this.height - 87, 80, 8, speedPercent);
+    }
     
     // 6. Angular Velocity Panel (Bottom-Right)
     const angularVel = this.estimateAngularVelocity(velocity); // Mock angular velocity
@@ -399,5 +484,113 @@ export class SnapshotRenderer {
       this.ctx.strokeRect(x + 2, y + 2, w - 4, h - 4);
       
       this.ctx.restore();
+  }
+  
+  /**
+   * Update acceleration calculation based on velocity changes
+   */
+  private updateAcceleration(velocity: {x: number, y: number}) {
+    const now = Date.now();
+    const dt = (now - this.lastTime) / 1000; // Convert to seconds
+    
+    if (dt > 0 && dt < 1) { // Sanity check for reasonable time deltas
+      this.currentAcceleration = {
+        x: (velocity.x - this.lastVelocity.x) / dt,
+        y: (velocity.y - this.lastVelocity.y) / dt
+      };
+    }
+    
+    this.lastVelocity = { x: velocity.x, y: velocity.y };
+    this.lastTime = now;
+  }
+  
+  /**
+   * Calculate gamma (Lorentz factor) for relativity display
+   */
+  private calculateGamma(speed: number): number {
+    const beta = speed / this.SPEED_OF_LIGHT;
+    if (beta >= 0.999) return 22.37; // Cap at 0.999c'
+    return 1 / Math.sqrt(1 - beta * beta);
+  }
+  
+  /**
+   * Calculate heading angle from velocity vector
+   */
+  private calculateHeading(velocity: {x: number, y: number}): number {
+    const angle = Math.atan2(velocity.y, velocity.x) * (180 / Math.PI);
+    return (angle + 360) % 360; // Normalize to 0-360
+  }
+  
+  /**
+   * Get cardinal direction from heading
+   */
+  private getCardinalDirection(heading: number): string {
+    const directions = ['E', 'NE', 'N', 'NW', 'W', 'SW', 'S', 'SE'];
+    const index = Math.round(heading / 45) % 8;
+    return directions[index];
+  }
+  
+  /**
+   * Draw mini compass rose
+   */
+  private drawMiniCompass(x: number, y: number, radius: number, heading: number) {
+    this.ctx.save();
+    this.ctx.translate(x, y);
+    
+    // Compass circle
+    this.ctx.strokeStyle = this.STYLE.uiBorder;
+    this.ctx.lineWidth = 2;
+    this.ctx.beginPath();
+    this.ctx.arc(0, 0, radius, 0, Math.PI * 2);
+    this.ctx.stroke();
+    
+    // North marker
+    this.ctx.rotate(-heading * Math.PI / 180);
+    this.ctx.fillStyle = this.STYLE.colorOffline;
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, -radius);
+    this.ctx.lineTo(-3, -radius + 6);
+    this.ctx.lineTo(3, -radius + 6);
+    this.ctx.closePath();
+    this.ctx.fill();
+    
+    // Direction pointer (current heading)
+    this.ctx.rotate(heading * Math.PI / 180);
+    this.ctx.fillStyle = this.STYLE.colorAccent;
+    this.ctx.beginPath();
+    this.ctx.moveTo(radius - 5, 0);
+    this.ctx.lineTo(radius - 10, -3);
+    this.ctx.lineTo(radius - 10, 3);
+    this.ctx.closePath();
+    this.ctx.fill();
+    
+    this.ctx.restore();
+  }
+  
+  /**
+   * Draw speed limit progress bar for FA:ON mode
+   */
+  private drawSpeedLimitBar(x: number, y: number, width: number, height: number, percent: number) {
+    this.ctx.save();
+    
+    // Background
+    this.ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+    this.ctx.fillRect(x, y, width, height);
+    
+    // Border
+    this.ctx.strokeStyle = this.STYLE.uiBorder;
+    this.ctx.lineWidth = 1;
+    this.ctx.strokeRect(x, y, width, height);
+    
+    // Fill based on percentage
+    const fillWidth = (width - 2) * Math.min(percent / 100, 1);
+    const fillColor = percent < 70 ? this.STYLE.colorOnline : 
+                     percent < 90 ? this.STYLE.colorWarning : 
+                     this.STYLE.colorOffline;
+    
+    this.ctx.fillStyle = fillColor;
+    this.ctx.fillRect(x + 1, y + 1, fillWidth, height - 2);
+    
+    this.ctx.restore();
   }
 }
