@@ -171,6 +171,7 @@ const runIntegration = process.env.U2_RUN_INTEGRATION === '1' || process.env.U2_
       strafeX: 0.0,
       strafeY: 0.0,
       yawInput: 0.2,
+      brake: false,
       flightAssist: true
     });
 
@@ -208,12 +209,13 @@ const runIntegration = process.env.U2_RUN_INTEGRATION === '1' || process.env.U2_
     // Try to send 100 inputs immediately
     for (let i = 0; i < 100; i++) {
       const seq = client!.sendInput({
-        thrust: 0.5,
-        strafeX: 0.0,
-        strafeY: 0.0,
-        yawInput: 0.0,
-        flightAssist: true
-      });
+      thrust: 0.5,
+      strafeX: 0.0,
+      strafeY: 0.0,
+      yawInput: 0.0,
+      brake: false,
+      flightAssist: true
+    });
       sequenceNumbers.push({ seq, time: performance.now() - startTime });
     }
 

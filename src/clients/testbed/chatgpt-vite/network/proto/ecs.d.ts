@@ -435,6 +435,9 @@ export namespace u2 {
 
                 /** ControlStateProto yawInput */
                 yawInput?: (number|null);
+
+                /** ControlStateProto brake */
+                brake?: (boolean|null);
             }
 
             /** Represents a ControlStateProto. */
@@ -457,6 +460,9 @@ export namespace u2 {
 
                 /** ControlStateProto yawInput. */
                 public yawInput: number;
+
+                /** ControlStateProto brake. */
+                public brake: boolean;
 
                 /**
                  * Creates a new ControlStateProto instance using the specified properties.

@@ -293,6 +293,39 @@ public class FlightAssistSystemTests
         Assert.That(speedAfter, Is.LessThanOrEqualTo(maxSpeed * 1.05f));
     }
 
+    [Test]
+    public void Brake_Mode_StopsShip_WithinThrusterLimits()
+    {
+        // Arrange - drifting ship with rotation
+        var config = SharedPhysics.ToShipConfig();
+        var reverseAccel = MathF.Abs(config.Physics.LinearAcceleration_mps2.Reverse);
+        var gLimitAccel = config.FlightAssistLimits.CrewGLimit.Linear_g * 9.81f;
+        var maxDecel = MathF.Min(reverseAccel, gLimitAccel);
+
+        var ship = CreateTestShip(Vector2.Zero, new Vector2(120.0f, 60.0f));
+        ship.ReplaceVelocity(new Vector2(120.0f, 60.0f), 1.0f);
+        ship.ReplaceFlightAssist(true);
+        ship.controlState.Brake = true;
+
+        // Act - hold brake for several seconds
+        var maxSpeedChangePerFrame = 0.0f;
+        for (int i = 0; i < 240; i++) // 4 seconds at 60 Hz
+        {
+            var speedBefore = ship.velocity.Linear.Magnitude;
+            _faSystem.Execute();
+            _physicsSystem.Execute();
+            var speedAfter = ship.velocity.Linear.Magnitude;
+            maxSpeedChangePerFrame = MathF.Max(maxSpeedChangePerFrame, speedBefore - speedAfter);
+        }
+
+        // Assert - Ship should be nearly stopped and decel should respect thruster/g limits
+        Assert.That(ship.velocity.Linear.Magnitude, Is.LessThan(0.5f));
+        Assert.That(MathF.Abs(ship.velocity.Angular), Is.LessThan(0.05f));
+
+        var allowedDelta = maxDecel * DeltaTime * 1.1f; // 10% tolerance
+        Assert.That(maxSpeedChangePerFrame, Is.LessThanOrEqualTo(allowedDelta));
+    }
+
     // Helper method to create a test ship
     private GameEntity CreateTestShip(Vector2 position, Vector2 velocity)
     {

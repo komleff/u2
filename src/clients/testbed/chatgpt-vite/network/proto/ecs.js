@@ -970,6 +970,7 @@ export const u2 = $root.u2 = (() => {
                  * @property {number|null} [strafeX] ControlStateProto strafeX
                  * @property {number|null} [strafeY] ControlStateProto strafeY
                  * @property {number|null} [yawInput] ControlStateProto yawInput
+                 * @property {boolean|null} [brake] ControlStateProto brake
                  */
 
                 /**
@@ -1020,6 +1021,14 @@ export const u2 = $root.u2 = (() => {
                 ControlStateProto.prototype.yawInput = 0;
 
                 /**
+                 * ControlStateProto brake.
+                 * @member {boolean} brake
+                 * @memberof u2.shared.proto.ControlStateProto
+                 * @instance
+                 */
+                ControlStateProto.prototype.brake = false;
+
+                /**
                  * Creates a new ControlStateProto instance using the specified properties.
                  * @function create
                  * @memberof u2.shared.proto.ControlStateProto
@@ -1051,6 +1060,8 @@ export const u2 = $root.u2 = (() => {
                         writer.uint32(/* id 3, wireType 5 =*/29).float(message.strafeY);
                     if (message.yawInput != null && Object.hasOwnProperty.call(message, "yawInput"))
                         writer.uint32(/* id 4, wireType 5 =*/37).float(message.yawInput);
+                    if (message.brake != null && Object.hasOwnProperty.call(message, "brake"))
+                        writer.uint32(/* id 5, wireType 0 =*/40).bool(message.brake);
                     return writer;
                 };
 
@@ -1103,6 +1114,10 @@ export const u2 = $root.u2 = (() => {
                                 message.yawInput = reader.float();
                                 break;
                             }
+                        case 5: {
+                                message.brake = reader.bool();
+                                break;
+                            }
                         default:
                             reader.skipType(tag & 7);
                             break;
@@ -1150,6 +1165,9 @@ export const u2 = $root.u2 = (() => {
                     if (message.yawInput != null && message.hasOwnProperty("yawInput"))
                         if (typeof message.yawInput !== "number")
                             return "yawInput: number expected";
+                    if (message.brake != null && message.hasOwnProperty("brake"))
+                        if (typeof message.brake !== "boolean")
+                            return "brake: boolean expected";
                     return null;
                 };
 
@@ -1173,6 +1191,8 @@ export const u2 = $root.u2 = (() => {
                         message.strafeY = Number(object.strafeY);
                     if (object.yawInput != null)
                         message.yawInput = Number(object.yawInput);
+                    if (object.brake != null)
+                        message.brake = Boolean(object.brake);
                     return message;
                 };
 
@@ -1194,6 +1214,7 @@ export const u2 = $root.u2 = (() => {
                         object.strafeX = 0;
                         object.strafeY = 0;
                         object.yawInput = 0;
+                        object.brake = false;
                     }
                     if (message.thrust != null && message.hasOwnProperty("thrust"))
                         object.thrust = options.json && !isFinite(message.thrust) ? String(message.thrust) : message.thrust;
@@ -1203,6 +1224,8 @@ export const u2 = $root.u2 = (() => {
                         object.strafeY = options.json && !isFinite(message.strafeY) ? String(message.strafeY) : message.strafeY;
                     if (message.yawInput != null && message.hasOwnProperty("yawInput"))
                         object.yawInput = options.json && !isFinite(message.yawInput) ? String(message.yawInput) : message.yawInput;
+                    if (message.brake != null && message.hasOwnProperty("brake"))
+                        object.brake = message.brake;
                     return object;
                 };
 

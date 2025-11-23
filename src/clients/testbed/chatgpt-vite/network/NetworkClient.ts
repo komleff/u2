@@ -44,7 +44,7 @@ export interface PlayerInput {
   strafeX: number;
   strafeY: number;
   yawInput: number;
-  brake: boolean;
+  brake?: boolean;
   flightAssist: boolean;
 }
 
@@ -216,7 +216,7 @@ export class NetworkClient {
         strafeX: input.strafeX,
         strafeY: input.strafeY,
         yawInput: input.yawInput,
-        brake: input.brake
+        brake: input.brake ?? false
       },
       flightAssist: input.flightAssist
     };

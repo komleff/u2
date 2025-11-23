@@ -21,6 +21,7 @@ describe('PredictionEngine reconciliation thresholds', () => {
         strafeX: 0,
         strafeY: 0,
         yawInput: 0,
+        brake: false,
         flightAssist: true,
         sequenceNumber: 1,
         timestamp: Date.now()
@@ -44,6 +45,7 @@ describe('PredictionEngine reconciliation thresholds', () => {
         strafeX: 0,
         strafeY: 0,
         yawInput: 0,
+        brake: false,
         flightAssist: true,
         sequenceNumber: 1,
         timestamp: Date.now()
@@ -68,6 +70,7 @@ describe('PredictionEngine reconciliation thresholds', () => {
         strafeX: 0,
         strafeY: 0,
         yawInput: 1,
+        brake: false,
         flightAssist: true,
         sequenceNumber: 1,
         timestamp: Date.now()
@@ -81,6 +84,7 @@ describe('PredictionEngine reconciliation thresholds', () => {
         strafeX: 0,
         strafeY: 0,
         yawInput: 1,
+        brake: false,
         flightAssist: true,
         sequenceNumber: 2,
         timestamp: Date.now()

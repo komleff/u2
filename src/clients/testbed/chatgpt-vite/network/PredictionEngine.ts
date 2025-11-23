@@ -145,32 +145,61 @@ export class PredictionEngine {
    */
   private simulatePhysics(input: PlayerInput, deltaTime: number): void {
     const state = this.predictedState;
+    const brake = input.brake ?? false;
 
     // Calculate thrust force based on input direction
     let thrustForceX = 0;
     let thrustForceY = 0;
 
+    // Copy inputs so brake can override them
+    let thrustInput = input.thrust;
+    let strafeXInput = input.strafeX;
+    let yawInput = input.yawInput;
+
+    if (brake) {
+      const cosRot = Math.cos(state.rotation);
+      const sinRot = Math.sin(state.rotation);
+      const localVelX = state.velocity.x * cosRot + state.velocity.y * sinRot;
+      const localVelY = -state.velocity.x * sinRot + state.velocity.y * cosRot;
+
+      thrustInput =
+        localVelX > 0
+          ? -Math.min(1, Math.abs(localVelX) / (this.physics.reverseAccel * deltaTime))
+          : Math.min(1, Math.abs(localVelX) / (this.physics.forwardAccel * deltaTime));
+
+      strafeXInput =
+        localVelY > 0
+          ? -Math.min(1, Math.abs(localVelY) / (this.physics.strafeAccel * deltaTime))
+          : Math.min(1, Math.abs(localVelY) / (this.physics.strafeAccel * deltaTime));
+
+      yawInput =
+        state.angularVelocity !== 0
+          ? -Math.sign(state.angularVelocity) *
+            Math.min(1, Math.abs(state.angularVelocity) / (this.physics.yawAccel * deltaTime))
+          : 0;
+    }
+
     // Forward/reverse thrust
-    if (input.thrust > 0) {
+    if (thrustInput > 0) {
       const angle = state.rotation;
-      const accel = this.physics.forwardAccel * input.thrust;
+      const accel = this.physics.forwardAccel * thrustInput;
       thrustForceX += Math.cos(angle) * accel;
       thrustForceY += Math.sin(angle) * accel;
-    } else if (input.thrust < 0) {
+    } else if (thrustInput < 0) {
       const angle = state.rotation;
-      const accel = this.physics.reverseAccel * Math.abs(input.thrust);
+      const accel = this.physics.reverseAccel * Math.abs(thrustInput);
       thrustForceX -= Math.cos(angle) * accel;
       thrustForceY -= Math.sin(angle) * accel;
     }
 
     // Strafe (lateral thrust perpendicular to heading)
-    if (input.strafeX !== 0 || input.strafeY !== 0) {
+    if (strafeXInput !== 0 || input.strafeY !== 0) {
       const angle = state.rotation;
       const perpAngle = angle + Math.PI / 2;
 
       // X strafe (right/left)
-      if (input.strafeX !== 0) {
-        const accel = this.physics.strafeAccel * input.strafeX;
+      if (strafeXInput !== 0) {
+        const accel = this.physics.strafeAccel * strafeXInput;
         thrustForceX += Math.cos(perpAngle) * accel;
         thrustForceY += Math.sin(perpAngle) * accel;
       }
@@ -193,7 +222,7 @@ export class PredictionEngine {
     state.velocity.y += accelY * deltaTime;
 
     // Flight Assist: velocity damping and speed limiting
-    if (input.flightAssist) {
+    if (input.flightAssist || brake) {
       // Transform velocity to ship-local space
       const cosRot = Math.cos(state.rotation);
       const sinRot = Math.sin(state.rotation);
@@ -235,7 +264,7 @@ export class PredictionEngine {
       }
 
       // Apply damping if no thrust input (Braking)
-      if (input.thrust === 0 && input.strafeX === 0 && input.strafeY === 0) {
+      if (thrustInput === 0 && strafeXInput === 0 && input.strafeY === 0) {
          // Active Braking: Apply thrusters to stop (limited by G-force)
          
          // 1. Longitudinal Braking
@@ -293,7 +322,7 @@ export class PredictionEngine {
     state.position.y += state.velocity.y * deltaTime;
 
     // Angular motion
-    const angularAccel = this.physics.yawAccel * input.yawInput;
+    const angularAccel = this.physics.yawAccel * yawInput;
     state.angularVelocity += angularAccel * deltaTime;
 
     // Flight Assist: angular velocity limiting and damping
@@ -305,7 +334,7 @@ export class PredictionEngine {
       );
 
       // 2. Damping when no input
-      if (input.yawInput === 0) {
+      if (yawInput === 0) {
         // Damping rate proportional to angular acceleration (fast response)
         const dampingRate = 2.0 * this.physics.yawAccel;
         const dampingFactor = Math.exp(-dampingRate * deltaTime);

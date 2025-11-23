@@ -405,6 +405,7 @@ const runIntegration = process.env.U2_RUN_INTEGRATION === '1' || process.env.U2_
         strafeX: 0,
         strafeY: 0,
         yawInput: 0,
+        brake: false,
         flightAssist: true
       };
 
@@ -508,6 +509,7 @@ const runIntegration = process.env.U2_RUN_INTEGRATION === '1' || process.env.U2_
         strafeX: 0,
         strafeY: 0,
         yawInput: 0,
+        brake: false,
         flightAssist: true
       };
       const sequence = client.sendInput(input);
@@ -568,6 +570,7 @@ const runIntegration = process.env.U2_RUN_INTEGRATION === '1' || process.env.U2_
         strafeX: (Math.random() - 0.5) * 2,
         strafeY: (Math.random() - 0.5) * 2,
         yawInput: (Math.random() - 0.5) * 2,
+        brake: false,
         flightAssist: true
       });
       inputsSent++;
