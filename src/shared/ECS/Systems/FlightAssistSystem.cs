@@ -198,7 +198,7 @@ public class FlightAssistSystem : IExecuteSystem
         // Enforce max yaw rate
         if (MathF.Abs(angularVelocity) > maxYawRate + epsilon)
         {
-            return -ComputeYawCorrection(MathF.Abs(angularVelocity) - maxYawRate, angularVelocity, angularAccel);
+            return ComputeYawCorrection(MathF.Abs(angularVelocity) - maxYawRate, angularVelocity, angularAccel);
         }
 
         // No user yaw -> auto-damp

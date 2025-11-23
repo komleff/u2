@@ -75,12 +75,16 @@ export class SnapshotRenderer {
     let camX = 0;
     let camY = 0;
     let playerVelocity = { x: 0, y: 0 };
+    let playerHeading = 0;
+    let playerAngularVelocity = 0;
 
     // Determine camera focus
     if (predicted) {
         camX = predicted.position.x;
         camY = predicted.position.y;
         playerVelocity = predicted.velocity;
+        playerAngularVelocity = predicted.angularVelocity;
+        playerHeading = predicted.rotation;
     } else if (localId) {
         // Find local entity in frame
         const localEntity = frame.entities.find(e => e.id === localId);
@@ -88,6 +92,8 @@ export class SnapshotRenderer {
             camX = localEntity.position.x;
             camY = localEntity.position.y;
             playerVelocity = localEntity.velocity;
+            playerAngularVelocity = (localEntity as any).angularVelocity ?? 0;
+            playerHeading = (localEntity as any).rotation ?? 0;
         }
     } else if (frame.focus) {
         camX = frame.focus.x;
@@ -120,7 +126,7 @@ export class SnapshotRenderer {
 
     // 4. HUD / UI Overlay (Comic Panels)
     if (hudVisible) {
-        this.drawHUD(status, playerVelocity, faMode, frame);
+        this.drawHUD(status, playerVelocity, playerAngularVelocity, playerHeading, faMode, frame);
     }
   }
 
@@ -202,7 +208,7 @@ export class SnapshotRenderer {
     this.ctx.restore();
   }
 
-  private drawHUD(status: TransportStatus, velocity: {x: number, y: number}, faMode: "coupled" | "decoupled", frame: WorldFrame) {
+  private drawHUD(status: TransportStatus, velocity: {x: number, y: number}, angularVelocity: number, headingRad: number, faMode: "coupled" | "decoupled", frame: WorldFrame) {
     const speed = Math.hypot(velocity.x, velocity.y);
     
     // === LEFT COLUMN: NETWORK & SERVER INFO ===
@@ -269,6 +275,7 @@ export class SnapshotRenderer {
     // 4. Position Panel (Below Flight Assist)
     const posX = velocity.x !== 0 ? Math.round(velocity.x * 100) / 100 : 0; // Mock position based on velocity
     const posY = velocity.y !== 0 ? Math.round(velocity.y * 100) / 100 : 0;
+    const headingDeg = ((headingRad * 180) / Math.PI + 360) % 360;
     
     this.drawPanel(this.width - 255, 110, 240, 85);
     
@@ -279,6 +286,7 @@ export class SnapshotRenderer {
     this.ctx.font = this.STYLE.fontValue;
     this.ctx.fillText(`X: ${posX.toFixed(1)}`, this.width - 238, 155);
     this.ctx.fillText(`Y: ${posY.toFixed(1)}`, this.width - 238, 175);
+    this.ctx.fillText(`HDG: ${headingDeg.toFixed(1)}°`, this.width - 238, 195);
     
     // === BOTTOM ROW: VELOCITY & ANGULAR ===
     
@@ -302,7 +310,8 @@ export class SnapshotRenderer {
     this.ctx.fillText(`Vy: ${velocity.y.toFixed(1)}`, 130, this.height - 50);
     
     // 6. Angular Velocity Panel (Bottom-Right)
-    const angularVel = this.estimateAngularVelocity(velocity); // Mock angular velocity
+    const angularVel = angularVelocity; // rad/s
+    const angularDeg = angularVel * (180 / Math.PI);
     
     this.drawPanel(this.width - 255, this.height - 110, 240, 95);
     
@@ -312,7 +321,7 @@ export class SnapshotRenderer {
     
     this.ctx.fillStyle = this.STYLE.colorAccent;
     this.ctx.font = this.STYLE.fontLarge;
-    this.ctx.fillText(`${Math.abs(angularVel).toFixed(1)}`, this.width - 238, this.height - 58);
+    this.ctx.fillText(`${Math.abs(angularDeg).toFixed(1)}`, this.width - 238, this.height - 58);
     
     this.ctx.fillStyle = this.STYLE.colorNeutral;
     this.ctx.font = this.STYLE.fontValue;
@@ -333,16 +342,6 @@ export class SnapshotRenderer {
     return Math.floor(Math.random() * 30) + 20; // 20-50ms mock
   }
   
-  /**
-   * Estimate angular velocity from linear velocity changes
-   */
-  private estimateAngularVelocity(velocity: {x: number, y: number}): number {
-    // Mock angular velocity based on lateral movement
-    // В реальности нужно получать из EntityState
-    const lateral = velocity.x;
-    return lateral * 0.5; // Mock conversion
-  }
-
   /**
    * Draw a colored status indicator circle (●) with glow
    * Green (#00aa00) = Connected/OK
