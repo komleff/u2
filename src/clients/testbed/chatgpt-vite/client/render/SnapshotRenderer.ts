@@ -14,6 +14,10 @@ export class SnapshotRenderer {
   private readonly FPS_SAMPLE_SIZE = 60; // Average over 60 frames
   private currentFPS = 60;
 
+  // M4: Acceleration tracking (need previous velocity)
+  private prevVelocity = { x: 0, y: 0 };
+  private prevVelocityTime = performance.now();
+
   // Graphic Novel / Comic Style Configuration
   private readonly STYLE = {
     bgColor: "#121212", // Dark ink background
@@ -235,14 +239,23 @@ export class SnapshotRenderer {
   ) {
     const speed = Math.hypot(velocity.x, velocity.y);
     
-    // M4: Calculate acceleration and heading from predicted state
-    const acceleration = predicted ? Math.hypot(
-      (predicted.velocity.x - velocity.x) / (1/60), // Approximate from velocity change
-      (predicted.velocity.y - velocity.y) / (1/60)
-    ) : 0;
+    // M4: Calculate acceleration from velocity change over time
+    const now = performance.now();
+    const dt = (now - this.prevVelocityTime) / 1000; // Convert to seconds
+    const dvx = velocity.x - this.prevVelocity.x;
+    const dvy = velocity.y - this.prevVelocity.y;
+    const acceleration = dt > 0 ? Math.hypot(dvx / dt, dvy / dt) : 0;
     const accelerationG = acceleration / 9.81;
+    
+    // Update for next frame
+    this.prevVelocity = { x: velocity.x, y: velocity.y };
+    this.prevVelocityTime = now;
+    
+    // M4: Get heading and angular velocity from predicted state
     const heading = predicted ? predicted.rotation : 0;
-    const headingDeg = heading * (180 / Math.PI);
+    let headingDeg = heading * (180 / Math.PI);
+    // Normalize to 0-360° range
+    headingDeg = ((headingDeg % 360) + 360) % 360;
     const angularVelocity = predicted ? predicted.angularVelocity : 0;
     const angularVelocityDps = angularVelocity * (180 / Math.PI);
     
@@ -324,8 +337,8 @@ export class SnapshotRenderer {
     this.ctx.fillText(faMode === "coupled" ? "STABILIZED" : "MANUAL CTRL", this.width - 220, 80);
     
     // 5. Position Panel (Below Flight Assist)
-    const posX = velocity.x !== 0 ? Math.round(velocity.x * 100) / 100 : 0; // Mock position based on velocity
-    const posY = velocity.y !== 0 ? Math.round(velocity.y * 100) / 100 : 0;
+    const posX = predicted ? predicted.position.x : 0;
+    const posY = predicted ? predicted.position.y : 0;
     
     this.drawPanel(this.width - 255, 110, 240, 85);
     
@@ -336,6 +349,10 @@ export class SnapshotRenderer {
     this.ctx.font = this.STYLE.fontValue;
     this.ctx.fillText(`X: ${posX.toFixed(1)}`, this.width - 238, 155);
     this.ctx.fillText(`Y: ${posY.toFixed(1)}`, this.width - 238, 175);
+    
+    // M4: Show heading in coordinates panel as well (0-360°)
+    this.ctx.font = this.STYLE.fontSmall;
+    this.ctx.fillText(`HDG: ${Math.round(headingDeg)}°`, this.width - 115, 155);
     
     // === BOTTOM ROW: VELOCITY & ANGULAR ===
     

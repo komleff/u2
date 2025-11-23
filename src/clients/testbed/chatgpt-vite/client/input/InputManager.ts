@@ -118,7 +118,7 @@ export class InputManager {
 
     // Toggle actions are edge-triggered
     if (
-      ["mode-toggle", "autopilot-toggle", "hud-toggle", "online-toggle", "rnd-impulse"].includes(
+      ["mode-toggle", "autopilot-toggle", "hud-toggle", "debug-toggle", "online-toggle", "rnd-impulse"].includes(
         action
       )
     ) {

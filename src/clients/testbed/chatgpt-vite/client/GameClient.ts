@@ -27,7 +27,7 @@ export class GameClient {
   private readonly options: GameClientOptions;
 
   private hudVisible = true;
-  private debugVisible = false; // M4: Debug overlay (FPS, RTT, etc.)
+  private debugVisible = true; // M4: Debug overlay (FPS, RTT, etc.) - Default ON for testing
   private predictedState: EntityState | null = null;
   private status: TransportStatus;
   private online = false;
