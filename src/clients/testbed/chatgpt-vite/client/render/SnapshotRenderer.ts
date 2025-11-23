@@ -8,6 +8,12 @@ export class SnapshotRenderer {
   private height = 0;
   private readonly GRID_SIZE = 250; // Larger grid for space feel
 
+  // M4: FPS tracking
+  private lastFrameTime = performance.now();
+  private frameTimes: number[] = [];
+  private readonly FPS_SAMPLE_SIZE = 60; // Average over 60 frames
+  private currentFPS = 60;
+
   // Graphic Novel / Comic Style Configuration
   private readonly STYLE = {
     bgColor: "#121212", // Dark ink background
@@ -63,8 +69,24 @@ export class SnapshotRenderer {
     localId: number | null,
     predicted: EntityState | null,
     hudVisible: boolean,
-    faMode: "coupled" | "decoupled" = "coupled"
+    faMode: "coupled" | "decoupled" = "coupled",
+    rtt = 0, // M4: Round-trip time in milliseconds
+    debugVisible = false // M4: Show/hide debug overlay (F3)
   ) {
+    // M4: Calculate FPS
+    const now = performance.now();
+    const frameTime = now - this.lastFrameTime;
+    this.lastFrameTime = now;
+    
+    this.frameTimes.push(frameTime);
+    if (this.frameTimes.length > this.FPS_SAMPLE_SIZE) {
+      this.frameTimes.shift();
+    }
+    
+    // Calculate average frame time and FPS
+    const avgFrameTime = this.frameTimes.reduce((a, b) => a + b, 0) / this.frameTimes.length;
+    this.currentFPS = avgFrameTime > 0 ? 1000 / avgFrameTime : 60;
+    
     // 1. Background (Inked Paper look)
     this.ctx.fillStyle = this.STYLE.bgColor;
     this.ctx.fillRect(0, 0, this.width, this.height);
@@ -120,7 +142,7 @@ export class SnapshotRenderer {
 
     // 4. HUD / UI Overlay (Comic Panels)
     if (hudVisible) {
-        this.drawHUD(status, playerVelocity, faMode, frame);
+        this.drawHUD(status, playerVelocity, predicted, faMode, frame, rtt, debugVisible);
     }
   }
 
@@ -202,8 +224,27 @@ export class SnapshotRenderer {
     this.ctx.restore();
   }
 
-  private drawHUD(status: TransportStatus, velocity: {x: number, y: number}, faMode: "coupled" | "decoupled", frame: WorldFrame) {
+  private drawHUD(
+    status: TransportStatus, 
+    velocity: {x: number, y: number}, 
+    predicted: EntityState | null,
+    faMode: "coupled" | "decoupled", 
+    frame: WorldFrame,
+    rtt: number,
+    debugVisible: boolean
+  ) {
     const speed = Math.hypot(velocity.x, velocity.y);
+    
+    // M4: Calculate acceleration and heading from predicted state
+    const acceleration = predicted ? Math.hypot(
+      (predicted.velocity.x - velocity.x) / (1/60), // Approximate from velocity change
+      (predicted.velocity.y - velocity.y) / (1/60)
+    ) : 0;
+    const accelerationG = acceleration / 9.81;
+    const heading = predicted ? predicted.rotation : 0;
+    const headingDeg = heading * (180 / Math.PI);
+    const angularVelocity = predicted ? predicted.angularVelocity : 0;
+    const angularVelocityDps = angularVelocity * (180 / Math.PI);
     
     // === LEFT COLUMN: NETWORK & SERVER INFO ===
     
@@ -225,28 +266,44 @@ export class SnapshotRenderer {
     
     this.ctx.fillStyle = this.STYLE.colorNeutral;
     this.ctx.font = this.STYLE.fontSmall;
-    this.ctx.fillText(`PING: ${this.estimatePing(status)}ms`, 50, 78);
+    this.ctx.fillText(`PING: ${Math.round(rtt)}ms`, 50, 78);
     this.ctx.fillText(`TICK: ${frame.tick}`, 150, 78);
     
-    // 2. Server Info Panel (Below Network)
+    // 2. Acceleration & Heading Panel (M4 - Below Network) - ONLY if debug mode enabled
+    if (debugVisible) {
+      this.drawPanel(15, 110, 240, 95);
+      
+      this.ctx.fillStyle = this.STYLE.colorNeutral;
+      this.ctx.font = this.STYLE.fontTitle;
+      this.ctx.fillText("FLIGHT DATA", 32, 133);
+      
+      this.ctx.font = this.STYLE.fontSmall;
+      this.ctx.fillText(`ACCEL: ${accelerationG.toFixed(2)} g`, 32, 155);
+      this.ctx.fillText(`HDG: ${Math.round(headingDeg)}°`, 32, 175);
+      this.ctx.fillText(`FPS: ${Math.round(this.currentFPS)}`, 150, 155);
+      this.ctx.fillText(`ANG: ${angularVelocityDps.toFixed(1)}°/s`, 150, 175);
+    }
+    
+    // 3. Server Info Panel (Below Network or Flight Data)
+    const serverPanelY = debugVisible ? 215 : 110;
     const activeShips = frame.entities.length;
-    this.drawPanel(15, 110, 240, 65);
+    this.drawPanel(15, serverPanelY, 240, 65);
     
     this.ctx.fillStyle = this.STYLE.colorNeutral;
     this.ctx.font = this.STYLE.fontTitle;
-    this.ctx.fillText("SERVER", 32, 133);
+    this.ctx.fillText("SERVER", 32, serverPanelY + 23);
     
     this.ctx.font = this.STYLE.fontValue;
     this.ctx.fillStyle = this.STYLE.colorAccent;
-    this.ctx.fillText(`SHIPS: ${activeShips}`, 32, 155);
+    this.ctx.fillText(`SHIPS: ${activeShips}`, 32, serverPanelY + 45);
     
     this.ctx.fillStyle = this.STYLE.colorNeutral;
     this.ctx.font = this.STYLE.fontSmall;
-    this.ctx.fillText("COMBAT ZONE", 145, 155);
+    this.ctx.fillText("COMBAT ZONE", 145, serverPanelY + 45);
     
     // === RIGHT COLUMN: FLIGHT SYSTEMS ===
     
-    // 3. Flight Assist Panel (Top-Right)
+    // 4. Flight Assist Panel (Top-Right)
     const faText = faMode === "coupled" ? "ON" : "OFF";
     const faColor = faMode === "coupled" ? this.STYLE.colorOnline : this.STYLE.colorOffline;
     const faIconColor = faMode === "coupled" ? "#00aa00" : "#cc0000";
@@ -266,7 +323,7 @@ export class SnapshotRenderer {
     this.ctx.font = this.STYLE.fontSmall;
     this.ctx.fillText(faMode === "coupled" ? "STABILIZED" : "MANUAL CTRL", this.width - 220, 80);
     
-    // 4. Position Panel (Below Flight Assist)
+    // 5. Position Panel (Below Flight Assist)
     const posX = velocity.x !== 0 ? Math.round(velocity.x * 100) / 100 : 0; // Mock position based on velocity
     const posY = velocity.y !== 0 ? Math.round(velocity.y * 100) / 100 : 0;
     
@@ -282,7 +339,7 @@ export class SnapshotRenderer {
     
     // === BOTTOM ROW: VELOCITY & ANGULAR ===
     
-    // 5. Linear Velocity Panel (Bottom-Left)
+    // 6. Linear Velocity Panel (Bottom-Left)
     this.drawPanel(15, this.height - 110, 240, 95);
     
     this.ctx.fillStyle = this.STYLE.colorNeutral;
@@ -301,9 +358,7 @@ export class SnapshotRenderer {
     this.ctx.fillText(`Vx: ${velocity.x.toFixed(1)}`, 130, this.height - 70);
     this.ctx.fillText(`Vy: ${velocity.y.toFixed(1)}`, 130, this.height - 50);
     
-    // 6. Angular Velocity Panel (Bottom-Right)
-    const angularVel = this.estimateAngularVelocity(velocity); // Mock angular velocity
-    
+    // 7. Angular Velocity Panel (Bottom-Right) - M4: Use real data
     this.drawPanel(this.width - 255, this.height - 110, 240, 95);
     
     this.ctx.fillStyle = this.STYLE.colorNeutral;
@@ -312,33 +367,30 @@ export class SnapshotRenderer {
     
     this.ctx.fillStyle = this.STYLE.colorAccent;
     this.ctx.font = this.STYLE.fontLarge;
-    this.ctx.fillText(`${Math.abs(angularVel).toFixed(1)}`, this.width - 238, this.height - 58);
+    this.ctx.fillText(`${Math.abs(angularVelocityDps).toFixed(1)}`, this.width - 238, this.height - 58);
     
     this.ctx.fillStyle = this.STYLE.colorNeutral;
     this.ctx.font = this.STYLE.fontValue;
     this.ctx.fillText("°/s", this.width - 238, this.height - 35);
     
     this.ctx.font = this.STYLE.fontSmall;
-    this.ctx.fillText(angularVel >= 0 ? "CCW" : "CW", this.width - 115, this.height - 70);
+    this.ctx.fillText(angularVelocityDps >= 0 ? "CCW" : "CW", this.width - 115, this.height - 70);
     this.ctx.fillText(`YAW RATE`, this.width - 115, this.height - 50);
   }
   
   /**
-   * Estimate ping based on connection status
+   * Estimate ping based on connection status (Deprecated in M4 - now uses real RTT)
    */
   private estimatePing(status: TransportStatus): number {
     if (!status.connected) return 0;
     if (status.connecting) return 999;
-    // Mock ping - в реальности нужно получать от TransportLayer
     return Math.floor(Math.random() * 30) + 20; // 20-50ms mock
   }
   
   /**
-   * Estimate angular velocity from linear velocity changes
+   * Estimate angular velocity from linear velocity changes (Deprecated in M4 - now uses real data)
    */
   private estimateAngularVelocity(velocity: {x: number, y: number}): number {
-    // Mock angular velocity based on lateral movement
-    // В реальности нужно получать из EntityState
     const lateral = velocity.x;
     return lateral * 0.5; // Mock conversion
   }

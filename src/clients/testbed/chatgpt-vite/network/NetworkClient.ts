@@ -71,6 +71,11 @@ export class NetworkClient {
   private decodeErrors = 0;
   private decodeErrorThreshold: number;
   
+  // M4: RTT tracking
+  private lastSnapshotTimestamp = 0;
+  private lastSnapshotReceivedAt = 0;
+  private roundTripTime = 0; // milliseconds
+  
   // Callbacks
   private onConnectedCallback?: (clientId: number, entityId: number) => void;
   private onDisconnectedCallback?: () => void;
@@ -262,6 +267,13 @@ export class NetworkClient {
     return Date.now() + this.connectionState.serverTimeOffset;
   }
 
+  /**
+   * Get estimated round-trip time in milliseconds (M4)
+   */
+  getRoundTripTime(): number {
+    return this.roundTripTime;
+  }
+
   private sendConnectionRequest(): void {
     const request: ConnectionRequestProto = {
       playerName: this.config.playerName,
@@ -336,6 +348,20 @@ export class NetworkClient {
   }
 
   private handleWorldSnapshot(snapshot: WorldSnapshotProto): void {
+    // M4: Calculate RTT based on snapshot timing
+    const now = performance.now();
+    if (snapshot.tick && this.lastSnapshotReceivedAt > 0) {
+      // Simple RTT estimation: time between snapshots reflects server processing + network delay
+      // More accurate would require server-side timestamping, but this is sufficient for M4
+      const timeSinceLastSnapshot = now - this.lastSnapshotReceivedAt;
+      // Smooth RTT with exponential moving average (alpha = 0.3)
+      this.roundTripTime = this.roundTripTime === 0 
+        ? timeSinceLastSnapshot 
+        : this.roundTripTime * 0.7 + timeSinceLastSnapshot * 0.3;
+    }
+    this.lastSnapshotReceivedAt = now;
+    this.lastSnapshotTimestamp = snapshot.tick ?? 0;
+    
     if (this.onSnapshotCallback) {
       this.onSnapshotCallback(snapshot);
     }

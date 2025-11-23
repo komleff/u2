@@ -9,6 +9,7 @@ export interface InputManagerOptions {
 export type InputToggles = {
   online?: boolean;
   hud?: boolean;
+  debug?: boolean; // M4: Debug overlay toggle (F3)
   mode?: boolean;
   autopilot?: boolean;
   impulse?: boolean;
@@ -145,6 +146,7 @@ export class InputManager {
 
     if (this.toggles.delete("online-toggle")) toggles.online = true;
     if (this.toggles.delete("hud-toggle")) toggles.hud = true;
+    if (this.toggles.delete("debug-toggle")) toggles.debug = true; // M4
     if (this.toggles.delete("mode-toggle")) toggles.mode = true;
     if (this.toggles.delete("autopilot-toggle")) toggles.autopilot = true;
     if (this.toggles.delete("rnd-impulse")) toggles.impulse = true;

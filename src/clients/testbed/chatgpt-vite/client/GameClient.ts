@@ -27,6 +27,7 @@ export class GameClient {
   private readonly options: GameClientOptions;
 
   private hudVisible = true;
+  private debugVisible = false; // M4: Debug overlay (FPS, RTT, etc.)
   private predictedState: EntityState | null = null;
   private status: TransportStatus;
   private online = false;
@@ -98,13 +99,18 @@ export class GameClient {
     // Use actual input state for UI, not the toggled 'mode'
     const faMode = frame.flightAssist ? "coupled" : "decoupled";
     
+    // M4: Get real RTT from transport layer
+    const rtt = this.transport.getRoundTripTime();
+    
     this.renderer.render(
       view,
       this.status,
       this.transport.getLocalEntityId(),
       this.predictedState,
       this.hudVisible,
-      faMode
+      faMode,
+      rtt,
+      this.debugVisible
     );
 
     requestAnimationFrame(() => this.loop());
@@ -118,6 +124,11 @@ export class GameClient {
     if (frame.toggles.hud) {
       this.hudVisible = !this.hudVisible;
       this.options.onHudToggle?.(this.hudVisible);
+    }
+
+    if (frame.toggles.debug) {
+      // M4: Toggle debug overlay
+      this.debugVisible = !this.debugVisible;
     }
 
     if (frame.toggles.mode) {

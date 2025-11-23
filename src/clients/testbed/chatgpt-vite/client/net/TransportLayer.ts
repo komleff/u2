@@ -98,6 +98,13 @@ export class TransportLayer {
     return this.manager?.getPredictedState() ?? null;
   }
 
+  /**
+   * Get estimated round-trip time in milliseconds (M4)
+   */
+  getRoundTripTime(): number {
+    return this.manager?.getRoundTripTime() ?? 0;
+  }
+
   private tryConnect() {
     this.clearReconnect();
     this.disposeManager();

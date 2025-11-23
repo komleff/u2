@@ -162,6 +162,13 @@ export class NetworkManager {
     return this.prediction?.getState() ?? null;
   }
 
+  /**
+   * Get estimated round-trip time in milliseconds (M4)
+   */
+  getRoundTripTime(): number {
+    return this.client.getRoundTripTime();
+  }
+
   private pushPredictedState(next: EntityState): void {
     const smoothed = this.smoothState(next);
     if (this.onStateUpdateCallback) {
