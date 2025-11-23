@@ -85,23 +85,25 @@ public sealed class GameEntity : Entity
     public bool hasControlState => HasComponent(GameComponentsLookup.ControlState);
     public ControlStateComponent controlState => (ControlStateComponent)GetComponent(GameComponentsLookup.ControlState);
     
-    public void AddControlState(float thrust, float strafe_x, float strafe_y, float yaw_input)
+    public void AddControlState(float thrust, float strafe_x, float strafe_y, float yaw_input, bool brake)
     {
         var component = CreateComponent<ControlStateComponent>(GameComponentsLookup.ControlState);
         component.Thrust = thrust;
         component.Strafe_X = strafe_x;
         component.Strafe_Y = strafe_y;
         component.Yaw_Input = yaw_input;
+        component.Brake = brake;
         AddComponent(GameComponentsLookup.ControlState, component);
     }
     
-    public void ReplaceControlState(float thrust, float strafe_x, float strafe_y, float yaw_input)
+    public void ReplaceControlState(float thrust, float strafe_x, float strafe_y, float yaw_input, bool brake)
     {
         var component = (ControlStateComponent)GetComponent(GameComponentsLookup.ControlState);
         component.Thrust = thrust;
         component.Strafe_X = strafe_x;
         component.Strafe_Y = strafe_y;
         component.Yaw_Input = yaw_input;
+        component.Brake = brake;
         ReplaceComponent(GameComponentsLookup.ControlState, component);
     }
 

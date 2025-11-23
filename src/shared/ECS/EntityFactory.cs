@@ -37,7 +37,7 @@ public static class EntityFactory
         entity.AddShipConfig(config);
 
         // Control state
-        entity.AddControlState(0f, 0f, 0f, 0f);
+        entity.AddControlState(0f, 0f, 0f, 0f, false);
 
         // Flight assist (default ON)
         entity.AddFlightAssist(true);
@@ -85,9 +85,9 @@ public static class EntityFactory
         entity.AddComponent(3, new MassComponent { Mass_kg = mass_kg, Inertia_kgm2 = inertia_kgm2 });
     }
 
-    private static void AddControlState(this GameEntity entity, float thrust, float strafe_x, float strafe_y, float yaw)
+    private static void AddControlState(this GameEntity entity, float thrust, float strafe_x, float strafe_y, float yaw, bool brake)
     {
-        entity.AddComponent(4, new ControlStateComponent { Thrust = thrust, Strafe_X = strafe_x, Strafe_Y = strafe_y, Yaw_Input = yaw });
+        entity.AddComponent(4, new ControlStateComponent { Thrust = thrust, Strafe_X = strafe_x, Strafe_Y = strafe_y, Yaw_Input = yaw, Brake = brake });
     }
 
     private static void AddFlightAssist(this GameEntity entity, bool enabled)

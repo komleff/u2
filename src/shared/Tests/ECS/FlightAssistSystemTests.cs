@@ -43,6 +43,7 @@ public class FlightAssistSystemTests
 
         // Act
         _faSystem.Execute();
+        _physicsSystem.Execute();
 
         // Assert - Speed should remain unchanged (FA:OFF doesn't limit)
         Assert.That(ship.velocity.Linear.Magnitude, Is.EqualTo(initialSpeed).Within(0.1f));
@@ -64,6 +65,7 @@ public class FlightAssistSystemTests
         for (int i = 0; i < 120; i++) // 2 seconds at 60 Hz
         {
             _faSystem.Execute();
+            _physicsSystem.Execute();
         }
 
         // Assert - Speed should be at or below limit
@@ -86,6 +88,7 @@ public class FlightAssistSystemTests
         for (int i = 0; i < 120; i++)
         {
             _faSystem.Execute();
+            _physicsSystem.Execute();
         }
 
         // Assert
@@ -108,6 +111,7 @@ public class FlightAssistSystemTests
         for (int i = 0; i < 60; i++) // 1 second
         {
             _faSystem.Execute();
+            _physicsSystem.Execute();
         }
 
         // Assert - Angular velocity should decrease significantly
@@ -128,6 +132,7 @@ public class FlightAssistSystemTests
 
         // Act
         _faSystem.Execute();
+        _physicsSystem.Execute();
 
         // Assert - Angular velocity should NOT be damped (player is controlling)
         Assert.That(ship.velocity.Angular, Is.EqualTo(initialAngularVel).Within(0.01f));
@@ -149,6 +154,7 @@ public class FlightAssistSystemTests
         for (int i = 0; i < 120; i++)
         {
             _faSystem.Execute();
+            _physicsSystem.Execute();
         }
 
         // Assert - Speed should decrease significantly
@@ -168,6 +174,7 @@ public class FlightAssistSystemTests
 
         // Act
         _faSystem.Execute();
+        _physicsSystem.Execute();
 
         // Assert - Velocity should NOT be damped (player is thrusting)
         // Speed will change due to acceleration, but shouldn't damp toward zero
@@ -189,6 +196,7 @@ public class FlightAssistSystemTests
         for (int i = 0; i < 120; i++)
         {
             _faSystem.Execute();
+            _physicsSystem.Execute();
         }
         var speedWithFA_ON = ship.velocity.Linear.Magnitude;
 
@@ -199,6 +207,7 @@ public class FlightAssistSystemTests
         for (int i = 0; i < 10; i++)
         {
             _faSystem.Execute();
+            _physicsSystem.Execute();
         }
         var speedWithFA_OFF = ship.velocity.Linear.Magnitude;
 
@@ -224,6 +233,7 @@ public class FlightAssistSystemTests
         {
             var speedBefore = ship.velocity.Linear.Magnitude;
             _faSystem.Execute();
+            _physicsSystem.Execute();
             var speedAfter = ship.velocity.Linear.Magnitude;
             var speedChange = speedBefore - speedAfter;
             
@@ -254,6 +264,7 @@ public class FlightAssistSystemTests
         for (int i = 0; i < 120; i++)
         {
             _faSystem.Execute();
+            _physicsSystem.Execute();
         }
 
         // Assert
@@ -292,7 +303,7 @@ public class FlightAssistSystemTests
         // Initialize control state
         if (!entity.hasControlState)
         {
-            entity.AddControlState(0.0f, 0.0f, 0.0f, 0.0f);
+            entity.AddControlState(0.0f, 0.0f, 0.0f, 0.0f, false);
         }
         
         return entity;

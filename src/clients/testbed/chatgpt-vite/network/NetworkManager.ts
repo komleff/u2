@@ -81,6 +81,7 @@ export class NetworkManager {
     strafeX: number,
     strafeY: number,
     yawInput: number,
+    brake: boolean,
     flightAssist: boolean
   ): void {
     if (!this.prediction) {
@@ -92,6 +93,7 @@ export class NetworkManager {
       strafeX,
       strafeY,
       yawInput,
+      brake,
       flightAssist
     };
 

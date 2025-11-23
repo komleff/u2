@@ -59,7 +59,8 @@ public static class EntitySerializer
             Thrust = comp.Thrust,
             StrafeX = comp.Strafe_X,
             StrafeY = comp.Strafe_Y,
-            YawInput = comp.Yaw_Input
+            YawInput = comp.Yaw_Input,
+            Brake = comp.Brake
         };
     }
 
@@ -170,14 +171,15 @@ public static class EntitySerializer
     {
         if (!entity.hasControlState)
         {
-            entity.AddControlState(0, 0, 0, 0);
+            entity.AddControlState(0, 0, 0, 0, false);
         }
 
         entity.ReplaceControlState(
             proto.Thrust,
             proto.StrafeX,
             proto.StrafeY,
-            proto.YawInput
+            proto.YawInput,
+            proto.Brake
         );
     }
 

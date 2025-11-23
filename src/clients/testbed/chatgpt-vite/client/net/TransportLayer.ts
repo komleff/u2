@@ -82,6 +82,7 @@ export class TransportLayer {
       frame.strafeX,
       frame.strafeY,
       frame.yaw,
+      frame.brake,
       frame.flightAssist
     );
   }

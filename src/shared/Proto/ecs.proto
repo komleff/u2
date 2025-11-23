@@ -32,6 +32,7 @@ message ControlStateProto {
   float strafe_x = 2;
   float strafe_y = 3;
   float yaw_input = 4;
+  bool brake = 5;
 }
 
 // Flight assist component

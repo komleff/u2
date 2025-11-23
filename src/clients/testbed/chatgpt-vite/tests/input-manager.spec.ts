@@ -39,6 +39,7 @@ describe("InputManager", () => {
     expect(frame.toggles.online).toBe(true);
     expect(frame.toggles.autopilot).toBe(true);
     expect(frame.flightAssist).toBe(true);
+    expect(frame.brake).toBe(false);
 
     manager.dispose();
   });

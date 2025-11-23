@@ -70,10 +70,10 @@ public class SerializationTests
     public void SerializeControlState_RoundTrip_PreservesData()
     {
         var entity = _context.CreateEntity();
-        entity.AddControlState(0.8f, -0.3f, 0.2f, 0.1f);
+        entity.AddControlState(0.8f, -0.3f, 0.2f, 0.1f, false);
 
         var proto = EntitySerializer.ToProto(entity.controlState);
-        entity.ReplaceControlState(proto.Thrust, proto.StrafeX, proto.StrafeY, proto.YawInput);
+        entity.ReplaceControlState(proto.Thrust, proto.StrafeX, proto.StrafeY, proto.YawInput, proto.Brake);
 
         Assert.That(entity.controlState.Thrust, Is.EqualTo(0.8f).Within(0.001f));
         Assert.That(entity.controlState.Strafe_X, Is.EqualTo(-0.3f).Within(0.001f));
@@ -158,7 +158,7 @@ public class SerializationTests
     public void ApplyControlState_UpdatesEntityControls()
     {
         var entity = _context.CreateEntity();
-        entity.AddControlState(0f, 0f, 0f, 0f);
+        entity.AddControlState(0f, 0f, 0f, 0f, false);
 
         var proto = new U2.Shared.Proto.ControlStateProto
         {

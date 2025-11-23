@@ -13,4 +13,5 @@ public sealed class ControlStateComponent : IComponent
     public float Strafe_X;    // -1..1 (left/right)
     public float Strafe_Y;    // -1..1 (down/up, for 3D)
     public float Yaw_Input;   // -1..1 (turn left/right)
+    public bool Brake;        // true while brake (SPACE) is held
 }

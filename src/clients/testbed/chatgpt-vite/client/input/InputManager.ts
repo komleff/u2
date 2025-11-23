@@ -19,6 +19,7 @@ export type CommandFrame = {
   strafeX: number;
   strafeY: number;
   yaw: number;
+  brake: boolean;
   flightAssist: boolean;
   timestamp: number;
   toggles: InputToggles;
@@ -96,11 +97,14 @@ export class InputManager {
 
     const yawInput = yawFromKeys + this.consumeYaw();
 
+    const brake = this.pressed.has("brake");
+
     return {
       thrust,
       strafeX,
       strafeY,
       yaw: yawInput,
+      brake,
       flightAssist: this.flightAssist,
       timestamp: performance.now(),
       toggles
