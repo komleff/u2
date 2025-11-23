@@ -277,7 +277,7 @@ export class SnapshotRenderer {
     const posY = velocity.y !== 0 ? Math.round(velocity.y * 100) / 100 : 0;
     const headingDeg = ((headingRad * 180) / Math.PI + 360) % 360;
     
-    this.drawPanel(this.width - 255, 110, 240, 85);
+    this.drawPanel(this.width - 255, 110, 240, 110);
     
     this.ctx.fillStyle = this.STYLE.colorNeutral;
     this.ctx.font = this.STYLE.fontTitle;
